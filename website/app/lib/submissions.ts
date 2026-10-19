@@ -1,5 +1,6 @@
 import { loadClerk } from '../../public/login/runtime.js';
 import { onLiveSite } from './settings.ts';
+import { randomId } from './random-id.ts';
 export type Association = {
   kind: 'person' | 'source';
   id: string;
@@ -56,7 +57,7 @@ export type Draft = {
   locked: boolean;
 };
 export const newDraft = (): Draft => ({
-  id: crypto.randomUUID(),
+  id: randomId(),
   title: '',
   text: '',
   link: '',

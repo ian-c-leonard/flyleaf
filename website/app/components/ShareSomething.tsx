@@ -12,6 +12,7 @@ import {
 } from '@phosphor-icons/react';
 import { lifespan, type AtlasData } from '../lib/gedcom';
 import { sha256 } from '../lib/previews';
+import { randomId } from '../lib/random-id';
 import {
   newDraft,
   readDraft,
@@ -253,7 +254,7 @@ export default function ShareSomething({
         )
           throw Error('Please send up to 150 MB in one submission.');
         next.push({
-          id: crypto.randomUUID(),
+          id: randomId(),
           name: file.name,
           bytes: file.size,
           sha256: digest,

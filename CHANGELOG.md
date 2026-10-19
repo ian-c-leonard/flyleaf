@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- The website runs over plain HTTP as well as HTTPS. It no longer needs a
+  browser feature that works only over HTTPS.
+
 ## 0.1.0 (18 October 2026)
 
 The first public release.
