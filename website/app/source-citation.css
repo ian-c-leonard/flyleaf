@@ -1,0 +1,47 @@
+.source-citation-presentation {
+  overflow-wrap: anywhere;
+}
+.source-citation-entry p {
+  margin-block: 0 16px;
+  font: 18px/1.6 var(--serif);
+}
+.source-citation-entry .source-citation-title {
+  font: 16px/1.5 var(--sans);
+  color: var(--muted);
+}
+.source-citation-entry + .source-citation-entry {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.source-citation-entry .source-citation-qualification {
+  font: 16px/1.5 var(--sans);
+}
+.source-research-detail {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.source-research-detail summary {
+  cursor: pointer;
+  font: 16px/1.5 var(--sans);
+  color: var(--wine);
+  padding-block: 8px;
+}
+.source-research-detail summary:hover {
+  color: var(--ink);
+}
+.source-research-detail summary:active {
+  background: var(--line);
+}
+.source-research-detail summary:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 3px;
+}
+
+.book-note-modal .book-note-heading {
+  margin: 0 0 24px;
+  font: 28px/1.2 var(--serif);
+  color: var(--ink);
+  letter-spacing: normal;
+  text-transform: none;
+}

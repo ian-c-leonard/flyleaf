@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "description": "Census sources left out of the bibliography on purpose. Every census citation still prints in the footnotes and in Sources for the Register. The sample has three census sources, all fictional.",
+  "census_sources": [
+    {"source_id": "@SRC_US1880@"},
+    {"source_id": "@SRC_US1930@"},
+    {"source_id": "@SRC_US1940@"}
+  ]
+}

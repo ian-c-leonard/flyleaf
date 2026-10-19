@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "sourceRevision": "ca96624a56bd078437bca8184e78163e5039ad19",
+  "source": "https://www.naturalearthdata.com/",
+  "terms": "https://www.naturalearthdata.com/about/terms-of-use/",
+  "license": "Public domain",
+  "files": [
+    {
+      "file": "sources/ne_50m_admin_0_countries.geojson",
+      "layer": "country",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_50m_admin_0_countries.geojson",
+      "bytes": 3083490,
+      "sha256": "3e458fc036ad0a66411f2c1e6cac49c5d7bfb81cb1123bc513b22511a2b7fdeb"
+    },
+    {
+      "file": "sources/ne_50m_admin_1_states_provinces_lines.geojson",
+      "layer": "boundary",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_50m_admin_1_states_provinces_lines.geojson",
+      "bytes": 882513,
+      "sha256": "72cca93c850d412628a5da4bc5ebfe21ba4d376eb34611bde6b623ee73f0fdcf"
+    },
+    {
+      "file": "sources/ne_50m_lakes.geojson",
+      "layer": "lake",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_50m_lakes.geojson",
+      "bytes": 876018,
+      "sha256": "d350b75978b26fe839b797c2c529b2fb8f47fb3983c03f4964e36d5df9378a52"
+    }
+  ],
+  "map": {
+    "sha256": "6db47c4f9bc30b383fc80166cb34e65b58fb2c9a848fe7aa9f20b89e03c01ccd",
+    "bytes": 3207031,
+    "features": 1235
+  }
+}

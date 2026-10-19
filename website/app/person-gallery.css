@@ -1,0 +1,60 @@
+.kin-person-gallery > h3 {
+  margin-bottom: 16px;
+}
+
+.kin-gallery-captioned {
+  margin-top: 24px;
+}
+
+.kin-gallery-captioned > h4 {
+  font: 24px/1.2 var(--serif);
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.kin-gallery-captioned > p,
+.kin-gallery-context > p {
+  color: var(--muted);
+  font: 14px/1.5 var(--sans);
+  max-width: 65ch;
+  margin: 0 0 16px;
+}
+
+.kin-gallery-more > summary,
+.kin-gallery-context > summary {
+  color: var(--wine);
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  font: 16px/1.25 var(--sans);
+  text-underline-offset: 4px;
+}
+
+.kin-gallery-more > summary:hover,
+.kin-gallery-context > summary:hover {
+  text-decoration: underline;
+}
+
+.kin-gallery-more > summary:focus-visible,
+.kin-gallery-context > summary:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 4px;
+}
+
+.kin-gallery-more > summary:active,
+.kin-gallery-context > summary:active {
+  color: var(--ink);
+}
+
+.kin-gallery-more > .kin-photo-grid {
+  margin-top: 8px;
+}
+
+.kin-gallery-context {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.kin-gallery-context[open] > summary {
+  margin-bottom: 8px;
+}

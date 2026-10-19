@@ -1,0 +1,20 @@
+// "Built with Flyleaf" in the site footer, with the Flyleaf mark. A family
+// can leave it out with site.credit: false in flyleaf.json.
+export default function FlyleafCredit() {
+  return (
+    <span className="kin-footer-credit">
+      Built with
+      <a href="https://flyleaf.family">
+        <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <rect width="64" height="64" rx="14" fill="#233c35" />
+          <path
+            transform="translate(11 11) scale(0.1640625)"
+            fill="#fbf9f4"
+            d="M198.1,62.59a76,76,0,0,0-140.2,0A71.71,71.71,0,0,0,16,127.8C15.9,166,48,199,86.14,200A72.09,72.09,0,0,0,120,192.47V232a8,8,0,0,0,16,0V192.47A72.17,72.17,0,0,0,168,200l1.82,0C208,199,240.11,166,240,127.8A71.71,71.71,0,0,0,198.1,62.59ZM169.45,184a56.08,56.08,0,0,1-33.45-10v-41l43.58-21.78a8,8,0,1,0-7.16-14.32L136,115.06V88a8,8,0,0,0-16,0v51.06L83.58,120.84a8,8,0,1,0-7.16,14.32L120,156.94v17a56,56,0,0,1-33.45,10C56.9,183.23,31.92,157.52,32,127.84A55.77,55.77,0,0,1,67.11,76a8,8,0,0,0,4.53-4.67,60,60,0,0,1,112.72,0A8,8,0,0,0,188.89,76,55.79,55.79,0,0,1,224,127.84C224.08,157.52,199.1,183.23,169.45,184Z"
+          />
+        </svg>
+        Flyleaf
+      </a>
+    </span>
+  );
+}

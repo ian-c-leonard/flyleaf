@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flyleaf: a family's book and website</title>
+<meta name="description" content="Flyleaf turns a family tree and the stories you write into a printed family history and a family website. Free and open source.">
+<meta name="theme-color" content="#233c35">
+<link rel="icon" href="favicon.svg">
+<link rel="canonical" href="https://flyleaf.family/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Flyleaf">
+<meta property="og:title" content="Flyleaf: a family's book and website">
+<meta property="og:description" content="Turn a family tree and the stories you write into a printed family history and a family website. Free and open source.">
+<meta property="og:url" content="https://flyleaf.family/">
+<meta property="og:image" content="https://flyleaf.family/img/social-preview.jpg">
+<meta property="og:image:alt" content="Flyleaf: turn your family tree into a book and a website">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+@font-face { font-family: "EB Garamond"; src: url("fonts/eb-garamond-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Source Sans 3"; src: url("fonts/source-sans-3-latin-wght-normal.woff2") format("woff2"); font-weight: 200 900; font-display: swap; }
+:root {
+  --paper: #f6f3ec; --paper-deep: #ece7dc; --card: #fbf9f4;
+  --ink: #1f2a26; --muted: #5b655f; --line: #ddd6c6;
+  --green: #233c35; --green-soft: #e6ebe5; --ember: #a8481a;
+  --serif: "EB Garamond", Georgia, "Times New Roman", serif;
+  --sans: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 var(--sans); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--green); }
+.skip { position: absolute; left: 16px; top: -80px; z-index: 10; padding: 10px 16px; background: var(--green); color: var(--card); font-weight: 600; text-decoration: none; }
+.skip:focus { top: 12px; outline: 3px solid var(--ember); outline-offset: 2px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.12; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.6rem, 6vw, 4.4rem); letter-spacing: -0.01em; }
+h2 { font-size: clamp(2rem, 4vw, 2.9rem); }
+h3 { font-size: 1.45rem; }
+p { margin: 0; }
+.eyebrow { font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ember); font-weight: 600; }
+.lead { font-size: 1.2rem; color: var(--muted); max-width: 34em; }
+
+/* Header */
+header.top { border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+.brand svg { width: 40px; height: 40px; flex: none; }
+.brand span { font-family: var(--serif); font-size: 1.7rem; }
+nav.links { display: flex; gap: 22px; flex-wrap: wrap; font-size: 0.98rem; }
+nav.links a { text-decoration: none; color: var(--ink); }
+nav.links a:hover { color: var(--ember); }
+
+/* Hero */
+.hero { padding-block: 72px 56px; }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 56px; align-items: center; }
+.hero-text { display: grid; gap: 22px; }
+.actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.button { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; background: var(--green); color: var(--card); text-decoration: none; font-weight: 600; font-size: 1rem; }
+.button:hover { background: #1a2e28; }
+.button.quiet { background: transparent; color: var(--green); border: 1px solid var(--green); }
+.button.quiet:hover { background: var(--green-soft); }
+.small { font-size: 0.92rem; color: var(--muted); }
+.stage { position: relative; min-height: 440px; }
+.browser { position: absolute; right: 0; top: 0; width: 86%; background: var(--card); border: 1px solid var(--line); box-shadow: 0 24px 50px -28px rgba(31, 42, 38, 0.45); }
+.browser .bar { display: flex; gap: 6px; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+.browser .bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.pages { position: absolute; left: 0; bottom: 0; display: flex; }
+.pages img { width: 150px; aspect-ratio: 2 / 3; object-fit: cover; background: #fff; border: 1px solid var(--line); box-shadow: 0 18px 30px -20px rgba(31, 42, 38, 0.6); }
+.pages img + img { margin-left: -70px; }
+.pages img:nth-child(1) { transform: rotate(-6deg) translateY(10px); }
+.pages img:nth-child(2) { transform: rotate(-1deg); }
+.pages img:nth-child(3) { transform: rotate(5deg) translateY(8px); }
+
+/* Sections */
+section.band { padding-block: 72px; }
+section.band.alt { background: var(--green-soft); }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+.stack { display: grid; gap: 18px; }
+ul.points { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 14px; }
+ul.points li { padding-left: 22px; position: relative; }
+ul.points li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 9px; height: 9px; background: var(--ember); }
+.book-figure { display: flex; gap: 18px; justify-content: center; }
+.book-figure img { width: min(46%, 300px); border: 1px solid var(--line); background: #fff; box-shadow: 0 18px 34px -24px rgba(31, 42, 38, 0.55); }
+
+.gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 36px; }
+.gallery figure { margin: 0; display: grid; gap: 10px; }
+.gallery img { border: 1px solid var(--line); background: var(--card); aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+.gallery figcaption { font-size: 0.98rem; }
+.gallery figcaption strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.25rem; }
+
+.evidence { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 32px; }
+.evidence div { background: var(--card); border: 1px solid var(--line); padding: 22px; display: grid; gap: 8px; align-content: start; }
+.register { font-variant-numeric: tabular-nums; }
+
+pre { margin: 0; background: var(--green); color: #e9efe9; padding: 22px 24px; overflow-x: auto; font: 0.92rem/1.7 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre:focus-visible { outline: 3px solid var(--ember); outline-offset: 3px; }
+pre .c { color: #a9bdb1; }
+.steps { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 48px; align-items: start; }
+ol.how { margin: 0; padding-left: 1.3em; display: grid; gap: 12px; }
+
+.name { text-align: center; max-width: 40em; margin: 0 auto; display: grid; gap: 14px; justify-items: center; }
+.name p { font-family: var(--serif); font-size: 1.45rem; line-height: 1.45; }
+
+footer { border-top: 1px solid var(--line); padding-block: 32px; font-size: 0.92rem; color: var(--muted); }
+footer .wrap { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+
+@media (max-width: 860px) {
+  .hero .wrap, .split, .steps { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .stage { min-height: 0; display: grid; gap: 18px; }
+  .browser, .pages { position: static; width: 100%; }
+  .pages { justify-content: center; }
+  .pages img { width: 120px; }
+  .pages img + img { margin-left: -50px; }
+  .gallery, .evidence { grid-template-columns: minmax(0, 1fr); }
+  section.band, .hero { padding-block: 48px; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Flyleaf home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#233c35"/><g transform="translate(11 11) scale(0.1640625)" fill="#fbf9f4"><path d="M198.1,62.59a76,76,0,0,0-140.2,0A71.71,71.71,0,0,0,16,127.8C15.9,166,48,199,86.14,200A72.09,72.09,0,0,0,120,192.47V232a8,8,0,0,0,16,0V192.47A72.17,72.17,0,0,0,168,200l1.82,0C208,199,240.11,166,240,127.8A71.71,71.71,0,0,0,198.1,62.59ZM169.45,184a56.08,56.08,0,0,1-33.45-10v-41l43.58-21.78a8,8,0,1,0-7.16-14.32L136,115.06V88a8,8,0,0,0-16,0v51.06L83.58,120.84a8,8,0,1,0-7.16,14.32L120,156.94v17a56,56,0,0,1-33.45,10C56.9,183.23,31.92,157.52,32,127.84A55.77,55.77,0,0,1,67.11,76a8,8,0,0,0,4.53-4.67,60,60,0,0,1,112.72,0A8,8,0,0,0,188.89,76,55.79,55.79,0,0,1,224,127.84C224.08,157.52,199.1,183.23,169.45,184Z"/></g></svg>
+      <span>Flyleaf</span>
+    </a>
+    <nav class="links" aria-label="Main">
+      <a href="demo/">Demo</a>
+      <a href="sample-book.pdf">Sample book</a>
+      <a href="https://github.com/ian-c-leonard/flyleaf/blob/main/docs/README.md">Docs</a>
+      <a href="https://github.com/ian-c-leonard/flyleaf">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-text">
+        <span class="eyebrow">Free and open source · Early release</span>
+        <h1>Turn your family tree into a book and a website.</h1>
+        <p class="lead">Flyleaf reads the GEDCOM file your genealogy program exports. From it, Flyleaf builds a book&rsquo;s register, charts and index, and a website the whole family can explore. You write the stories, by hand or with an AI assistant. Flyleaf checks their citations and lists passages that look uncited.</p>
+        <div class="actions">
+          <a class="button" href="demo/">Explore the demo</a>
+          <a class="button quiet" href="sample-book.pdf">Read the sample book (PDF)</a>
+        </div>
+        <p class="small">The demo shows the Penhallows, a made-up family of five generations, from the Cornish tin mines to Wisconsin.</p>
+      </div>
+      <div class="stage">
+        <div class="browser" role="img" aria-label="The demo family's website home page">
+          <div class="bar"><i></i><i></i><i></i></div>
+          <img src="img/site-home.webp" alt="" width="1440" height="900">
+        </div>
+        <div class="pages">
+          <img src="img/book-title.webp" alt="The sample book's title page" width="640" height="960">
+          <img src="img/book-chart.webp" alt="A family chart from the sample book" width="640" height="960">
+          <img src="img/book-story.webp" alt="A story page with a family photograph" width="640" height="960">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="book">
+    <div class="wrap split">
+      <div class="stack">
+        <span class="eyebrow">The book</span>
+        <h2>A family history you can print and keep.</h2>
+        <p class="lead">The register, charts and index come from your tree. The stories, one for each ancestor, are yours to write. Flyleaf lays out both.</p>
+        <ul class="points">
+          <li>A chapter for each branch of the family, with family charts.</li>
+          <li>A register of every ancestor: dates, places, marriages and children.</li>
+          <li>Footnotes for each cited birth, baptism, christening, marriage, divorce, death, burial and cremation, with the other sources listed by person. A bibliography, an ancestor table and an index of names.</li>
+          <li>Ready for a printer: a 6 by 9 inch PDF with its fonts built in. With a fixed build date, the same time zone and the same Typst version, the same files make the same PDF.</li>
+        </ul>
+      </div>
+      <div class="book-figure">
+        <img src="img/book-story.webp" alt="A story page from the sample book, with a photograph and footnotes" width="640" height="960" loading="lazy">
+        <img src="img/book-register.webp" alt="A register page from the sample book, with dates and sources" width="640" height="960" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="site">
+    <div class="wrap">
+      <div class="stack">
+        <span class="eyebrow">The website</span>
+        <h2>A website the whole family can explore.</h2>
+        <p class="lead">The same book and records, made for browsing. Keep it private to invited relatives, or publish it for anyone.</p>
+      </div>
+      <div class="gallery">
+        <figure><img src="img/site-book.webp" alt="The family book on the website" width="1440" height="900" loading="lazy"><figcaption><strong>The book online</strong>Read it in the browser, or download the PDF.</figcaption></figure>
+        <figure><img src="img/site-tree.webp" alt="The family tree view" width="1440" height="900" loading="lazy"><figcaption><strong>The family tree</strong>Ancestors, descendants and cousins, each labelled by how they are related. On a private site, labels speak to the relative who signed in: &ldquo;your grandmother&rdquo;.</figcaption></figure>
+        <figure><img src="img/site-profile.webp" alt="A person's profile" width="1440" height="900" loading="lazy"><figcaption><strong>Profiles</strong>Each person's dates, photographs, records and place in the book.</figcaption></figure>
+        <figure><img src="img/site-places.webp" alt="Places on a map" width="1440" height="900" loading="lazy"><figcaption><strong>Places</strong>The towns where the family lived. Each place you give a map point appears on the map.</figcaption></figure>
+        <figure><img src="img/site-archive.webp" alt="The family archive" width="1440" height="900" loading="lazy"><figcaption><strong>The archive</strong>Letters, certificates, newspaper pages and recipes, with what each one shows.</figcaption></figure>
+        <figure><img src="img/site-treasures.webp" alt="The family treasures page" width="1440" height="900" loading="lazy"><figcaption><strong>Treasures</strong>Keepsakes such as a family recipe book or recorded music. On a private site, you can also let relatives send photographs, memories and corrections for you to review. Sending is off until you turn it on.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="evidence">
+    <div class="wrap">
+      <div class="stack">
+        <span class="eyebrow">Built on evidence</span>
+        <h2>Honest about what is known.</h2>
+        <p class="lead">Flyleaf is built for people who work to the Genealogical Proof Standard. It cannot judge your evidence for you. It runs these checks before it builds the book.</p>
+      </div>
+      <div class="evidence">
+        <div><h3>Sources under each fact</h3><p>Cite a record under the birth, marriage or death it supports, and the register prints it as a footnote on that fact. The build stops if a story cites a source the tree does not have.</p></div>
+        <div><h3>A confidence for each person</h3><p>Primary, linked from other trees, family memory, or not yet researched. The build stops if a person marked primary has only weaker sources.</p></div>
+        <div><h3>Stories that stay current</h3><p>When a person's record changes, <code>flyleaf coverage</code> lists the stories about them to reread. It also lists passages with no citation.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="start">
+    <div class="wrap steps">
+      <div class="stack">
+        <span class="eyebrow">How it works</span>
+        <h2>From a GEDCOM file to a book and a website.</h2>
+        <ol class="how">
+          <li>Export your tree as GEDCOM from any genealogy program.</li>
+          <li>Import it. Flyleaf gives each person an id and a starting confidence, and proposes the book&rsquo;s chapters. Then <code>flyleaf book</code> builds the register, charts and index, and <code>flyleaf site dev</code> shows a first website on your own computer.</li>
+          <li>Write a story for each ancestor, by hand or with an AI assistant. This is most of the work. The build stops on a citation to a source the tree does not have, and warns about passages that look uncited.</li>
+          <li>Add photographs, records and places as you go, and build again.</li>
+        </ol>
+        <p class="small">Flyleaf 0.1 is an early release. It grew out of one family&rsquo;s history and suits people at home on the command line, or working with an AI coding assistant. See <a href="https://github.com/ian-c-leonard/flyleaf/blob/main/docs/book.md">writing the book</a>. Flyleaf runs on macOS and Linux. You need git, make, Python, Node.js, Typst and Poppler; <code>flyleaf doctor</code> checks them. The <a href="https://github.com/ian-c-leonard/flyleaf/blob/main/docs/quick-start.md">quick start</a> walks through each step.</p>
+      </div>
+      <pre tabindex="0" aria-label="Commands to install Flyleaf and build a family's book and website"><span class="c"># Get Flyleaf</span>
+git clone https://github.com/ian-c-leonard/flyleaf.git
+cd flyleaf
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+(cd website &amp;&amp; npm ci)
+
+<span class="c"># Start a family and bring in your tree</span>
+./flyleaf new ../my-family --name "The Example family" \
+  --maintainer "Your Name" --email you@example.com
+./flyleaf import my-tree.ged --family ../my-family --root "Your Name"
+
+<span class="c"># Write the stories, then build</span>
+./flyleaf scaffold --family ../my-family
+./flyleaf book --family ../my-family
+./flyleaf site dev --family ../my-family</pre>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap name">
+      <span class="eyebrow">The name</span>
+      <p>A flyleaf is the blank page at the front of a book. In a family Bible, it is where people wrote down the births, marriages and deaths in the family.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Flyleaf is free software under the <a href="LICENSE">MIT license</a>. <a href="NOTICE">Credits</a> name the fonts, icons and other work it uses.</span>
+    <span>The Penhallow family is made up. Its photographs come from the Library of Congress, with no known restrictions on publication.</span>
+    <a href="https://github.com/ian-c-leonard/flyleaf">github.com/ian-c-leonard/flyleaf</a>
+  </div>
+</footer>
+
+</body>
+</html>

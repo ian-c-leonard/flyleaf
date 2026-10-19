@@ -1,0 +1,82 @@
+{
+  "flyleaf": 1,
+  "family": {
+    "name": "The Penhallow family"
+  },
+  "site": {
+    "id": "penhallow",
+    "domain": "flyleaf.family",
+    "origin": "https://flyleaf.family",
+    "tagline": "A sample family history, made with Flyleaf",
+    "theme_color": "#233c35",
+    "hosting": "static",
+    "publish_living_people": true
+  },
+  "maintainer": {
+    "name": "Carol Penhallow",
+    "first_name": "Carol",
+    "pronoun": "she",
+    "email": "carol@example.com"
+  },
+  "paths": {
+    "source_gedcom": "data/family.src.ged",
+    "generated_gedcom": "data/family.ged",
+    "book": "book",
+    "site_content": "site",
+    "email": "email"
+  },
+  "book": {
+    "research_sections": ["Methodology", "Open Questions"],
+    "research_tab": "Methodology",
+    "pdf_name": "penhallow-family.pdf",
+    "subjects_label": "Jory, Tamsin, and Nora",
+    "description": "The family history of Jory, Tamsin and Nora Penhallow, a made-up family. The chapters tell their ancestors’ stories. A reference section lists each ancestor with dates, family and sources.",
+    "typst": {
+      "version": "0.14.2"
+    }
+  },
+  "auth": {
+    "clerk_publishable_key": "",
+    "clerk_frontend_api": "",
+    "allowed_emails": [],
+    "admin_emails": [],
+    "viewer_people": {}
+  },
+  "cloudflare": {
+    "worker_name": "",
+    "account_id": "",
+    "archive_bucket": "",
+    "submissions_bucket": "",
+    "submissions_db": {
+      "name": "",
+      "id": ""
+    }
+  },
+  "email": {
+    "from": "carol@example.com",
+    "invitation_subject": "Our family history"
+  },
+  "deploy": {
+    "credentials_dir": "~/.config/flyleaf"
+  },
+  "features": {
+    "submissions": false
+  },
+  "places": {
+    "region_names": []
+  },
+  "research": {
+    "exempt_refns": []
+  },
+  "gedcom": {
+    "source_id": "flyleaf-sample",
+    "source_name": "The Penhallow sample tree (enriched by Flyleaf)"
+  },
+  "names": {
+    "married_surnames": true,
+    "short_forms": {}
+  },
+  "text_checks": {
+    "cited_authors": []
+  }
+}

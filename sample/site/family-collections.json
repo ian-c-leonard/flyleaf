@@ -1,0 +1,9 @@
+[
+  {
+    "id": "joans-kitchen",
+    "title": "Joan’s Kitchen",
+    "description": "The recipe booklet Joan Penhallow typed for her family at Christmas 1995: Edith’s pasties, saffron buns, heavy cake, and lefse and apple kuchen from the Solberg and Kessler side. A facsimile made for the sample.",
+    "source": "@WEB_JOAN_RECIPES@",
+    "people": ["joan-treloar", "tamsin-penhallow"]
+  }
+]

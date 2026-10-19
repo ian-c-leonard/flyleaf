@@ -1,0 +1,11 @@
+# Made by the build; rebuilt from the files you edit.
+build/
+data/family.ged
+.venv/
+# Personal details of the people you invite.
+email/invitees.local.json
+email/out/
+# Clutter and secrets that never belong in the family's history.
+.DS_Store
+*.env
+.env*

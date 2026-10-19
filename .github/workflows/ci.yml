@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Pages runs these tests first and publishes only when they pass.
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FLYLEAF_FAMILY: ${{ github.workspace }}/sample
+      # A fixed build date, so the sample builds the same on every run.
+      SOURCE_DATE_EPOCH: "1792204575"
+      TZ: America/Chicago
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      - name: Typst 0.14.2
+        run: |
+          curl -sSL -o typst.tar.xz https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz
+          echo "a6044cbad2a954deb921167e257e120ac0a16b20339ec01121194ff9d394996d  typst.tar.xz" | sha256sum --check --strict
+          tar -xf typst.tar.xz
+          mkdir -p "$HOME/.local/bin"
+          mv typst-x86_64-unknown-linux-musl/typst "$HOME/.local/bin/typst"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Poppler
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+        working-directory: website
+
+      - run: ./flyleaf doctor
+      - name: Build the sample family's book
+        run: ./flyleaf book
+      - name: Build the sample family's website
+        run: ./flyleaf site build
+      - name: Tests
+        run: ./flyleaf test
+
+      - name: Type and lint checks
+        working-directory: website
+        run: |
+          npx tsc --noEmit -p .
+          npm run lint
+          npm run worker:typecheck
+          npm run worker:lint
+          npm run archive:lint
+      - name: Sign-in page tests
+        working-directory: website
+        run: node --test tests/login-branding.test.mjs
+
+      - name: Chrome, for the browser tests
+        working-directory: website
+        # GitHub's runners already have Chrome; --force updates it in place.
+        run: npx playwright install --with-deps --force chrome
+      - name: Browser tests
+        working-directory: website
+        run: |
+          # Serve the sample's site where playwright.config.ts expects it.
+          npm run preview > preview.log 2>&1 &
+          for _ in $(seq 60); do
+            curl -sf http://127.0.0.1:4173/ > /dev/null && break
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:4173/ > /dev/null || { cat preview.log; exit 1; }
+          npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: website/test-results
+          if-no-files-found: ignore
+
+      # A family made with `flyleaf new` and `flyleaf import`, with nothing
+      # else, must build and pass every test: deploy runs them on the family
+      # it publishes. Last, because it replaces the sample's built site.
+      - name: A new family builds and passes the tests
+        env:
+          FAMILY: ${{ runner.temp }}/new-family
+        run: |
+          ./flyleaf new "$FAMILY" --name "The Example family" \
+            --maintainer "Ada Example" --email ada@example.org
+          ./flyleaf import tests/fixtures/new-family.ged --family "$FAMILY" --root "Ada Example"
+          ./flyleaf book --family "$FAMILY"
+          # A static site stops for living people until the family chooses.
+          if ./flyleaf site build --family "$FAMILY"; then exit 1; fi
+          python3 - "$FAMILY/flyleaf.json" <<'PY'
+          import json, sys
+          settings = json.load(open(sys.argv[1]))
+          settings["site"]["publish_living_people"] = True
+          json.dump(settings, open(sys.argv[1], "w"), indent=2)
+          PY
+          ./flyleaf site build --family "$FAMILY"
+          ./flyleaf test --family "$FAMILY"
+
+  # macOS, with the oldest Python and Node.js the README supports: build the
+  # sample family and run the tests (the browser tests run on Linux above).
+  oldest-on-macos:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      FLYLEAF_FAMILY: ${{ github.workspace }}/sample
+      SOURCE_DATE_EPOCH: "1792204575"
+      TZ: America/Chicago
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+
+      - name: Typst 0.14.2
+        run: |
+          curl -sSL -o typst.tar.xz https://github.com/typst/typst/releases/download/v0.14.2/typst-aarch64-apple-darwin.tar.xz
+          echo "470aa49a2298d20b65c119a10e4ff8808550453e0cb4d85625b89caf0cedf048  typst.tar.xz" | shasum -a 256 --check --strict
+          tar -xf typst.tar.xz
+          mkdir -p "$HOME/.local/bin"
+          mv typst-aarch64-apple-darwin/typst "$HOME/.local/bin/typst"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Poppler
+        run: brew install poppler
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.0"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+        working-directory: website
+
+      - run: ./flyleaf doctor
+      - name: Build the sample family's book
+        run: ./flyleaf book
+      - name: Build the sample family's website
+        run: ./flyleaf site build
+      - name: Tests
+        run: ./flyleaf test

@@ -1,0 +1,378 @@
+.family-album {
+  isolation: isolate;
+}
+.family-album-heading > p {
+  max-width: 60ch;
+}
+.family-album-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+.family-album-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 0 8px 8px;
+  color: var(--wine);
+  font-size: 15px;
+}
+.family-album-filter-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.family-album-filters:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin-bottom: 24px;
+  max-width: 640px;
+}
+.family-album-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  border-bottom: 1px solid var(--navy);
+}
+.family-album-search input {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 17px;
+  min-width: 0;
+  width: 100%;
+}
+.family-album-search > button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.family-album-select {
+  display: block;
+  min-width: 0;
+}
+.family-album-select > span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.family-album-select select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--ink);
+  background: var(--paper);
+  padding: 8px 12px;
+  font: 15px/1.3 var(--sans);
+}
+.family-album-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  border-block: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+.family-album-sections button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 12px 0;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  font-size: 15px;
+}
+.family-album-sections button[aria-pressed='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--wine);
+}
+.family-album-sections button > span {
+  font-size: 12px;
+  min-width: 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.family-album-results-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px;
+}
+.family-album-results-heading h2 {
+  font: 36px/1.1 var(--serif);
+  color: var(--ink);
+}
+.family-album-results-heading p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-top: 8px;
+  max-width: 65ch;
+}
+.family-album-reset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  white-space: nowrap;
+  color: var(--wine);
+  font-size: 14px;
+}
+.family-album-period-note {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 75ch;
+  line-height: 1.5;
+  margin-top: 16px;
+}
+.family-album-count {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 16px 0 24px;
+}
+.family-album-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 48px 32px;
+  align-items: start;
+}
+.family-album-card {
+  min-width: 0;
+}
+.family-album-card > .kin-figure {
+  margin: 0;
+}
+.family-album-card > .kin-figure > button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 264px;
+  padding: 16px;
+  background: #e8e7dd;
+  position: relative;
+}
+.family-album-card > .kin-figure img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+}
+.family-album-card .kin-enlarge {
+  font-size: 12px;
+}
+.family-album-card .kin-figure figcaption {
+  font: 24px/1.2 var(--serif);
+  padding-top: 16px;
+}
+.family-album-card .kin-figure figcaption > small {
+  font: 14px/1.5 var(--sans);
+  color: var(--muted);
+  margin-top: 8px;
+}
+.family-album-card .kin-figure figcaption > .kin-visual-label {
+  display: block;
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+.family-album-connections {
+  margin-top: 16px;
+}
+.family-album-connections > span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.family-album-connections > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.family-album-connections button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 0;
+  color: var(--wine);
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.family-album-caption-year {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 12px;
+}
+.family-album-originals {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--wine);
+  text-align: left;
+}
+.family-album-views {
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.family-album-views > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--wine);
+  font-size: 14px;
+}
+.family-album-views > div > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.family-album-view-kind {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.family-album-views .kin-figure {
+  margin: 0;
+}
+.family-album-views .kin-figure img {
+  max-height: 240px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.family-album-empty {
+  padding: 32px 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+.family-album-empty > p + p {
+  margin-top: 12px;
+}
+.family-album-empty button,
+.family-album-footer button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  color: var(--wine);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.family-album-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.family-album-footer > p {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 60ch;
+  line-height: 1.5;
+}
+.family-album :focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  .family-album button:hover,
+  .family-album summary:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .family-album-card > .kin-figure > button:hover {
+    background: #e0e2d6;
+  }
+}
+.family-album button:active {
+  opacity: 0.7;
+}
+@media (max-width: 1000px) {
+  .family-album-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .family-album.kin-section {
+    padding-top: 28px;
+  }
+  .family-album-heading.kin-page-heading {
+    margin-bottom: 20px;
+  }
+  .family-album-heading.kin-page-heading h1 {
+    font-size: 42px;
+    margin: 10px 0 12px;
+  }
+  .family-album-heading.kin-page-heading > p {
+    line-height: 1.5;
+  }
+  .family-album-filters:not([hidden]) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .family-album-sections {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0 20px;
+    margin-bottom: 20px;
+  }
+  .family-album-sections button {
+    flex-shrink: 0;
+    max-width: 170px;
+    font-size: 13px;
+    line-height: 1.3;
+    justify-content: space-between;
+  }
+  .family-album-results-heading {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .family-album-results-heading h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .family-album-results-heading p {
+    margin-top: 0;
+  }
+  .family-album-count {
+    margin: 12px 0 20px;
+  }
+  .family-album-reset {
+    min-height: 36px;
+  }
+  .family-album-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .family-album-card > .kin-figure > button {
+    min-height: 240px;
+  }
+  .family-album-connections button {
+    min-height: 44px;
+  }
+  .family-album-footer {
+    margin-top: 32px;
+  }
+}

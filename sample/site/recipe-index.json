@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "volumes": {
+    "joans-kitchen": "4527d2dd21e82664edb088ba5570254f588bb63c012df478da19d87c08eb7c04"
+  },
+  "recipes": [
+    { "name": "Cornish Pasties (Edith’s way)", "volume": "joans-kitchen", "page": 2, "credit": "Edith Penhallow" },
+    { "name": "Saffron Buns", "volume": "joans-kitchen", "page": 3 },
+    { "name": "Heavy Cake", "volume": "joans-kitchen", "page": 3, "credit": "Mary Treloar" },
+    { "name": "Ruth Solberg’s Lefse", "volume": "joans-kitchen", "page": 4, "credit": "Ruth Solberg" },
+    { "name": "Anna Kessler’s Apple Kuchen", "volume": "joans-kitchen", "page": 4, "credit": "Anna Kessler" }
+  ]
+}

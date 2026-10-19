@@ -1,0 +1,49 @@
+[
+  {
+    "id": "home",
+    "hash": "",
+    "wait": ".kin-home-hero"
+  },
+  {
+    "id": "book",
+    "hash": "#view=book",
+    "wait": ".native-book-content"
+  },
+  {
+    "id": "profile",
+    "hash": "#person=john-penhallow",
+    "wait": ".kin-life-heading"
+  },
+  {
+    "id": "recipes",
+    "hash": "#person=joan-treloar",
+    "wait": ".family-recipe-credit"
+  },
+  {
+    "id": "tree",
+    "hash": "#view=tree",
+    "wait": ".kin-tree-wrap"
+  },
+  {
+    "id": "photos",
+    "hash": "#view=photos"
+  },
+  {
+    "id": "archive",
+    "hash": "#view=archive"
+  },
+  {
+    "id": "places",
+    "hash": "#view=places"
+  },
+  {
+    "id": "news",
+    "hash": "#view=news",
+    "wait": ".kin-releases"
+  },
+  {
+    "id": "treasures",
+    "hash": "#view=treasures",
+    "wait": ".kin-treasures"
+  }
+]

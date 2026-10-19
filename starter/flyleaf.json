@@ -1,0 +1,79 @@
+{
+  "flyleaf": 1,
+  "family": {
+    "name": "The Example family"
+  },
+  "site": {
+    "id": "example",
+    "domain": "example.family",
+    "origin": "https://example.family",
+    "tagline": "A living family history",
+    "theme_color": "#233c35",
+    "hosting": "static"
+  },
+  "maintainer": {
+    "name": "",
+    "first_name": "",
+    "pronoun": "they",
+    "email": ""
+  },
+  "paths": {
+    "source_gedcom": "data/family.src.ged",
+    "generated_gedcom": "data/family.ged",
+    "book": "book",
+    "site_content": "site",
+    "email": "email"
+  },
+  "book": {
+    "pdf_name": "family-history.pdf",
+    "subjects_label": "",
+    "description": "",
+    "typst": {
+      "version": "0.14.2"
+    }
+  },
+  "auth": {
+    "clerk_publishable_key": "",
+    "clerk_frontend_api": "",
+    "allowed_emails": [],
+    "admin_emails": [],
+    "viewer_people": {}
+  },
+  "cloudflare": {
+    "worker_name": "",
+    "account_id": "",
+    "archive_bucket": "",
+    "submissions_bucket": "",
+    "submissions_db": {
+      "name": "",
+      "id": ""
+    }
+  },
+  "email": {
+    "from": "",
+    "invitation_subject": "Our family history"
+  },
+  "deploy": {
+    "credentials_dir": "~/.config/flyleaf"
+  },
+  "features": {
+    "submissions": false
+  },
+  "places": {
+    "region_names": []
+  },
+  "research": {
+    "exempt_refns": []
+  },
+  "gedcom": {
+    "source_id": "flyleaf",
+    "source_name": "Family tree (enriched by Flyleaf)",
+    "repositories": {}
+  },
+  "names": {
+    "short_forms": {}
+  },
+  "text_checks": {
+    "cited_authors": []
+  }
+}

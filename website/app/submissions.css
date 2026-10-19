@@ -1,0 +1,386 @@
+.kin-share {
+  max-width: 1160px;
+  margin: auto;
+  padding: clamp(28px, 5vw, 76px) clamp(20px, 4vw, 52px) 80px;
+}
+.kin-share-heading {
+  max-width: 710px;
+  margin-bottom: 32px;
+}
+.kin-share-heading h1 {
+  font:
+    400 clamp(42px, 7vw, 70px)/1.05 'EB Garamond',
+    Georgia,
+    serif;
+  margin: 14px 0 20px;
+}
+.kin-share-heading > p {
+  font-size: 20px;
+  line-height: 1.6;
+}
+.kin-submission-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  border-bottom: 1px solid var(--line, #d4d0c5);
+}
+.kin-submission-tabs button {
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  min-height: 44px;
+  color: inherit;
+}
+.kin-submission-tabs button[aria-current] {
+  border-color: #314c40;
+  font-weight: 600;
+}
+.kin-submission-progress {
+  display: block;
+  min-height: 24px;
+  margin: 12px 0;
+  font-size: 15px;
+}
+.kin-keep-draft {
+  margin-top: 20px;
+  display: flex;
+}
+.kin-local-drafts {
+  margin-bottom: 32px;
+  padding: 22px;
+  background: #ebece2;
+}
+.kin-local-drafts > button {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  padding-block: 12px;
+}
+.kin-share [tabindex='-1'] {
+  scroll-margin-top: calc(var(--site-header-height) + 22px);
+}
+.kin-share-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(220px, 1fr);
+  gap: 64px;
+  align-items: start;
+}
+.kin-share-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.kin-share-kind {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.kin-share-kind button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #bcb9ad;
+  border-radius: 999px;
+  background: #fffdf7;
+  color: #252d26;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.kin-share-kind button[aria-pressed='true'] {
+  border-color: #314c40;
+  background: #314c40;
+  color: #fffdf7;
+  font-weight: 600;
+}
+.kin-share-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+.kin-share-form label small {
+  font-weight: 400;
+  color: #625e55;
+  margin-left: 5px;
+}
+.kin-share-form input:not([type='file']),
+.kin-share-form textarea,
+.kin-share-form select {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+  border: 1px solid #bcb9ad;
+  border-radius: 3px;
+  padding: 12px 14px;
+  background: #fffdf7;
+  color: #252d26;
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.5;
+  margin-bottom: 26px;
+}
+.kin-share-form textarea {
+  resize: vertical;
+  min-height: 190px;
+}
+.kin-share-form input:focus-visible,
+.kin-share-form textarea:focus-visible,
+.kin-share-form select:focus-visible,
+.kin-share button:focus-visible,
+.kin-share a:focus-visible {
+  outline: 2px solid #345b48;
+  outline-offset: 3px;
+}
+.kin-share-form fieldset:disabled {
+  opacity: 0.8;
+}
+.kin-association-search {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 8px;
+}
+.kin-association-search select {
+  padding-inline: 8px;
+}
+.kin-association-results {
+  list-style: none;
+  padding: 0;
+  margin: -18px 0 25px;
+  border: 1px solid #d4d0c5;
+}
+.kin-association-results li {
+  padding: 4px 10px;
+}
+.kin-association-results button {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  width: 100%;
+  background: none;
+  border: 0;
+  font: inherit;
+  min-height: 44px;
+  padding: 6px;
+  color: inherit;
+}
+.kin-association-results small {
+  color: #68645b;
+}
+.kin-submission-association {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #e7ebe3;
+}
+.kin-submission-association button,
+.kin-submission-files button,
+.kin-submission-files a {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: 0;
+  color: inherit;
+}
+.kin-attach {
+  margin: 0 0 22px;
+  padding: 22px;
+  border: 1px dashed #9baba0;
+  background: #f1f3ec;
+  border-radius: 4px;
+}
+.kin-attach label {
+  display: grid;
+  gap: 9px;
+}
+.kin-attach label span {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.kin-attach input {
+  width: 100%;
+  max-width: 100%;
+  font: inherit;
+  font-size: 15px;
+}
+.kin-attach input::file-selector-button {
+  font: inherit;
+  padding: 9px 12px;
+  margin-right: 10px;
+  background: #fffdf7;
+  border: 1px solid #abb5a8;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.kin-submission-note {
+  color: #625e55;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.kin-share-aside {
+  padding: 30px;
+  background: #ebece2;
+  border-top: 2px solid #687760;
+}
+.kin-share h2 {
+  font:
+    400 34px/1.15 'EB Garamond',
+    Georgia,
+    serif;
+  margin: 18px 0;
+}
+.kin-share-aside p {
+  line-height: 1.7;
+  margin: 0 0 12px;
+}
+.kin-submission-files {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 24px;
+}
+.kin-submission-files li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #d4d0c5;
+  padding: 12px 0;
+}
+.kin-submission-files strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+.kin-submission-files small,
+.kin-submission-meta {
+  display: block;
+  color: #625e55;
+  font-size: 14px;
+}
+.kin-submission-error {
+  padding: 18px;
+  border-left: 3px solid #8a4431;
+  background: #f8eee5;
+  margin: 20px 0;
+}
+.kin-submission-error button {
+  display: block;
+  margin-top: 12px;
+  padding: 10px 16px;
+}
+.kin-submission-detail {
+  max-width: 780px;
+  padding: 22px 0;
+  overflow-wrap: anywhere;
+}
+.kin-submission-wording {
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
+.kin-submission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.kin-submission-receipt > svg {
+  color: #345b48;
+}
+.kin-submission-receipt > p {
+  max-width: 650px;
+  line-height: 1.7;
+}
+.kin-submission-list > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid #d4d0c5;
+  padding: 20px 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+.kin-submission-list strong,
+.kin-submission-list small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.kin-submission-list strong {
+  font-size: 20px;
+  font-weight: 500;
+}
+.kin-submission-list small {
+  margin-top: 6px;
+  color: #625e55;
+}
+.kin-submission-list > button > span:last-child {
+  font-size: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.kin-share button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.kin-share-cta {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 36px clamp(20px, 4vw, 52px);
+  border-top: 1px solid #d4d0c5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+.kin-share-cta h2 {
+  font:
+    400 34px/1.15 'EB Garamond',
+    Georgia,
+    serif;
+  margin: 0 0 8px;
+}
+.kin-share-cta p {
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.6;
+}
+@media (max-width: 720px) {
+  .kin-share-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+  .kin-share-aside {
+    padding: 22px;
+  }
+  .kin-share-heading > p {
+    font-size: 18px;
+  }
+  .kin-submission-list > button {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .kin-share-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .kin-submission-actions .kin-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

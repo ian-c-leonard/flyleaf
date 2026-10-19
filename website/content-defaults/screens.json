@@ -1,0 +1,29 @@
+[
+  {
+    "id": "home",
+    "hash": "",
+    "wait": ".kin-home-hero"
+  },
+  {
+    "id": "book",
+    "hash": "#view=book",
+    "wait": ".native-book-content"
+  },
+  {
+    "id": "tree",
+    "hash": "#view=tree",
+    "wait": ".kin-tree-wrap"
+  },
+  {
+    "id": "photos",
+    "hash": "#view=photos"
+  },
+  {
+    "id": "archive",
+    "hash": "#view=archive"
+  },
+  {
+    "id": "places",
+    "hash": "#view=places"
+  }
+]

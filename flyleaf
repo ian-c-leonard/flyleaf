@@ -1,0 +1,580 @@
+#!/usr/bin/env python3
+"""Flyleaf: a family's book and website, built from its GEDCOM.
+
+  flyleaf doctor                  check the tools this machine needs
+  flyleaf new DIR [--name NAME]   start a family folder
+  flyleaf import FILE.ged [--root PERSON]
+                                  bring in a tree from another program
+  flyleaf book [--archival] [--preview]
+                                  check the tree and build the book PDF;
+                                  --archival also makes a PDF/A copy for a
+                                  library, --preview pictures of its first pages
+  flyleaf coverage [--mark PERSON | --mark-all] [--wording]
+                                  which ancestors the book's stories cover;
+                                  --mark says a story is current again;
+                                  --wording lists research wording to check
+  flyleaf scaffold                start a story file for each uncovered ancestor
+  flyleaf sources PERSON          the source keys a story can cite for a person
+  flyleaf questionnaire PERSON    write a questionnaire for a relative to fill in,
+                                  in questionnaires/
+  flyleaf repin                   after editing people the site overlay names,
+                                  record their new versions in the overlay
+  flyleaf site [build|dev|preview]
+                                  build the website (default: build)
+  flyleaf test                    run Flyleaf's tests
+  flyleaf gate [--book]           rebuild with the last build's date and
+                                  compare every file with the last deploy
+  flyleaf deploy [--skip-book]    publish a private site to Cloudflare and check
+                                  it live, signed in and out (a static site
+                                  goes to any host; see docs/hosting.md)
+
+The family folder is --family DIR, else $FLYLEAF_FAMILY, else the first
+that holds a flyleaf.json of: the current folder, the folder that holds
+Flyleaf, and the sample family in sample/.
+"""
+import argparse
+import json
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ENGINE = Path(__file__).resolve().parent
+VERSION = "0.1.0"  # with website/package.json and the top of CHANGELOG.md
+SITE = ENGINE / "website"
+sys.path.insert(0, str(ENGINE / "scripts"))
+import ascii_ids  # noqa: E402  (standard library only)
+
+
+def fail(message):
+    sys.exit(f"flyleaf: {message}")
+
+
+def read_settings(path):
+    """A family's flyleaf.json, with a plain message when it is missing or
+    not valid JSON (a hand edit can leave a stray comma)."""
+    try:
+        return json.loads(Path(path).read_text())
+    except FileNotFoundError:
+        fail(f"{path} is missing. Start a family folder with flyleaf new.")
+    except json.JSONDecodeError as error:
+        fail(f"{path}, line {error.lineno}, column {error.colno}: {error.msg}. "
+             "Look for a missing or extra comma, quote or bracket there.")
+
+
+def version_text():
+    """Flyleaf's version, and the commit when Flyleaf's folder is a git clone."""
+    commit = subprocess.run(["git", "-C", str(ENGINE), "rev-parse", "--short", "HEAD"],
+                            capture_output=True, text=True).stdout.strip()
+    return f"Flyleaf {VERSION}" + (f" ({commit})" if commit else "")
+
+
+def family_folder(option):
+    if option:
+        return Path(option).resolve()
+    if os.environ.get("FLYLEAF_FAMILY"):
+        return Path(os.environ["FLYLEAF_FAMILY"]).resolve()
+    if (Path.cwd() / "flyleaf.json").is_file():
+        return Path.cwd().resolve()
+    if (ENGINE.parent / "flyleaf.json").is_file():
+        print(f"Using the family in {ENGINE.parent} (pass --family DIR for another).",
+              file=sys.stderr)
+        return ENGINE.parent.resolve()
+    if (ENGINE / "sample" / "flyleaf.json").is_file():
+        print("Using the sample family (pass --family DIR for your own).", file=sys.stderr)
+        return (ENGINE / "sample").resolve()
+    fail("no family folder: run inside one, or pass --family DIR")
+
+
+def python_for(family):
+    """The Python with Flyleaf's packages: a .venv in the family folder, else
+    one in Flyleaf's folder (as the quick start makes), else this Python."""
+    for venv in (family / ".venv", ENGINE / ".venv"):
+        if (venv / "bin" / "python3").is_file():
+            return str(venv / "bin" / "python3")
+    return sys.executable
+
+
+def environment(family):
+    return dict(os.environ, FLYLEAF_FAMILY=str(family), PYTHON=python_for(family))
+
+
+def run(command, family, cwd=None, extra=None):
+    sys.stdout.flush()
+    result = subprocess.run([str(part) for part in command], cwd=cwd or family,
+                            env={**environment(family), **(extra or {})})
+    if result.returncode:
+        sys.exit(result.returncode)
+
+
+def make(family, *targets):
+    run(["make", "--no-print-directory", "-C", ENGINE, *targets,
+         f"FLYLEAF_FAMILY={family}", f"PYTHON={python_for(family)}"], family)
+
+
+# ---------- doctor ----------
+
+def version_of(command, env=None):
+    try:
+        out = subprocess.run(command, capture_output=True, text=True, timeout=30, env=env)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return (out.stdout or out.stderr).strip() if out.returncode == 0 else None
+
+
+def doctor(args):
+    family = family_folder(args.family)
+    problems = 0
+
+    def check(ok, label, advice=""):
+        nonlocal problems
+        print(("  ok  " if ok else "  !!  ") + label + ("" if ok or not advice else f": {advice}"))
+        problems += not ok
+
+    print(f"Flyleaf is at {ENGINE}. Its guides are in {ENGINE / 'docs'}.")
+    settings_file = family / "flyleaf.json"
+    check(settings_file.is_file(), f"settings at {settings_file}", "run flyleaf new")
+    settings = read_settings(settings_file) if settings_file.is_file() else {}
+    if settings:
+        maintainer = settings.get("maintainer") or {}
+        missing = [key for key in ("name", "first_name", "email") if not maintainer.get(key)]
+        check(not missing, "the maintainer's name and email in flyleaf.json",
+              "fill in maintainer " + ", ".join(missing) + " (the book and the site name you)")
+    python = python_for(family)
+    found = version_of([python, "-c", "import sys; print('%d.%d' % sys.version_info[:2])"])
+    check(found and tuple(map(int, found.split("."))) >= (3, 11), f"Python 3.11 or later ({found})")
+    setup = f"cd {ENGINE} && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"
+    packages = True
+    for module, package in (("gedcom", "python-gedcom"), ("PIL", "Pillow")):
+        ok = version_of([python, "-c", f"import {module}"]) is not None
+        packages = packages and ok
+        check(ok, f"Python package {package}", setup)
+    wanted = (settings.get("book", {}).get("typst") or {}).get("version")
+    typst = version_of(["typst", "--version"]) or ""
+    check(bool(typst) and (not wanted or typst.split()[1:2] == [wanted]),
+          f"Typst {wanted or ''} ({typst or 'not found'})".replace("  ", " "),
+          "install it from https://github.com/typst/typst/releases"
+          + (f"/tag/v{wanted}" if wanted else ""))
+    for tool in ("pdfinfo", "pdftotext"):
+        check(shutil.which(tool) is not None, f"{tool} (Poppler)", "install Poppler")
+    # The book commands run through make; deploy checks what git has committed.
+    check(shutil.which("make") is not None, "make", "install your system's developer tools")
+    check(shutil.which("git") is not None, "git", "install git from https://git-scm.com")
+    node = version_of(["node", "--version"]) or ""
+    numbers = tuple(int(n) for n in re.findall(r"\d+", node)[:3])
+    check(numbers >= (22, 13), f"Node.js 22.13 or later ({node or 'not found'})")
+    check((SITE / "node_modules").is_dir(), "website packages", f"cd {SITE} && npm ci")
+    gedcom = family / (settings.get("paths", {}).get("source_gedcom") or "data/family.src.ged")
+    check(gedcom.is_file(), f"family tree at {gedcom.relative_to(family)}", "run flyleaf import FILE.ged")
+    if settings_file.is_file() and packages:
+        # Read this family's font settings, not those of the folder doctor runs in.
+        fonts = version_of([python, "-c", "import sys; sys.path.insert(0, sys.argv[1]); import booklib;"
+                            "missing = [str(f) for f in booklib.font_settings()['files'] if not f.is_file()];"
+                            "print('\\n'.join(missing))", str(ENGINE / "scripts")],
+                           env=environment(family))
+        check(fonts == "", "book fonts", fonts or "could not read book.fonts")
+    print("Everything is ready." if not problems else f"{problems} thing(s) to fix.")
+    return 1 if problems else 0
+
+
+# ---------- new ----------
+
+def slug(text):
+    """An id from a name in any alphabet (see scripts/ascii_ids.py)."""
+    return ascii_ids.slug(text, max_len=None)
+
+
+def new(args):
+    target = Path(args.directory).resolve()
+    if target == ENGINE or target.is_relative_to(ENGINE):
+        # A family's tree and relatives' details must never sit inside a copy
+        # of public code, where one careless commit could publish them.
+        fail(f"{args.directory} is inside Flyleaf's own folder. Make the family's folder "
+             f"beside it instead, such as ../{target.name}.")
+    starter = ENGINE / "starter"
+    clashes = [p.relative_to(starter) for p in starter.rglob("*")
+               if p.is_file() and (target / p.relative_to(starter)).exists()]
+    if clashes:
+        fail(f"{target} already has " + ", ".join(map(str, clashes))
+             + "; start the family in a new folder, or move these files first")
+    shutil.copytree(starter, target, dirs_exist_ok=True)
+    # smith-family is "The Smith family", not "The Smith Family family".
+    words = re.sub(r"[-_]+", " ", target.name).split()
+    if words and words[-1].lower() == "family":
+        words.pop()
+    name = args.name or (f"The {' '.join(words).title()} family" if words else "Our family")
+    settings_file = target / "flyleaf.json"
+    settings = read_settings(settings_file)
+    settings["family"]["name"] = name
+    settings["site"]["id"] = slug(target.name) or "family"
+    if args.maintainer:
+        settings["maintainer"].update(name=args.maintainer, first_name=args.maintainer.split()[0])
+    if args.email:
+        settings["maintainer"]["email"] = settings["email"]["from"] = args.email
+    settings_file.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n")
+    book = target / settings["paths"].get("book", "book") / "book.yaml"
+    book.write_text(book.read_text().replace("TITLE", name.removeprefix("The ").strip()))
+    # Tell the family's assistant where Flyleaf and its guides are.
+    agents = target / "AGENTS.md"
+    if agents.is_file():
+        agents.write_text(agents.read_text().replace("{{FLYLEAF}}", os.path.relpath(ENGINE, target.resolve())))
+    print(f"Started {name} in {target}.")
+    print("Next: fill in flyleaf.json, then run")
+    print(f"  {shlex.quote(command_name())} import your-tree.ged --family {shlex.quote(short_path(target))}"
+          " --root 'Your Name'")
+
+
+def command_name():
+    """How to type this command from the current folder, for next-step hints."""
+    me = Path(sys.argv[0]).resolve()
+    on_path = shutil.which("flyleaf")
+    if on_path and Path(on_path).resolve() == me:
+        return "flyleaf"
+    return short_path(me) if me.parent != Path.cwd() else "./flyleaf"
+
+
+def short_path(path):
+    """A path as the reader would type it: relative when that is shorter."""
+    path = Path(path).resolve()
+    relative = os.path.relpath(path, Path.cwd())
+    return relative if len(relative) < len(str(path)) else str(path)
+
+
+# ---------- import ----------
+
+def records(text):
+    """Split GEDCOM text into level-0 records. GEDCOM tells a reader to ignore
+    blank lines and the spaces before a line, so these are dropped; every
+    other character is kept as written."""
+    out, current = [], []
+    for line in text.splitlines():
+        line = line.lstrip(" \t")
+        if not line:
+            continue
+        if line.startswith("0 ") and current:
+            out.append(current)
+            current = []
+        current.append(line)
+    if current:
+        out.append(current)
+    return out
+
+
+def tag_value(record, tag, level="1"):
+    for line in record:
+        parts = line.split(" ", 2)
+        if len(parts) >= 2 and parts[0] == level and parts[1] == tag:
+            return parts[2] if len(parts) == 3 else ""
+    return None
+
+
+def flyleaf_id(record):
+    """The person's Flyleaf id: a REFN with TYPE jsonid, if it has one."""
+    for i, line in enumerate(record[:-1]):
+        if line.startswith("1 REFN ") and record[i + 1].strip() == "2 TYPE jsonid":
+            return line.split(" ", 2)[2].strip()
+    return None
+
+
+def identity(record):
+    """A person's name, in lower case, and birth year: how an import tells
+    whether someone in a new export was already in the family's tree."""
+    name = " ".join((tag_value(record, "NAME") or "").replace("/", " ").split()).lower()
+    birth = next((m.group() for i, line in enumerate(record[:-1])
+                  if line == "1 BIRT" and record[i + 1].startswith("2 DATE")
+                  and (m := re.search(r"\d{4}", record[i + 1]))), "")
+    return name, birth
+
+
+def previous_ids(rows, previous):
+    """For a tree imported again: which person in the new export keeps which
+    id from the family's previous tree. Stories and the website name people
+    by id, so an id must never move to a different person.
+
+    A person keeps their id when they have the same GEDCOM record number and
+    the same name or birth year, or failing that, when exactly one person in
+    each tree has their name and birth year. Anyone else gets a new id."""
+    old = {}
+    for record in previous:
+        if re.match(r"^0 @[^@]+@ INDI\b", record[0]) and (refn := flyleaf_id(record)):
+            old[record[0].split()[1]] = (refn, *identity(record))
+    incoming = [r for r in rows if re.match(r"^0 @[^@]+@ INDI\b", r[0]) and not flyleaf_id(r)]
+    claimed = {refn for r in rows if (refn := flyleaf_id(r))}
+    kept = {}
+    for record in incoming:
+        xref, (name, birth) = record[0].split()[1], identity(record)
+        match = old.get(xref)
+        if match and match[0] not in claimed and (
+                (birth and birth == match[2]) or set(name.split()) & set(match[1].split())):
+            kept[xref] = match[0]
+            claimed.add(match[0])
+    def count(people):
+        tally = {}
+        for key in people:
+            tally[key] = tally.get(key, 0) + 1
+        return tally
+    old_keys = count((name, birth) for _, name, birth in old.values())
+    new_keys = count(identity(r) for r in incoming if r[0].split()[1] not in kept)
+    for record in incoming:
+        xref, key = record[0].split()[1], identity(record)
+        if xref in kept or old_keys.get(key) != 1 or new_keys.get(key) != 1:
+            continue
+        refn = next(r for r, *rest in old.values() if tuple(rest) == key)
+        if refn not in claimed:
+            kept[xref] = refn
+            claimed.add(refn)
+    return kept, {refn for refn, *_ in old.values()}
+
+
+def import_tree(args):
+    family = family_folder(args.family)
+    settings = read_settings(family / "flyleaf.json")
+    try:
+        source = Path(args.file).read_text(encoding="utf-8-sig")
+    except FileNotFoundError:
+        fail(f"{args.file}: no such file. Give the path to the GEDCOM file you exported.")
+    except UnicodeDecodeError:
+        fail(f"{args.file} is not UTF-8. Export it again from your genealogy program "
+             "with the character set UTF-8 (sometimes called Unicode).")
+    rows = records(source)
+    # The text has just read as UTF-8, so say so in the header: an older
+    # program's "1 CHAR ANSEL" or "ASCII" would make the website refuse it.
+    for record in rows:
+        if record[0].startswith("0 HEAD"):
+            record[:] = [("1 CHAR UTF-8" if line.startswith("1 CHAR ") else line) for line in record]
+    # Older programs, such as PAF, wrote a space inside a name part as an
+    # underscore: "Elizabeth_II", "of_Saxe-Coburg". Names print as people read them.
+    names = re.compile(r"^(\d+ (?:NAME|GIVN|SURN|NICK|NPFX|NSFX|SPFX) )(.*_.*)$")
+    underscored = 0
+    for record in rows:
+        for i, line in enumerate(record):
+            if match := names.match(line):
+                record[i] = match[1] + match[2].replace("_", " ")
+                underscored += 1
+    target = family / settings["paths"]["source_gedcom"]
+    if target.exists() and not args.replace:
+        fail(f"{target.relative_to(family)} already exists. Import replaces it, and any "
+             "edits made to it since would be lost. Run again with --replace to do that.")
+    previous = records(target.read_text(encoding="utf-8-sig")) if target.exists() else []
+    kept, old_ids = previous_ids(rows, previous)
+    people_records = [r for r in rows if re.match(r"^0 @[^@]+@ INDI\b", r[0])]
+    if not people_records:
+        fail(f"{args.file} has no people in it. Export your tree as a GEDCOM file and try again.")
+    head = next((r for r in rows if r[0].startswith("0 HEAD")), [])
+    version = next((line.split(" ", 2)[2].strip() for i, line in enumerate(head)
+                    if line.startswith("2 VERS ") and i and head[i - 1].startswith("1 GEDC")), "")
+    if version and not version.startswith("5.5"):
+        print(f"This file says it is GEDCOM {version}. Flyleaf reads GEDCOM 5.5 and 5.5.1; "
+              "check the book carefully, or export again as GEDCOM 5.5.1.")
+    book_settings = family / settings["paths"].get("book", "book") / "book.yaml"
+    has_root = book_settings.is_file() and re.search(
+        r"^root_refn:[ \t]*\S", book_settings.read_text(), re.M)
+    needs_root = not args.root and not has_root
+    # An id from the previous tree is never given to someone new.
+    used = {refn for r in people_records if (refn := flyleaf_id(r))} | old_ids
+    people, added = {}, 0
+    for record in people_records:
+        xref = record[0].split()[1]
+        name = (tag_value(record, "NAME") or "").replace("/", " ")
+        refn = flyleaf_id(record) or kept.get(xref)
+        if refn and not flyleaf_id(record):
+            record[1:1] = [f"1 REFN {refn}", "2 TYPE jsonid"]
+        elif not refn:
+            base = slug(name) or "person"
+            birth = next((re.search(r"\d{4}", record[i + 1]) for i, line in enumerate(record[:-1])
+                          if line == "1 BIRT" and record[i + 1].startswith("2 DATE")), None)
+            refn = base
+            if refn in used and birth:
+                refn = f"{base}-{birth.group()}"
+            counter = 2
+            while refn in used:
+                refn = f"{base}-{counter}"
+                counter += 1
+            record[1:1] = [f"1 REFN {refn}", "2 TYPE jsonid"]
+            added += 1
+        used.add(refn)
+        if not any(line.startswith("1 _CONFLEVEL ") for line in record):
+            # Linked from another tree until records are cited; raise to
+            # primary as sources are added (see the research standards).
+            record.insert(1, "1 _CONFLEVEL tree-link")
+        people[xref] = (refn, " ".join(name.split()))
+    root = None
+    if args.root:
+        wanted = args.root.lower().strip()
+        words = set(wanted.split())
+        found = [(refn, name) for xref, (refn, name) in people.items()
+                 if wanted in (refn, xref.lower(), xref.lower().strip("@"))
+                 or words <= set(name.lower().split())]
+        if len(found) != 1:
+            listed = "; ".join(f"{name} ({refn})" for refn, name in found[:8])
+            fail(f"--root {args.root!r} matches {len(found)} people"
+                 + (f"{', the first eight' if len(found) > 8 else ''}: {listed}. "
+                    "Use one of these ids, or more of the name." if found else
+                    ". Use part of a name, an id, or a GEDCOM xref such as @I15@."))
+        root = found[0][0]
+    # Check the new tree, and plan the book from it, before changing anything:
+    # a failed import leaves the family's tree and book settings as they were.
+    target.parent.mkdir(parents=True, exist_ok=True)
+    staged = target.with_name(target.name + ".importing")
+    staged.write_text("\n".join(line for record in rows for line in record) + "\n", encoding="utf-8")
+    book = family / settings["paths"].get("book", "book") / "book.yaml"
+    planned = book.with_name(book.name + ".importing")
+    try:
+        # Every staged tree is read as the book reads it, so an import never
+        # installs a tree the next build cannot read.
+        result = subprocess.run([python_for(family), ENGINE / "scripts" / "book-chapters.py",
+                                 "--tree", staged,
+                                 *(["--root", root, "--out", planned] if root else ["--check"])],
+                                cwd=family, env=environment(family))
+        if result.returncode:
+            fail("the tree was not imported; nothing in the family folder has changed")
+        if root:
+            text, count = re.subn(r"^root_refn:.*$", lambda _: f"root_refn: {root}",
+                                  planned.read_text(), flags=re.M)
+            planned.write_text(text if count else text.rstrip("\n") + f"\nroot_refn: {root}\n")
+        if target.exists():
+            backup = target.with_name(target.name + "." + time.strftime("%Y%m%d-%H%M%S") + ".bak")
+            shutil.copy2(target, backup)
+            print(f"Kept the previous tree as {backup.relative_to(family)}.")
+        staged.replace(target)
+        if root:
+            planned.replace(book)
+    finally:
+        staged.unlink(missing_ok=True)
+        planned.unlink(missing_ok=True)
+    print(f"Imported {len(people)} people into {target.relative_to(family)} ({added} new ids"
+          + (f", {len(kept)} kept from the previous tree" if previous else "") + ").")
+    gone = sorted(old_ids - {refn for refn, _ in people.values()})
+    if gone:
+        print(f"{len(gone)} ids from the previous tree are not in this one: "
+              + ", ".join(gone[:12]) + (" …" if len(gone) > 12 else "")
+              + ". A story or site file that names one now stops the build; "
+              "point it at the person's new id.")
+    if underscored:
+        print(f"Wrote {underscored} names with spaces where the file had underscores, "
+              "as older programs such as PAF wrote them.")
+    if root:
+        print(f"The book starts from {root}.")
+    elif needs_root:
+        print("The book needs to know whom it is about before it can build. Import again "
+              "with --replace and --root, such as --root 'Your Name'.")
+
+
+# ---------- the rest ----------
+
+def hosting(family):
+    """The family's site.hosting: "static" for a public site, else a private Worker."""
+    settings = read_settings(family / "flyleaf.json")
+    return (settings.get("site") or {}).get("hosting") or "worker"
+
+
+def site(args):
+    family = family_folder(args.family)
+    script = {"build": "build", "dev": "dev", "preview": "preview"}[args.action]
+    port = ["--", "--port", str(args.port)] if args.port and args.action != "build" else []
+    # The dev server is for this computer only, so people who may be living
+    # draw a warning there; a build, which is what gets published, stops.
+    local = {"FLYLEAF_LOCAL_PREVIEW": "1"} if args.action == "dev" else {}
+    if args.action == "build" and hosting(family) == "static":
+        # A public site has no deploy step, so check its wording here.
+        run([python_for(family), ENGINE / "scripts" / "check-family-text.py"], family)
+    run(["npm", "run", script, *port], family, cwd=SITE, extra=local)
+
+
+def main():
+    parser = argparse.ArgumentParser(prog="flyleaf", description=__doc__.split("\n\n")[0],
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     epilog=__doc__.split("\n\n", 1)[1])
+    parser.add_argument("--family", help="the family folder")
+    parser.add_argument("--version", action="version", version=version_text())
+    # --family may also follow the command name.
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--family", default=argparse.SUPPRESS, help="the family folder")
+    commands = parser.add_subparsers(dest="command", required=True)
+    add = commands.add_parser
+    commands.add_parser = lambda name, **kw: add(name, parents=[common], **kw)
+    commands.add_parser("doctor")
+    p = commands.add_parser("new")
+    p.add_argument("directory")
+    p.add_argument("--name", help='the family name, such as "The Penhallow family"')
+    p.add_argument("--maintainer", help="your name, as the family should see it")
+    p.add_argument("--email", help="your email address, for the family to reach you")
+    p = commands.add_parser("import")
+    p.add_argument("file")
+    p.add_argument("--root", help="the person the book starts from: an id, a name or a GEDCOM xref")
+    p.add_argument("--replace", action="store_true",
+                   help="replace the family's tree (the old one is kept as a .bak file)")
+    p = commands.add_parser("book")
+    p.add_argument("--archival", action="store_true",
+                   help="also make build/book-archival.pdf (PDF/A-2b, for a library)")
+    p.add_argument("--preview", action="store_true",
+                   help="also make build/preview-*.png, pictures of the first eight pages")
+    p = commands.add_parser("coverage")
+    p.add_argument("--mark", metavar="PERSON", help="a story's id: its prose is current again")
+    p.add_argument("--mark-all", action="store_true", help="every story's prose is current again")
+    p.add_argument("--wording", action="store_true",
+                   help="list each warning about research wording in text readers see")
+    commands.add_parser("scaffold")
+    p = commands.add_parser("sources")
+    p.add_argument("person", help="a person's id, such as john-penhallow")
+    p = commands.add_parser("questionnaire")
+    p.add_argument("person", help="the id of the relative it is for, such as john-penhallow")
+    commands.add_parser("repin")
+    p = commands.add_parser("site")
+    p.add_argument("action", nargs="?", default="build", choices=["build", "dev", "preview"])
+    p.add_argument("--port", type=int, help="for dev or preview: the port to serve on")
+    commands.add_parser("test")
+    p = commands.add_parser("gate")
+    p.add_argument("--book", action="store_true", help="rebuild the book PDF too")
+    p = commands.add_parser("deploy")
+    p.add_argument("--skip-book", action="store_true")
+    p.add_argument("--dry-run", action="store_true", help="build and test only; publish nothing")
+    args = parser.parse_args()
+
+    if args.command == "doctor":
+        return doctor(args)
+    if args.command == "new":
+        return new(args)
+    if args.command == "import":
+        return import_tree(args)
+    family = family_folder(args.family)
+    if args.command == "book":
+        make(family, "book", "book-claims", *(["book-archival"] if args.archival else []),
+             *(["book-preview"] if args.preview else []))
+    elif args.command == "coverage":
+        mark = (["--mark-current", args.mark] if args.mark
+                else ["--mark-current-all"] if args.mark_all else [])
+        run([python_for(family), ENGINE / "scripts" / "book-coverage.py", *mark], family)
+        if not mark:
+            # Research wording in what readers see: the same check deploy runs.
+            run([python_for(family), ENGINE / "scripts" / "check-family-text.py",
+                 *(["--warnings"] if args.wording else [])], family)
+    elif args.command == "scaffold":
+        make(family, "book-scaffold")
+    elif args.command == "sources":
+        make(family, "book-sources", f"REFN={args.person}")
+    elif args.command == "questionnaire":
+        run([python_for(family), ENGINE / "scripts" / "book-questionnaire.py", args.person], family)
+    elif args.command == "repin":
+        run([python_for(family), ENGINE / "scripts" / "refresh-edition-hashes.py"], family)
+    elif args.command == "site":
+        site(args)
+    elif args.command == "test":
+        make(family, "test")
+        for suite in ("test", "run test:worker", "run test:submissions", "run test:gateway",
+                      "run test:hosting", "run test:archive"):
+            run(["npm", *suite.split()], family, cwd=SITE)
+    elif args.command == "gate":
+        run([SITE / "scripts/rebuild-and-compare.sh", *(["--book"] if args.book else [])], family, cwd=SITE)
+    elif args.command == "deploy":
+        run([SITE / "scripts/deploy.sh", *(["--skip-book"] if args.skip_book else []),
+             *(["--dry-run"] if args.dry_run else [])], family)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

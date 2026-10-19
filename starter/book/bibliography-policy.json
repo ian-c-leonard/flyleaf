@@ -1,0 +1,5 @@
+{
+  "schema": 1,
+  "description": "Census sources left out of the bibliography on purpose. Their citations still print in the footnotes.",
+  "census_sources": []
+}

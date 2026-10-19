@@ -1,0 +1,189 @@
+{
+ "schema": 1,
+ "locations": [
+  {
+   "id": "st-just-england",
+   "name": "St Just, Cornwall, England",
+   "latitude": 50.124,
+   "longitude": -5.68,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "Wikidata, St Just (Q941861), coordinate location (P625)",
+     "url": "https://www.wikidata.org/wiki/Q941861"
+    }
+   ]
+  },
+  {
+   "id": "penzance-england",
+   "name": "Penzance, Cornwall, England",
+   "latitude": 50.12139,
+   "longitude": -5.53685,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "Wikidata, Penzance (Q208209), coordinate location (P625)",
+     "url": "https://www.wikidata.org/wiki/Q208209"
+    }
+   ]
+  },
+  {
+   "id": "camborne-england",
+   "name": "Camborne, Cornwall, England",
+   "latitude": 50.213,
+   "longitude": -5.3,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "Wikidata, Camborne (Q1774403), coordinate location (P625)",
+     "url": "https://www.wikidata.org/wiki/Q1774403"
+    }
+   ]
+  },
+  {
+   "id": "new-york-ny",
+   "name": "New York, New York",
+   "latitude": 40.662712,
+   "longitude": -73.938677,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "U.S. Census Bureau, 2025 Gazetteer place",
+     "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_place_national.zip",
+     "locator": "2025_Gaz_place_national.txt; GEOID 3651000; NY / New York city; INTPTLAT, INTPTLONG"
+    }
+   ]
+  },
+  {
+   "id": "mineral-point-wi",
+   "name": "Mineral Point, Wisconsin",
+   "latitude": 42.863216,
+   "longitude": -90.181792,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "U.S. Census Bureau, 2025 Gazetteer place",
+     "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_place_national.zip",
+     "locator": "2025_Gaz_place_national.txt; GEOID 5553100; WI / Mineral Point city; INTPTLAT, INTPTLONG"
+    }
+   ]
+  },
+  {
+   "id": "dodgeville-wi",
+   "name": "Dodgeville, Wisconsin",
+   "latitude": 42.966011,
+   "longitude": -90.129717,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "U.S. Census Bureau, 2025 Gazetteer place",
+     "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_place_national.zip",
+     "locator": "2025_Gaz_place_national.txt; GEOID 5520350; WI / Dodgeville city; INTPTLAT, INTPTLONG"
+    }
+   ]
+  },
+  {
+   "id": "madison-wi",
+   "name": "Madison, Wisconsin",
+   "latitude": 43.087815,
+   "longitude": -89.429856,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "U.S. Census Bureau, 2025 Gazetteer place",
+     "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_place_national.zip",
+     "locator": "2025_Gaz_place_national.txt; GEOID 5548000; WI / Madison city; INTPTLAT, INTPTLONG"
+    }
+   ]
+  },
+  {
+   "id": "minneapolis-mn",
+   "name": "Minneapolis, Minnesota",
+   "latitude": 44.963324,
+   "longitude": -93.26832,
+   "precision": "locality",
+   "sources": [
+    {
+     "title": "U.S. Census Bureau, 2025 Gazetteer place",
+     "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_place_national.zip",
+     "locator": "2025_Gaz_place_national.txt; GEOID 2743000; MN / Minneapolis city; INTPTLAT, INTPTLONG"
+    }
+   ]
+  }
+ ],
+ "places": [
+  {
+   "id": "9ggwzj",
+   "name": "St Just in Penwith, Cornwall, England",
+   "location": "st-just-england",
+   "relation": "same-locality",
+   "note": "The parish of St Just in Penwith is shown at the town of St Just; the parish boundary is not mapped."
+  },
+  {
+   "id": "pghgag",
+   "name": "Penzance, Cornwall, England",
+   "location": "penzance-england",
+   "relation": "same-locality",
+   "note": "Modern geographic reference for the named locality or area; historical boundaries are not asserted."
+  },
+  {
+   "id": "8cf7dl",
+   "name": "Camborne, Cornwall, England",
+   "location": "camborne-england",
+   "relation": "same-locality",
+   "note": "Modern geographic reference for the named locality or area; historical boundaries are not asserted."
+  },
+  {
+   "id": "s8705w",
+   "name": "New York, New York, USA",
+   "location": "new-york-ny",
+   "relation": "same-locality",
+   "note": "The port of arrival. The point is the modern city's reference point, not a landing place."
+  },
+  {
+   "id": "1wxv86x",
+   "name": "Mineral Point, Iowa County, Wisconsin, USA",
+   "location": "mineral-point-wi",
+   "relation": "same-locality",
+   "note": "Modern geographic reference for the named locality or area; historical boundaries are not asserted."
+  },
+  {
+   "id": "1vh6gg4",
+   "name": "Dodgeville, Iowa County, Wisconsin, USA",
+   "location": "dodgeville-wi",
+   "relation": "same-locality",
+   "note": "Modern geographic reference for the named locality or area; historical boundaries are not asserted."
+  },
+  {
+   "id": "13yoh5e",
+   "name": "Madison, Dane County, Wisconsin, USA",
+   "location": "madison-wi",
+   "relation": "same-locality",
+   "note": "Modern geographic reference for the named locality or area; historical boundaries are not asserted."
+  },
+  {
+   "id": "1bv9096",
+   "name": "Minneapolis, Hennepin County, Minnesota, USA",
+   "location": "minneapolis-mn",
+   "relation": "same-locality",
+   "note": "Modern geographic reference for the named locality or area; historical boundaries are not asserted."
+  },
+  {
+   "id": "1mj0hja",
+   "name": "Rowe's Diggings, Wisconsin, USA",
+   "location": null,
+   "relation": "unlocated",
+   "note": "Rowe's Diggings is named in the family Bible and the marriage register. No settlement of that name has been found in gazetteers, so no point is proposed."
+  }
+ ],
+ "attributions": [
+  {
+   "text": "U.S. geographic reference points: U.S. Census Bureau, 2025 Gazetteer Files.",
+   "url": "https://www.census.gov/geographies/reference-files/2025/geo/gazetter-file.html"
+  },
+  {
+   "text": "English geographic reference points: Wikidata, available under CC0.",
+   "url": "https://www.wikidata.org/wiki/Wikidata:Licensing"
+  }
+ ]
+}

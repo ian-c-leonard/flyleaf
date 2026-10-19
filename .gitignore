@@ -1,0 +1,8 @@
+# Made by builds of the sample family and by Python.
+__pycache__/
+.venv/
+.DS_Store
+sample/build/
+sample/data/family.ged
+sample/book/CLAIMS-MAP.json
+sample/book/COVERAGE.md

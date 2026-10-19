@@ -1,0 +1,12 @@
+{
+  "storageBudgetBytes": 1000000000,
+  "objectAllowanceBytes": 65536,
+  "maxFileBytes": 50000000,
+  "maxFiles": 8,
+  "maxSubmissionBytes": 150000000,
+  "maxDailySubmissions": 10,
+  "maxDailyBytes": 300000000,
+  "maxSubmissions": 5000,
+  "maxTextLength": 12000,
+  "maxTitleLength": 160
+}

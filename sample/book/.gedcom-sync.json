@@ -1,0 +1,171 @@
+{
+  "anna-vogel": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "ingrid-solberg": "2bf66306a739",
+      "karin-solberg": "95a03bc3ab5c",
+      "paul-solberg": "7e2f5ac27488",
+      "walter-kessler": "32bafcca3b2d"
+    },
+    "gedcom_sha": "0294b69263a7"
+  },
+  "arne-solberg": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "ingrid-solberg": "2bf66306a739",
+      "karin-solberg": "95a03bc3ab5c",
+      "paul-solberg": "7e2f5ac27488",
+      "walter-kessler": "32bafcca3b2d"
+    },
+    "gedcom_sha": "df64c56f84e2"
+  },
+  "david-penhallow": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "arne-solberg": "df64c56f84e2",
+      "edith-may-rowe": "240c588596ed",
+      "erik-lund": "431a9d33a519",
+      "joan-treloar": "a9d28b06dee6",
+      "john-penhallow": "1c3b9a1eb399",
+      "jory-penhallow": "79997d2a20c8",
+      "nora-penhallow": "869f93c4ae04"
+    },
+    "gedcom_sha": "945a2d999089"
+  },
+  "edith-may-rowe": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "harold-penhallow": "a9cec2b6aaa7",
+      "lilian-penhallow": "0fef3e8189c8",
+      "robert-john-penhallow": "3029c37e60af"
+    },
+    "gedcom_sha": "240c588596ed"
+  },
+  "elizabeth-trembath": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "mary-jane-penhallow": "c0b4f5ef8c95",
+      "richard-penhallow-1867": "eebcb18bb1af"
+    },
+    "gedcom_sha": "e69b29abd9fd"
+  },
+  "herman-kessler": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "ingrid-solberg": "2bf66306a739",
+      "karin-solberg": "95a03bc3ab5c",
+      "paul-solberg": "7e2f5ac27488",
+      "walter-kessler": "32bafcca3b2d"
+    },
+    "gedcom_sha": "a700a390615e"
+  },
+  "hilda-berg": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "ingrid-solberg": "2bf66306a739",
+      "karin-solberg": "95a03bc3ab5c",
+      "paul-solberg": "7e2f5ac27488",
+      "walter-kessler": "32bafcca3b2d"
+    },
+    "gedcom_sha": "363b2e210200"
+  },
+  "joan-treloar": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "carol-penhallow": "e7a1e9a2d313",
+      "david-penhallow": "945a2d999089",
+      "frank-treloar": "71d0e515cf1f"
+    },
+    "gedcom_sha": "a9d28b06dee6"
+  },
+  "john-penhallow": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "mary-jane-penhallow": "c0b4f5ef8c95",
+      "richard-penhallow-1867": "eebcb18bb1af"
+    },
+    "gedcom_sha": "1c3b9a1eb399"
+  },
+  "karin-solberg": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "arne-solberg": "df64c56f84e2",
+      "edith-may-rowe": "240c588596ed",
+      "erik-lund": "431a9d33a519",
+      "joan-treloar": "a9d28b06dee6",
+      "john-penhallow": "1c3b9a1eb399",
+      "jory-penhallow": "79997d2a20c8",
+      "nora-penhallow": "869f93c4ae04"
+    },
+    "gedcom_sha": "95a03bc3ab5c"
+  },
+  "mary-treloar": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "carol-penhallow": "e7a1e9a2d313",
+      "david-penhallow": "945a2d999089",
+      "frank-treloar": "71d0e515cf1f"
+    },
+    "gedcom_sha": "64b0796994d4"
+  },
+  "olaf-solberg": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "ingrid-solberg": "2bf66306a739",
+      "karin-solberg": "95a03bc3ab5c",
+      "paul-solberg": "7e2f5ac27488",
+      "walter-kessler": "32bafcca3b2d"
+    },
+    "gedcom_sha": "96d8e31fc383"
+  },
+  "robert-john-penhallow": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "carol-penhallow": "e7a1e9a2d313",
+      "david-penhallow": "945a2d999089",
+      "frank-treloar": "71d0e515cf1f"
+    },
+    "gedcom_sha": "3029c37e60af"
+  },
+  "ruth-kessler": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "ingrid-solberg": "2bf66306a739",
+      "karin-solberg": "95a03bc3ab5c",
+      "paul-solberg": "7e2f5ac27488",
+      "walter-kessler": "32bafcca3b2d"
+    },
+    "gedcom_sha": "857ea7a93a4c"
+  },
+  "tamsin-penhallow": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "arne-solberg": "df64c56f84e2",
+      "edith-may-rowe": "240c588596ed",
+      "erik-lund": "431a9d33a519",
+      "joan-treloar": "a9d28b06dee6",
+      "john-penhallow": "1c3b9a1eb399",
+      "jory-penhallow": "79997d2a20c8",
+      "nora-penhallow": "869f93c4ae04"
+    },
+    "gedcom_sha": "e151bb8497eb"
+  },
+  "thomas-treloar": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "carol-penhallow": "e7a1e9a2d313",
+      "david-penhallow": "945a2d999089",
+      "frank-treloar": "71d0e515cf1f"
+    },
+    "gedcom_sha": "fec62c954915"
+  },
+  "william-henry-penhallow": {
+    "accepted_at": "2026-10-17",
+    "citation_people": {
+      "harold-penhallow": "a9cec2b6aaa7",
+      "lilian-penhallow": "0fef3e8189c8",
+      "robert-john-penhallow": "3029c37e60af"
+    },
+    "gedcom_sha": "85bd9c2cb880"
+  }
+}

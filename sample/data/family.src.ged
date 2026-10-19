@@ -1,0 +1,1285 @@
+0 HEAD
+1 SOUR flyleaf-sample
+2 NAME Flyleaf sample family
+2 VERS 0.1
+1 DEST FLYLEAF
+1 DATE 16 OCT 2026
+1 SUBM @SUB1@
+1 FILE family.src.ged
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+1 NOTE The Penhallow family is fictional. It was made up to demonstrate and test Flyleaf. The places and the history of Cornish emigration to the Wisconsin lead district are real; every person, record and source here is invented.
+0 @SUB1@ SUBM
+1 NAME Flyleaf sample compiler
+0 @R1@ REPO
+1 NAME Flyleaf Sample Archive
+1 NOTE An imaginary repository for the Flyleaf sample family. None of the records said to be held here exist.
+0 @I0001@ INDI
+1 REFN john-penhallow
+2 TYPE jsonid
+1 NAME John /Penhallow/
+2 GIVN John
+2 SURN Penhallow
+1 SEX M
+1 BIRT
+2 DATE ABT 1845
+2 PLAC St Just in Penwith, Cornwall, England
+2 SOUR @SRC_PZ_MAR1866@
+3 PAGE Entry no. 47: John Penhallow, aged 21, bachelor, of St Just
+3 QUAY 2
+3 _KEY john-age-at-marriage-1866
+2 NOTE Estimated from his age at marriage. The baptism entry gives no date of birth.
+1 BAPM
+2 DATE 6 APR 1845
+2 PLAC St Just in Penwith, Cornwall, England
+2 SOUR @SRC_SJ_BAP1845@
+3 PAGE p. 31, entry 244: John, son of Richard Penhallow, miner, and Grace his wife, of Trewellard
+3 QUAY 3
+3 _KEY john-baptism-1845
+1 OCCU Tin miner
+2 DATE 1866
+2 PLAC St Just in Penwith, Cornwall, England
+2 SOUR @SRC_PZ_MAR1866@
+3 PAGE Entry no. 47: rank or profession, Tin Miner; residence, St Just
+3 QUAY 3
+3 _KEY john-tin-miner-1866
+1 IMMI
+2 DATE 14 MAY 1868
+2 PLAC New York, New York, USA
+2 SOUR @SRC_PASS1868@
+3 PAGE Sheet 3, lines 21–23: John Penhallow, 23, miner; Elizabeth, 21; Richard, 8 months; destination Wisconsin
+3 QUAY 3
+3 _KEY john-arrival-1868
+2 SOUR @SRC_OBIT1912@
+3 PAGE Column notice: in the spring of 1868 they came to America with their infant son, reaching Mineral Point in June
+3 QUAY 2
+3 _KEY john-arrival-obituary
+1 RESI
+2 DATE 1880
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1880@
+3 PAGE Sample sheet 12, line 4: John Penhallow, 35, head, miner, born England
+3 QUAY 3
+3 _KEY john-census-1880
+1 OCCU Lead and zinc miner
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_OBIT1912@
+3 PAGE Column notice: for more than thirty years he worked in the lead and zinc mines about the city, and afterward at the zinc works
+3 QUAY 2
+3 _KEY john-mining-years
+1 DEAT
+2 DATE 3 MAR 1912
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_OBIT1912@
+3 PAGE Column notice: died at his home on Shake Rag street on Sunday morning, March 3, in his sixty-seventh year
+3 QUAY 3
+3 _KEY john-death-1912
+1 BURI
+2 DATE 6 MAR 1912
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_OBIT1912@
+3 PAGE Column notice: funeral from the Methodist church on Wednesday afternoon; burial in the city cemetery
+3 QUAY 2
+3 _KEY john-burial-1912
+2 NOTE The notice gives the funeral as the Wednesday after his death, which was 6 March 1912.
+1 _CONFLEVEL primary
+1 NOTE A tin miner from St Just. He married Elizabeth Ann Trembath at Penzance in 1866. They sailed for America in 1868 and settled at Mineral Point, where he worked in the lead and zinc mines for more than thirty years.
+1 NOTE The 1904 county album says he came to America in 1867. The 1868 passenger list and his 1912 obituary both give 1868. The album was compiled long after the event, so the register uses 1868.
+1 NOTE [TODO] His baptism names his parents as Richard and Grace Penhallow of Trewellard. Enter them once a second record confirms the family.
+1 NOTE [NEGATIVE] 2026-10-12 — Searched the sample St Just burial register for 1845–1868 for Richard Penhallow; not found. He may have died after John emigrated.
+1 FAMS @F0001@
+1 SOUR @SRC_JOURNAL1998@
+2 PAGE pp. 112–114: the Penhallow family of St Just and Mineral Point
+2 QUAY 2
+2 _KEY john-journal-1998
+1 SOUR @SRC_ALBUM1904@
+2 PAGE pp. 211–212: sketch of John Penhallow, giving his arrival in America as 1867
+2 QUAY 1
+2 _KEY john-album-1904
+1 SOUR @SRC_OBIT1912@
+2 PAGE Column notice: a faithful member of the Methodist church and for many years a class leader
+2 QUAY 2
+2 _KEY john-methodist
+0 @I0002@ INDI
+1 REFN elizabeth-trembath
+2 TYPE jsonid
+1 NAME Elizabeth Ann /Trembath/
+2 GIVN Elizabeth Ann
+2 SURN Trembath
+2 _MARNM Penhallow
+1 SEX F
+1 BIRT
+2 DATE ABT 1847
+2 PLAC Camborne, Cornwall, England
+2 SOUR @SRC_JOURNAL1998@
+3 PAGE p. 113: Elizabeth Ann, daughter of James Trembath, copper miner, baptized at Camborne in 1847
+3 QUAY 2
+3 _KEY elizabeth-birth-camborne
+2 SOUR @SRC_PZ_MAR1866@
+3 PAGE Entry no. 47: Elizabeth Ann Trembath, aged 19, spinster, of Penzance; father James Trembath (deceased), copper miner
+3 QUAY 2
+3 _KEY elizabeth-age-at-marriage-1866
+1 IMMI
+2 DATE 14 MAY 1868
+2 PLAC New York, New York, USA
+2 SOUR @SRC_PASS1868@
+3 PAGE Sheet 3, line 22: Elizabeth Penhallow, 21, wife
+3 QUAY 3
+3 _KEY elizabeth-arrival-1868
+1 RESI
+2 DATE 1880
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1880@
+3 PAGE Sample sheet 12, line 5: Elizabeth Penhallow, 32, wife, keeping house, born England
+3 QUAY 3
+3 _KEY elizabeth-census-1880
+1 DEAT
+2 DATE 21 JAN 1923
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Deaths page: Mother Penhallow (Elizabeth) died Jan. 21, 1923, at Mineral Point
+3 QUAY 2
+3 _KEY elizabeth-death-1923
+1 _CONFLEVEL tree-link
+1 NOTE Born at Camborne, the daughter of a copper miner. She married John Penhallow at Penzance in 1866 and came with him and their baby son to Wisconsin in 1868.
+1 NOTE Rated tree-link for now. The 1866 marriage entry gives only her age and residence. Her Camborne birthplace comes from the 1998 journal article, which does not cite the register entry it used.
+1 NOTE [TODO] Find her baptism in the Camborne registers for about 1847.
+1 FAMS @F0001@
+1 SOUR @SRC_OBIT1912@
+2 PAGE Column notice: he leaves his wife
+2 QUAY 3
+2 _KEY elizabeth-widow-1912
+0 @I0003@ INDI
+1 REFN richard-penhallow-1867
+2 TYPE jsonid
+1 NAME Richard John /Penhallow/
+2 GIVN Richard John
+2 SURN Penhallow
+1 SEX M
+1 BIRT
+2 DATE 2 SEP 1867
+2 PLAC Penzance, Cornwall, England
+2 SOUR @SRC_JOURNAL1998@
+3 PAGE p. 114: Richard John, born at Penzance, 2 September 1867
+3 QUAY 2
+3 _KEY richard-birth-1867
+1 IMMI
+2 DATE 14 MAY 1868
+2 PLAC New York, New York, USA
+2 SOUR @SRC_PASS1868@
+3 PAGE Sheet 3, line 23: Richard Penhallow, 8 months, son
+3 QUAY 3
+3 _KEY richard-arrival-1868
+1 DEAT
+2 DATE 1868
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_JOURNAL1998@
+3 PAGE p. 114: died at Mineral Point in 1868
+3 QUAY 2
+3 _KEY richard-death-1868
+2 SOUR @SRC_OBIT1912@
+3 PAGE Column notice: a son, Richard, died in infancy
+3 QUAY 2
+3 _KEY richard-death-obituary
+1 _CONFLEVEL tree-link
+1 NOTE The first child of John and Elizabeth, born at Penzance before the family sailed. He died at Mineral Point in the year they arrived.
+1 FAMC @F0001@
+0 @I0004@ INDI
+1 REFN mary-jane-penhallow
+2 TYPE jsonid
+1 NAME Mary Jane /Penhallow/
+2 GIVN Mary Jane
+2 SURN Penhallow
+1 SEX F
+1 BIRT
+2 DATE ABT 1870
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1880@
+3 PAGE Sample sheet 12, line 6: Mary J. Penhallow, 9, daughter, at school, born Wisconsin
+3 QUAY 2
+3 _KEY mary-jane-census-1880
+1 OCCU Schoolteacher
+2 DATE 1904
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_ALBUM1904@
+3 PAGE p. 212: his daughter, Miss Mary Jane Penhallow, a teacher in the Madison schools
+3 QUAY 1
+3 _KEY mary-jane-teacher-1904
+1 DEAT
+2 DATE 1950
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_TREE2026@
+3 PAGE Profile of Mary Jane Penhallow: died 1950, Madison; no sources attached
+3 QUAY 1
+3 _KEY mary-jane-death-tree
+1 _CONFLEVEL tree-link
+1 NOTE The only daughter of John and Elizabeth to survive childhood. She taught school in Madison.
+1 NOTE [TODO] Her 1950 death comes only from an unsourced online tree. Look for a death record or an obituary.
+1 FAMC @F0001@
+1 SOUR @SRC_OBIT1912@
+2 PAGE Column notice: a daughter, Miss Mary Jane Penhallow, of Madison
+2 QUAY 3
+2 _KEY mary-jane-obituary-1912
+0 @I0005@ INDI
+1 REFN william-henry-penhallow
+2 TYPE jsonid
+1 NAME William Henry /Penhallow/
+2 GIVN William Henry
+2 SURN Penhallow
+1 SEX M
+1 BIRT
+2 DATE 14 FEB 1878
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Births page: William Henry Penhallow, born Feb. 14, 1878, Mineral Point
+3 QUAY 1
+3 _KEY william-birth-bible
+2 SOUR @SRC_US1880@
+3 PAGE Sample sheet 12, line 7: William H. Penhallow, 2, son, born Wisconsin
+3 QUAY 2
+3 _KEY william-census-1880
+1 OCCU Zinc miner
+2 DATE 1904
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_ALBUM1904@
+3 PAGE p. 212: his son William is a miner in the zinc diggings near the city
+3 QUAY 1
+3 _KEY william-miner-1904
+1 RESI
+2 DATE 1930
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Dodgeville township, sample sheet 4A, line 12: William H. Penhallow, 52, head, owns farm
+3 QUAY 3
+3 _KEY william-census-1930
+1 OCCU Farmer
+2 DATE 1930
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Dodgeville township, sample sheet 4A, line 12, occupation columns: farmer, general farm
+3 QUAY 3
+3 _KEY william-farmer-1930
+1 DEAT
+2 DATE 18 JAN 1951
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Deaths page: Will died Jan. 18, 1951, at home
+3 QUAY 2
+3 _KEY william-death-1951
+1 _CONFLEVEL tree-link
+1 NOTE The youngest child of John and Elizabeth. He worked in the zinc mines as a young man, married Edith May Rowe in 1907 and later farmed near Dodgeville.
+1 FAMC @F0001@
+1 FAMS @F0002@
+1 SOUR @SRC_OBIT1912@
+2 PAGE Column notice: a son, William H. Penhallow, of Dodgeville
+2 QUAY 3
+2 _KEY william-obituary-1912
+0 @I0006@ INDI
+1 REFN edith-may-rowe
+2 TYPE jsonid
+1 NAME Edith May /Rowe/
+2 GIVN Edith May
+2 SURN Rowe
+2 _MARNM Penhallow
+1 SEX F
+1 BIRT
+2 DATE 30 MAY 1886
+2 PLAC Rowe's Diggings, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Births page: Edith May Rowe, born May 30, 1886, at Rowe's Diggings
+3 QUAY 1
+3 _KEY edith-birth-bible
+2 SOUR @SRC_IOWA_MARR@
+3 PAGE Vol. 9, p. 88: bride Edith May Rowe, aged 21, born at Rowe's Diggings
+3 QUAY 2
+3 _KEY edith-birth-marriage-register
+1 RESI
+2 DATE 1930
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Dodgeville township, sample sheet 4A, line 13: Edith M. Penhallow, 43, wife
+3 QUAY 3
+3 _KEY edith-census-1930
+1 DEAT
+2 DATE 2 AUG 1964
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Deaths page, in another hand: Mother died Aug. 2, 1964
+3 QUAY 2
+3 _KEY edith-death-1964
+1 _CONFLEVEL tree-link
+1 NOTE She kept the family Bible register from her wedding in 1907. Her Easter 1944 letter to her son Robert survives.
+1 NOTE [TODO] Identify Rowe's Diggings. No settlement of that name appears in the gazetteers checked so far. It may have been a local name for a mining camp.
+1 NOTE An online tree names her parents as Samuel Rowe and Jane Hocking but cites nothing. They are not entered until a record names them.
+1 FAMS @F0002@
+1 SOUR @SRC_TREE2026@
+2 PAGE Profile of Edith May Rowe: parents given as Samuel Rowe and Jane Hocking, with no sources attached
+2 QUAY 1
+2 _KEY edith-parents-tree
+1 SOUR @SRC_LETTER1944@
+2 PAGE Single sheet, signed Mother: written from Dodgeville to her son Robert, Easter Sunday, 9 April 1944
+2 QUAY 2
+2 _KEY edith-letter-1944
+0 @I0007@ INDI
+1 REFN lilian-penhallow
+2 TYPE jsonid
+1 NAME Lilian Grace /Penhallow/
+2 GIVN Lilian Grace
+2 SURN Penhallow
+1 SEX F
+1 BIRT
+2 DATE 2 OCT 1908
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Births page: Lilian Grace, born Oct. 2, 1908
+3 QUAY 2
+3 _KEY lilian-birth-1908
+1 OCCU Schoolteacher
+2 DATE 1930
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Dodgeville township, sample sheet 4A, line 14: Lilian G. Penhallow, 21, daughter, teacher, public school
+3 QUAY 3
+3 _KEY lilian-census-1930
+1 DEAT
+2 DATE 1999
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE great-aunt Lilian died in Madison in 1999
+3 QUAY 2
+3 _KEY lilian-death-1999
+1 _CONFLEVEL tree-link
+1 NOTE The eldest child of William and Edith. She taught school and later lived in Madison.
+1 FAMC @F0002@
+1 SOUR @SRC_LETTER1944@
+2 PAGE Letter of 9 April 1944: Lilian came home from Madison for Easter
+2 QUAY 2
+2 _KEY lilian-letter-1944
+0 @I0008@ INDI
+1 REFN harold-penhallow
+2 TYPE jsonid
+1 NAME Harold James /Penhallow/
+2 GIVN Harold James
+2 SURN Penhallow
+1 SEX M
+1 BIRT
+2 DATE 15 MAR 1910
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Births page: Harold James, born March 15, 1910
+3 QUAY 2
+3 _KEY harold-birth-1910
+1 DEAT
+2 DATE 24 OCT 1918
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Deaths page: our Harold, Oct. 24, 1918, of the influenza, aged 8 years
+3 QUAY 2
+3 _KEY harold-death-1918
+1 _CONFLEVEL memoir
+1 NOTE Known only from the family Bible. He died in the influenza epidemic of 1918.
+1 NOTE [TODO] A Wisconsin death certificate would confirm the date and cause of death.
+1 FAMC @F0002@
+0 @I0009@ INDI
+1 REFN robert-john-penhallow
+2 TYPE jsonid
+1 NAME Robert John /Penhallow/
+2 GIVN Robert John
+2 SURN Penhallow
+2 NICK Bob
+1 SEX M
+1 BIRT
+2 DATE 12 MAR 1921
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_BIBLE@
+3 PAGE Births page: Robert John, born March 12, 1921
+3 QUAY 2
+3 _KEY robert-birth-1921
+1 RESI
+2 DATE 1930
+2 PLAC Dodgeville, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Dodgeville township, sample sheet 4A, line 15: Robert J. Penhallow, 9, son, at school
+3 QUAY 3
+3 _KEY robert-census-1930
+1 MILI
+2 DATE FROM 15 OCT 1942 TO 1945
+2 NOTE Served with the U.S. Army in England and France.
+2 SOUR @SRC_ARMY1942@
+3 PAGE Enlisted 15 October 1942 at Madison, Wisconsin; born 1921 in Wisconsin; civil occupation, farm hand
+3 QUAY 3
+3 _KEY robert-enlistment-1942
+2 SOUR @SRC_FAM2026@
+3 PAGE Grandpa Bob served in England and France and came home in 1945
+3 QUAY 1
+3 _KEY robert-service-family
+1 OCCU Machinist
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE Grandpa Bob worked as a machinist in Madison until he retired
+3 QUAY 2
+3 _KEY robert-machinist
+1 DEAT
+2 DATE 4 NOV 2004
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE Grandpa Bob died in Madison on 4 November 2004
+3 QUAY 2
+3 _KEY robert-death-2004
+1 _CONFLEVEL tree-link
+1 NOTE The youngest child of William and Edith. He grew up on the Dodgeville farm, served in the Second World War, married Joan Treloar in 1947 and worked as a machinist in Madison.
+1 NOTE [TODO] Look for his 2004 obituary, which should confirm his death and name his survivors.
+1 FAMC @F0002@
+1 FAMS @F0004@
+1 SOUR @SRC_LETTER1944@
+2 PAGE Letter of 9 April 1944, addressed to Robert: he was near the sea in the old country
+2 QUAY 2
+2 _KEY robert-letter-1944
+0 @I0010@ INDI
+1 REFN joan-treloar
+2 TYPE jsonid
+1 NAME Joan Margaret /Treloar/
+2 GIVN Joan Margaret
+2 SURN Treloar
+2 _MARNM Penhallow
+1 SEX F
+1 BIRT
+2 DATE 19 JAN 1925
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_TRELIST@
+3 PAGE Line 6: Joan Margaret b. Jan. 19, 1925
+3 QUAY 1
+3 _KEY joan-birth-list
+2 SOUR @SRC_US1930@
+3 PAGE Mineral Point city, sample sheet 9B, line 34: Joan Treloar, 5, daughter, born Wisconsin
+3 QUAY 2
+3 _KEY joan-census-1930
+1 DEAT
+2 DATE 2019
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE Grandma Joan died in Madison in 2019
+3 QUAY 2
+3 _KEY joan-death-2019
+1 _CONFLEVEL tree-link
+1 NOTE Grew up in Mineral Point. She married Robert Penhallow in 1947 and typed the family's recipes into a booklet for Christmas 1995.
+1 FAMC @F0003@
+1 FAMS @F0004@
+1 SOUR @WEB_JOAN_RECIPES@
+2 PAGE Cover: typed by Joan Penhallow, Madison, Christmas 1995
+2 QUAY 3
+2 _KEY joan-recipe-booklet-1995
+1 SOUR @SRC_LETTER1944@
+2 PAGE Letter of 9 April 1944: Joan Treloar stopped by with a pasty and asked after Robert
+2 QUAY 2
+2 _KEY joan-letter-1944
+0 @I0011@ INDI
+1 REFN carol-penhallow
+2 TYPE jsonid
+1 NAME Carol Ann /Penhallow/
+2 GIVN Carol Ann
+2 SURN Penhallow
+1 SEX F
+1 BIRT
+2 DATE 1950
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE Aunt Carol, born in Madison in 1950
+3 QUAY 2
+3 _KEY carol-birth
+1 _CONFLEVEL tree-link
+1 NOTE Living. Robert and Joan's elder child.
+1 FAMC @F0004@
+0 @I0012@ INDI
+1 REFN david-penhallow
+2 TYPE jsonid
+1 NAME David Robert /Penhallow/
+2 GIVN David Robert
+2 SURN Penhallow
+1 SEX M
+1 BIRT
+2 DATE 1958
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE her father, David, born in Madison in 1958
+3 QUAY 2
+3 _KEY david-birth
+1 _CONFLEVEL tree-link
+1 NOTE Living. Robert and Joan's younger child, and Tamsin's father.
+1 FAMC @F0004@
+1 FAMS @F0008@
+0 @I0013@ INDI
+1 REFN karin-solberg
+2 TYPE jsonid
+1 NAME Karin Ruth /Solberg/
+2 GIVN Karin Ruth
+2 SURN Solberg
+2 _MARNM Penhallow
+1 SEX F
+1 BIRT
+2 DATE 1961
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE her mother, Karin, born in Madison in 1961
+3 QUAY 2
+3 _KEY karin-birth
+1 _CONFLEVEL tree-link
+1 NOTE Living. The elder child of Arne and Ruth Solberg, and Tamsin's mother.
+1 FAMC @F0007@
+1 FAMS @F0008@
+0 @I0014@ INDI
+1 REFN jory-penhallow
+2 TYPE jsonid
+1 NAME Jory /Penhallow/
+2 GIVN Jory
+2 SURN Penhallow
+1 SEX M
+1 BIRT
+2 DATE 1996
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE her brother Jory, born in Madison in 1996
+3 QUAY 2
+3 _KEY jory-birth
+1 _CONFLEVEL tree-link
+1 NOTE Living. Tamsin's elder brother. Jory is the Cornish form of George.
+1 FAMC @F0008@
+0 @I0015@ INDI
+1 REFN tamsin-penhallow
+2 TYPE jsonid
+1 NAME Tamsin Grace /Penhallow/
+2 GIVN Tamsin Grace
+2 SURN Penhallow
+1 SEX F
+1 BIRT
+2 DATE 1999
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE born in Madison in 1999
+3 QUAY 2
+3 _KEY tamsin-birth
+1 _CONFLEVEL tree-link
+1 NOTE Living. The compiler of these family records and the person from whom the book numbers its ancestors.
+1 FAMC @F0008@
+1 FAMS @F0009@
+1 SOUR @SRC_RUTH2023@
+2 PAGE Recording 1, opening: Tamsin introduces the interview with her grandmother Ruth
+2 QUAY 3
+2 _KEY tamsin-interview-2023
+0 @I0016@ INDI
+1 REFN nora-penhallow
+2 TYPE jsonid
+1 NAME Nora /Penhallow/
+2 GIVN Nora
+2 SURN Penhallow
+1 SEX F
+1 BIRT
+2 DATE 2003
+2 SOUR @SRC_FAM2026@
+3 PAGE her sister Nora, born in 2003
+3 QUAY 2
+3 _KEY nora-birth
+1 ADOP
+2 DATE 2004
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 FAMC @F0008@
+3 ADOP BOTH
+2 SOUR @SRC_FAM2026@
+3 PAGE Nora joined the family by adoption in 2004
+3 QUAY 2
+3 _KEY nora-adoption
+1 _CONFLEVEL tree-link
+1 NOTE Living. Tamsin's younger sister, adopted by David and Karin in 2004.
+1 FAMC @F0008@
+2 PEDI adopted
+0 @I0017@ INDI
+1 REFN erik-lund
+2 TYPE jsonid
+1 NAME Erik /Lund/
+2 GIVN Erik
+2 SURN Lund
+1 SEX M
+1 BIRT
+2 DATE 1997
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE her husband, Erik, born in Minneapolis in 1997
+3 QUAY 2
+3 _KEY erik-birth
+1 _CONFLEVEL tree-link
+1 NOTE Living. Tamsin's husband. His own family is outside this edition.
+1 FAMC @F0010@
+1 FAMS @F0009@
+0 @I0018@ INDI
+1 REFN peter-lund
+2 TYPE jsonid
+1 NAME Peter /Lund/
+2 GIVN Peter
+2 SURN Lund
+1 SEX M
+1 _CONFLEVEL unknown
+1 NOTE Living. Erik's father. Not yet researched.
+1 FAMS @F0010@
+0 @I0019@ INDI
+1 REFN susan-dahl-lund
+2 TYPE jsonid
+1 NAME Susan /Dahl/
+2 GIVN Susan
+2 SURN Dahl
+2 _MARNM Lund
+1 SEX F
+1 _CONFLEVEL unknown
+1 NOTE Living. Erik's mother. Not yet researched.
+1 FAMS @F0010@
+0 @I0020@ INDI
+1 REFN arne-solberg
+2 TYPE jsonid
+1 NAME Arne Olaf /Solberg/
+2 GIVN Arne Olaf
+2 SURN Solberg
+1 SEX M
+1 BIRT
+2 DATE 3 FEB 1932
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 08:10: Arne was born in Minneapolis on 3 February 1932
+3 QUAY 2
+3 _KEY arne-birth-1932
+1 OCCU Civil engineer
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 09:30: Arne came to Madison to study engineering and worked for the state highway department
+3 QUAY 2
+3 _KEY arne-engineer
+1 DEAT
+2 DATE 2015
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE Grandpa Arne died in Madison in 2015
+3 QUAY 2
+3 _KEY arne-death-2015
+1 _CONFLEVEL tree-link
+1 NOTE Born in Minneapolis to a Norwegian-American family. He came to Madison to study, married Ruth Kessler in 1957 and stayed.
+1 FAMC @F0005@
+1 FAMS @F0007@
+0 @I0021@ INDI
+1 REFN ruth-kessler
+2 TYPE jsonid
+1 NAME Ruth Anna /Kessler/
+2 GIVN Ruth Anna
+2 SURN Kessler
+2 _MARNM Solberg
+1 SEX F
+1 BIRT
+2 DATE 1934
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 02:15: Ruth was born in Madison in 1934
+3 QUAY 2
+3 _KEY ruth-birth
+1 RESI
+2 DATE 1940
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_US1940@
+3 PAGE Sample sheet 7B, line 44: Ruth Kessler, 6, daughter
+3 QUAY 3
+3 _KEY ruth-census-1940
+1 _CONFLEVEL tree-link
+1 NOTE Living. She recorded an oral history with her granddaughter Tamsin in 2023.
+1 FAMC @F0006@
+1 FAMS @F0007@
+1 SOUR @SRC_RUTH2023@
+2 PAGE Recordings 1 and 2: Ruth's memories of the Kessler and Solberg families
+2 QUAY 2
+2 _KEY ruth-interview-2023
+0 @I0022@ INDI
+1 REFN paul-solberg
+2 TYPE jsonid
+1 NAME Paul Arne /Solberg/
+2 GIVN Paul Arne
+2 SURN Solberg
+1 SEX M
+1 BIRT
+2 DATE 1963
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE Uncle Paul, born in Madison in 1963
+3 QUAY 2
+3 _KEY paul-birth
+1 _CONFLEVEL tree-link
+1 NOTE Living. Karin's younger brother.
+1 FAMC @F0007@
+0 @I0023@ INDI
+1 REFN olaf-solberg
+2 TYPE jsonid
+1 NAME Olaf /Solberg/
+2 GIVN Olaf
+2 SURN Solberg
+1 SEX M
+1 BIRT
+2 DATE 1899
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 01:40: Arne's father, Olaf, was born in Minneapolis about 1899 to parents from Norway
+3 QUAY 1
+3 _KEY olaf-birth
+1 OCCU Streetcar motorman
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 02:30: Olaf drove a streetcar in Minneapolis for many years
+3 QUAY 1
+3 _KEY olaf-streetcar
+1 DEAT
+2 DATE 1968
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 03:05: Olaf died in Minneapolis in 1968
+3 QUAY 1
+3 _KEY olaf-death
+1 _CONFLEVEL memoir
+1 NOTE Known so far only from his daughter-in-law Ruth's memories.
+1 NOTE [TODO] Find Olaf's Minneapolis birth record and the 1900 census. Either could name his Norwegian-born parents.
+1 FAMS @F0005@
+0 @I0024@ INDI
+1 REFN hilda-berg
+2 TYPE jsonid
+1 NAME Hilda Marie /Berg/
+2 GIVN Hilda Marie
+2 SURN Berg
+2 _MARNM Solberg
+1 SEX F
+1 BIRT
+2 DATE 1903
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 03:40: Arne's mother, Hilda Berg, was born in Minneapolis in 1903
+3 QUAY 1
+3 _KEY hilda-birth
+1 DEAT
+2 DATE 1990
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 04:20: Hilda lived in Minneapolis until she died in 1990
+3 QUAY 1
+3 _KEY hilda-death
+1 _CONFLEVEL memoir
+1 NOTE Known so far only from Ruth's memories. Ruth remembers her lefse and her Sunday coffee table.
+1 FAMS @F0005@
+0 @I0025@ INDI
+1 REFN herman-kessler
+2 TYPE jsonid
+1 NAME Herman Friedrich /Kessler/
+2 GIVN Herman Friedrich
+2 SURN Kessler
+1 SEX M
+1 BIRT
+2 DATE ABT 1905
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_US1940@
+3 PAGE Sample sheet 7B, line 41: Herman Kessler, 34, head, born Wisconsin
+3 QUAY 2
+3 _KEY herman-census-1940
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 03:00: her father was born in Madison, on the east side
+3 QUAY 2
+3 _KEY herman-birth-ruth
+1 OCCU Cooper at a brewery
+2 DATE 1940
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_US1940@
+3 PAGE Sample sheet 7B, line 41, occupation columns: cooper, brewery
+3 QUAY 3
+3 _KEY herman-cooper-1940
+1 DEAT
+2 DATE 1979
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 05:10: her father died in 1979
+3 QUAY 2
+3 _KEY herman-death
+1 _CONFLEVEL tree-link
+1 NOTE A cooper who made barrels for a Madison brewery. His parents have not yet been identified. Ruth believed they came from Germany, but no record yet says so.
+1 FAMS @F0006@
+0 @I0026@ INDI
+1 REFN anna-vogel
+2 TYPE jsonid
+1 NAME Anna /Vogel/
+2 GIVN Anna
+2 SURN Vogel
+2 _MARNM Kessler
+1 SEX F
+1 BIRT
+2 DATE ABT 1907
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_US1940@
+3 PAGE Sample sheet 7B, line 42: Anna Kessler, 32, wife, born Wisconsin
+3 QUAY 2
+3 _KEY anna-census-1940
+1 DEAT
+2 DATE 1998
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 06:00: her mother died in 1998, aged ninety-one
+3 QUAY 2
+3 _KEY anna-death
+1 _CONFLEVEL tree-link
+1 NOTE Ruth's mother. Her apple kuchen recipe came down to Joan Penhallow's booklet through Ruth.
+1 FAMS @F0006@
+1 SOUR @WEB_JOAN_RECIPES@
+2 PAGE p. 4: Anna Kessler's Apple Kuchen, from Ruth, who had it from her mother
+2 QUAY 2
+2 _KEY anna-kuchen-1995
+0 @I0027@ INDI
+1 REFN walter-kessler
+2 TYPE jsonid
+1 NAME Walter /Kessler/
+2 GIVN Walter
+2 SURN Kessler
+1 SEX M
+1 BIRT
+2 DATE ABT 1931
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_US1940@
+3 PAGE Sample sheet 7B, line 43: Walter Kessler, 9, son
+3 QUAY 2
+3 _KEY walter-census-1940
+1 DEAT
+2 DATE 2010
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 06:45: her brother Walter died in 2010
+3 QUAY 2
+3 _KEY walter-death
+1 _CONFLEVEL tree-link
+1 NOTE Ruth's elder brother.
+1 FAMC @F0006@
+0 @I0028@ INDI
+1 REFN ingrid-solberg
+2 TYPE jsonid
+1 NAME Ingrid /Solberg/
+2 GIVN Ingrid
+2 SURN Solberg
+1 SEX F
+1 BIRT
+2 DATE 1935
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 05:00: Arne's sister Ingrid, born in 1935
+3 QUAY 1
+3 _KEY ingrid-birth
+1 DEAT
+2 DATE 2021
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 05:20: Ingrid died two years before the interview
+3 QUAY 1
+3 _KEY ingrid-death
+1 _CONFLEVEL memoir
+1 NOTE Arne's younger sister, known so far only from Ruth's memories.
+1 FAMC @F0005@
+0 @I0029@ INDI
+1 REFN thomas-treloar
+2 TYPE jsonid
+1 NAME Thomas Henry /Treloar/
+2 GIVN Thomas Henry
+2 SURN Treloar
+1 SEX M
+1 BIRT
+2 DATE 9 AUG 1898
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_TRELIST@
+3 PAGE Line 3: Thos. Henry Treloar b. Aug. 9, 1898, Mineral Point
+3 QUAY 1
+3 _KEY thomas-birth-list
+1 RESI
+2 DATE 1930
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Mineral Point city, sample sheet 9B, line 30: Thomas H. Treloar, 31, head, rents
+3 QUAY 3
+3 _KEY thomas-census-1930
+1 OCCU Laborer at the zinc works
+2 DATE 1930
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Mineral Point city, sample sheet 9B, line 30, occupation columns: laborer, zinc works
+3 QUAY 3
+3 _KEY thomas-zinc-works-1930
+1 DEAT
+2 DATE 1966
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_TRELIST@
+3 PAGE Line 3, added in pencil: d. 1966
+3 QUAY 1
+3 _KEY thomas-death-list
+1 _CONFLEVEL tree-link
+1 NOTE A laborer at the Mineral Point zinc works. The typed family list is the only source for his exact birth date so far.
+1 FAMS @F0003@
+0 @I0030@ INDI
+1 REFN mary-treloar
+2 TYPE jsonid
+1 NAME Mary //
+2 GIVN Mary
+2 _MARNM Treloar
+1 SEX F
+1 BIRT
+2 DATE ABT 1900
+2 SOUR @SRC_FAM2026@
+3 PAGE Grandma Joan's mother, Mary, was born about 1900; her maiden name is not known in the family
+3 QUAY 1
+3 _KEY mary-treloar-birth
+1 DEAT
+2 DATE 1971
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE Mary Treloar died at Mineral Point in 1971
+3 QUAY 1
+3 _KEY mary-treloar-death
+1 _CONFLEVEL memoir
+1 NOTE Joan Penhallow's mother. Her maiden name is unknown. Joan's recipe booklet remembers her baking heavy cake every Saturday.
+1 NOTE [TODO] Read the full 1930 census entry for the Treloar household. It should give her age, birthplace and her parents' birthplaces.
+1 NOTE [TODO] The 1922 marriage record would give her maiden name and her parents' names.
+1 FAMS @F0003@
+1 SOUR @WEB_JOAN_RECIPES@
+2 PAGE p. 3, Heavy Cake: Mother made this every Saturday in Mineral Point
+2 QUAY 2
+2 _KEY mary-treloar-heavy-cake
+1 SOUR @SRC_TRELIST@
+2 PAGE Line 4: Mary, his wife; no surname given
+2 QUAY 1
+2 _KEY mary-treloar-list
+0 @I0031@ INDI
+1 REFN frank-treloar
+2 TYPE jsonid
+1 NAME Frank /Treloar/
+2 GIVN Frank
+2 SURN Treloar
+1 SEX M
+1 BIRT
+2 DATE ABT 1923
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_US1930@
+3 PAGE Mineral Point city, sample sheet 9B, line 33: Frank Treloar, 7, son, born Wisconsin
+3 QUAY 2
+3 _KEY frank-census-1930
+1 DEAT
+2 DATE 1987
+2 SOUR @SRC_TRELIST@
+3 PAGE Line 5, added in pencil: d. 1987
+3 QUAY 1
+3 _KEY frank-death-list
+1 _CONFLEVEL tree-link
+1 NOTE Joan's elder brother.
+1 FAMC @F0003@
+0 @F0001@ FAM
+1 HUSB @I0001@
+1 WIFE @I0002@
+1 MARR
+2 DATE 9 OCT 1866
+2 PLAC Penzance, Cornwall, England
+2 SOUR @SRC_PZ_MAR1866@
+3 PAGE Entry no. 47: married at the Wesleyan Methodist Chapel after certificate; witnesses Richard Penhallow and Mary Trembath; the bride signed with her mark
+3 QUAY 3
+3 _KEY penhallow-trembath-marriage-1866
+1 CHIL @I0003@
+1 CHIL @I0004@
+1 CHIL @I0005@
+0 @F0002@ FAM
+1 HUSB @I0005@
+1 WIFE @I0006@
+1 MARR
+2 DATE 12 JUN 1907
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_IOWA_MARR@
+3 PAGE Vol. 9, p. 88: William H. Penhallow, 29, miner, and Edith May Rowe, 21, married at Mineral Point, 12 June 1907
+3 QUAY 3
+3 _KEY penhallow-rowe-marriage-1907
+2 SOUR @SRC_BIBLE@
+3 PAGE Marriages page: William Henry Penhallow and Edith May Rowe, June 12, 1907
+3 QUAY 2
+3 _KEY penhallow-rowe-marriage-bible
+1 CHIL @I0007@
+1 CHIL @I0008@
+1 CHIL @I0009@
+0 @F0003@ FAM
+1 HUSB @I0029@
+1 WIFE @I0030@
+1 MARR
+2 DATE ABT 1922
+2 SOUR @SRC_TRELIST@
+3 PAGE Line 4: m. 1922
+3 QUAY 1
+3 _KEY treloar-marriage-1922
+1 CHIL @I0031@
+1 CHIL @I0010@
+0 @F0004@ FAM
+1 HUSB @I0009@
+1 WIFE @I0010@
+1 MARR
+2 DATE 14 JUN 1947
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+2 SOUR @SRC_IOWA_MARR@
+3 PAGE Vol. 21, p. 140: Robert John Penhallow, 26, and Joan Margaret Treloar, 22, married at Mineral Point, 14 June 1947
+3 QUAY 3
+3 _KEY penhallow-treloar-marriage-1947
+1 CHIL @I0011@
+1 CHIL @I0012@
+0 @F0005@ FAM
+1 HUSB @I0023@
+1 WIFE @I0024@
+1 MARR
+2 DATE 1928
+2 PLAC Minneapolis, Hennepin County, Minnesota, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 2, about 04:00: Olaf and Hilda married in Minneapolis in 1928
+3 QUAY 1
+3 _KEY solberg-berg-marriage-1928
+1 CHIL @I0020@
+1 CHIL @I0028@
+0 @F0006@ FAM
+1 HUSB @I0025@
+1 WIFE @I0026@
+1 MARR
+2 DATE 1929
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 04:15: her parents married in Madison in 1929
+3 QUAY 2
+3 _KEY kessler-vogel-marriage-1929
+1 CHIL @I0027@
+1 CHIL @I0021@
+0 @F0007@ FAM
+1 HUSB @I0020@
+1 WIFE @I0021@
+1 MARR
+2 DATE 22 JUN 1957
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_RUTH2023@
+3 PAGE Recording 1, about 10:00: Ruth and Arne married in Madison on 22 June 1957
+3 QUAY 2
+3 _KEY solberg-kessler-marriage-1957
+1 CHIL @I0013@
+1 CHIL @I0022@
+0 @F0008@ FAM
+1 HUSB @I0012@
+1 WIFE @I0013@
+1 MARR
+2 DATE 1993
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE her parents married in Madison in 1993
+3 QUAY 2
+3 _KEY david-karin-marriage
+1 CHIL @I0014@
+1 CHIL @I0015@
+1 CHIL @I0016@
+0 @F0009@ FAM
+1 HUSB @I0017@
+1 WIFE @I0015@
+1 MARR
+2 DATE 2025
+2 PLAC Madison, Dane County, Wisconsin, USA
+2 SOUR @SRC_FAM2026@
+3 PAGE she and Erik married in Madison in 2025
+3 QUAY 2
+3 _KEY tamsin-erik-marriage
+0 @F0010@ FAM
+1 HUSB @I0018@
+1 WIFE @I0019@
+1 CHIL @I0017@
+0 @SRC_SJ_BAP1845@ SOUR
+1 TITL Sample record (fictional): St Just in Penwith parish register, baptisms 1840–1850
+1 ABBR St Just baptisms, 1840–1850 (fictional)
+1 _KEY st-just-baptisms-1840s
+1 _TIER primary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. St Just is a real parish; this register volume and its entries are not.
+0 @SRC_PZ_MAR1866@ SOUR
+1 TITL Sample record (fictional): marriage register entry, John Penhallow and Elizabeth Ann Trembath, Wesleyan Methodist Chapel, Penzance, 9 October 1866
+1 ABBR Penhallow–Trembath marriage entry, Penzance, 1866 (fictional)
+1 _KEY penhallow-trembath-marriage-1866
+1 _TIER primary
+1 REPO @R1@
+1 OBJE
+2 FILE images/documents/1866-penhallow-trembath-marriage-certificate.pdf
+3 FORM pdf
+3 TITL Marriage entry, Penzance, 1866 (facsimile made for the sample)
+3 _KIND document
+3 _NATURE Facsimile made with Typst for the Flyleaf sample; not a copy of any real register. 1 page.
+3 _SHA256 2a005e051d07302a12bb9fc2cc444d089fa928e123965f87c9a94f4193e30bf3
+3 _LOCATOR Entry no. 47
+1 OBJE
+2 FILE images/documents/plates/1866-penhallow-trembath-marriage-plate.jpg
+3 FORM jpg
+3 TITL Marriage entry, Penzance, 1866 (plate)
+3 _KIND document
+3 _NATURE Full-page rendering of the facsimile, for the book and the website.
+3 _SHA256 081ae516cd6925ef07d6e6cd218338581895a652c633f4bc2b041651ed3727f7
+3 _LOCATOR Entry no. 47
+1 NOTE Invented for the Flyleaf sample. The layout follows the printed columns of an English marriage register of the 1860s.
+0 @SRC_PASS1868@ SOUR
+1 TITL Sample record (fictional): passenger list of a steamship from Liverpool, arriving at New York, 14 May 1868
+1 ABBR Passenger list, New York, 14 May 1868 (fictional)
+1 _KEY passenger-list-1868
+1 _TIER primary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. No ship is named because none is meant.
+0 @SRC_US1880@ SOUR
+1 TITL Sample record (fictional): United States census of 1880, Mineral Point, Iowa County, Wisconsin, population schedule
+1 ABBR 1880 census, Mineral Point (fictional)
+1 _KEY census-1880-mineral-point
+1 _TIER primary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. Sheet and line numbers are made up.
+0 @SRC_US1930@ SOUR
+1 TITL Sample record (fictional): United States census of 1930, Iowa County, Wisconsin, population schedules
+1 ABBR 1930 census, Iowa County (fictional)
+1 _KEY census-1930-iowa-county
+1 _TIER primary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. Sheet and line numbers are made up.
+0 @SRC_US1940@ SOUR
+1 TITL Sample record (fictional): United States census of 1940, Madison, Dane County, Wisconsin, population schedule
+1 ABBR 1940 census, Madison (fictional)
+1 _KEY census-1940-madison
+1 _TIER primary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. Sheet and line numbers are made up.
+0 @SRC_IOWA_MARR@ SOUR
+1 TITL Sample record (fictional): Iowa County, Wisconsin, register of marriages, volumes 9 and 21
+1 ABBR Iowa County marriage register (fictional)
+1 _KEY iowa-county-marriages
+1 _TIER primary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. Volume and page numbers are made up.
+0 @SRC_OBIT1912@ SOUR
+1 TITL Sample record (fictional): The Iowa County Lantern (Mineral Point, Wisconsin), obituary of John Penhallow, 7 March 1912
+1 ABBR Iowa County Lantern, John Penhallow obituary, 1912 (fictional)
+1 _KEY lantern-john-penhallow-obituary-1912
+1 _TIER primary
+1 REPO @R1@
+1 OBJE
+2 FILE images/newspapers/1912-03-07-iowa-county-lantern-penhallow-obituary.pdf
+3 FORM pdf
+3 TITL John Penhallow's obituary, 1912 (facsimile made for the sample)
+3 _KIND newspaper-page
+3 _NATURE Facsimile clipping made with Typst for the Flyleaf sample. The newspaper is invented. 1 page.
+3 _SHA256 61b79ee85e5c8b670a2a01b9f41f9988bc85afdfd0c1307c47df3ef8b5b726c4
+3 _LOCATOR Single column, with the dateline at the top
+1 OBJE
+2 FILE images/newspapers/plates/1912-03-07-iowa-county-lantern-penhallow-obituary-plate.jpg
+3 FORM jpg
+3 TITL John Penhallow's obituary, 1912 (plate)
+3 _KIND newspaper-page
+3 _NATURE Rendering of the facsimile clipping, for the book and the website.
+3 _SHA256 ebff1bae555cefc77abd468e492606757c4407675da6443bc2234e2c270cec5d
+3 _LOCATOR Single column
+1 NOTE Invented for the Flyleaf sample. The Iowa County Lantern is not a real newspaper.
+1 NOTE A contemporary notice, good evidence for the date and place of death. His birthplace and the date of the family's arrival are recollections, so they carry less weight.
+0 @SRC_ARMY1942@ SOUR
+1 TITL Sample record (fictional): U.S. Army enlistment record, Robert J. Penhallow, 1942
+1 ABBR Army enlistment record, Robert J. Penhallow, 1942 (fictional)
+1 _KEY army-enlistment-robert-penhallow-1942
+1 _TIER primary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. No serial number is given because none is meant.
+0 @SRC_JOURNAL1998@ SOUR
+1 TITL Sample record (fictional): "St Just Families in the Wisconsin Lead District," Sample Genealogical Quarterly 41 (1998)
+1 ABBR "St Just Families in the Wisconsin Lead District" (fictional)
+1 _KEY quarterly-st-just-families-1998
+1 _TIER authoritative-secondary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. It stands for a careful, peer-reviewed journal article that cites its records.
+0 @SRC_ALBUM1904@ SOUR
+1 TITL Sample record (fictional): Men of the Lead Region: A Biographical Album of Iowa County, Wisconsin (1904)
+1 ABBR Men of the Lead Region (1904, fictional)
+1 _KEY men-of-the-lead-region-1904
+1 _TIER compiled-secondary
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. It stands for the subscription county histories of the period, whose sketches were written from family interviews.
+0 @SRC_TREE2026@ SOUR
+1 TITL Sample record (fictional): online member family tree "Rowe Family of Iowa County," viewed 12 October 2026
+1 ABBR Rowe family online tree (fictional)
+1 _KEY rowe-online-tree-2026
+1 _TIER lead
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. It stands for an unsourced online tree: a lead to records, not evidence.
+0 @SRC_BIBLE@ SOUR
+1 TITL Sample record (fictional): Penhallow family Bible, family register pages kept by Edith Penhallow, 1907–1964
+1 ABBR Penhallow family Bible (fictional)
+1 _KEY penhallow-family-bible
+1 _TIER family-testimony
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. Entries made after the 1907 wedding were written near the time; earlier births were filled in from memory.
+0 @SRC_LETTER1944@ SOUR
+1 TITL Sample record (fictional): letter from Edith Penhallow to her son Robert, Dodgeville, 9 April 1944
+1 ABBR Edith Penhallow to Robert, 9 April 1944 (fictional)
+1 _KEY edith-letter-to-robert-1944
+1 _TIER family-testimony
+1 REPO @R1@
+1 OBJE
+2 FILE images/letters/1944-04-09-edith-penhallow-to-robert.pdf
+3 FORM pdf
+3 TITL Edith's letter to Robert, Easter 1944 (facsimile made for the sample)
+3 _KIND document
+3 _NATURE Facsimile letter made with Typst for the Flyleaf sample, in a handwriting-style font. 1 page.
+3 _SHA256 d7813917adc30cb802c0e3af881d89a8f3c39875cd9d02f9504c8114bfccfab9
+3 _LOCATOR Single sheet
+1 OBJE
+2 FILE images/letters/plates/1944-04-09-edith-penhallow-to-robert-plate.jpg
+3 FORM jpg
+3 TITL Edith's letter to Robert, Easter 1944 (plate)
+3 _KIND document
+3 _NATURE Rendering of the facsimile letter, for the book and the website.
+3 _SHA256 c746ae49787ce37db50fbaade407100ebab139fe085a92dc269ab714def7666a
+3 _LOCATOR Single sheet
+1 NOTE Invented for the Flyleaf sample.
+0 @WEB_JOAN_RECIPES@ SOUR
+1 TITL Sample record (fictional): Joan Penhallow, Joan's Kitchen: Penhallow Family Recipes, typed booklet, Christmas 1995
+1 ABBR Joan's Kitchen (1995, fictional)
+1 _KEY joan-penhallow-recipes-1995
+1 _TIER family-testimony
+1 _PERSON @I0010@
+1 _PERSON @I0015@
+1 REPO @R1@
+1 OBJE
+2 FILE images/recipes/1995-joan-penhallow-recipe-booklet.pdf
+3 FORM pdf
+3 TITL Joan's Kitchen (facsimile made for the sample)
+3 _KIND book
+3 _NATURE Pasties, saffron buns, heavy cake, lefse and apple kuchen. 4 pages.
+3 _SHA256 4527d2dd21e82664edb088ba5570254f588bb63c012df478da19d87c08eb7c04
+3 _LOCATOR Christmas 1995; complete booklet
+3 _STATUS Facsimile made with Typst for the Flyleaf sample
+1 OBJE
+2 FILE images/recipes/plates/1995-joan-penhallow-recipe-booklet-cover.jpg
+3 FORM jpg
+3 TITL Joan's Kitchen, cover (plate)
+3 _KIND document
+3 _NATURE Rendering of the booklet's cover page.
+3 _SHA256 9eb681d773d0c9a503cc835d7c1c2503aec359db95de17eba4f544019d7a5ab3
+3 _LOCATOR p. 1
+1 NOTE Invented for the Flyleaf sample. The cooks Joan credits are sample people; the recipes are traditional dishes written up for the sample.
+0 @SRC_RUTH2023@ SOUR
+1 TITL Sample record (fictional): oral history interview with Ruth Solberg, interview by Tamsin Penhallow, Madison, March 2023
+1 ABBR Ruth Solberg interview, 2023 (fictional)
+1 _KEY ruth-solberg-interview-2023
+1 _TIER family-testimony
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. Two recordings; times are approximate. No audio is included in the sample.
+0 @SRC_FAM2026@ SOUR
+1 TITL Sample record (fictional): family information supplied by Tamsin Penhallow, October 2026
+1 ABBR Tamsin Penhallow (fictional)
+1 _KEY family-information-tamsin-2026
+1 _TIER family-testimony
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. It stands for what a compiler knows first-hand about the living generations.
+0 @SRC_TRELIST@ SOUR
+1 TITL Sample record (fictional): undated typed list of Treloar family names and dates, photocopy found among Joan Penhallow's papers
+1 ABBR Typed Treloar family list (fictional)
+1 _KEY typed-treloar-list
+1 _TIER unclassified
+1 REPO @R1@
+1 NOTE Invented for the Flyleaf sample. Who typed the list, when and from what is unknown, so it has not yet been sorted into a source group.
+0 TRLR

@@ -1,0 +1,36 @@
+# dependencies
+/node_modules
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+
+# local environment
+.env*
+
+# deployment and generated files
+/dist/
+/.wrangler/
+/outputs/
+/work/
+/public/data/
+# The site build stages a family's data beside public/data, and keeps the
+# previous copy there while it swaps them (scripts/export-website.py).
+/public/.data-stage-*/
+/public/.data-previous-*/
+/test-results/
+*.tsbuildinfo
+
+/public/pdfjs/
+/public/geography/
+
+# Private invitee list and generated previews
+email/invitees.local.json
+email/out/
+# Made from the family's settings and content by scripts/prepare.mjs.
+/public/login/index.html
+/public/login/monogram.png
+/wrangler.jsonc

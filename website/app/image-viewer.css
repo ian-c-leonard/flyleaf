@@ -1,0 +1,74 @@
+.kin-image-modal .kin-image-view {
+  isolation: isolate;
+  padding-top: 12px;
+}
+.kin-image-modal .kin-image-single {
+  padding-top: 68px;
+}
+.kin-image-viewer-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 56px 12px 0;
+  background: #18271f;
+  font-size: 14px;
+}
+.kin-image-viewer-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #69776b;
+  color: #f7f5ef;
+}
+.kin-image-viewer-toolbar span {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: #c9cfc2;
+}
+.kin-image-viewer-toolbar button:hover:not(:disabled),
+.kin-image-file-actions button:hover {
+  background: #2a3c30;
+}
+.kin-image-viewer-toolbar button:active:not(:disabled),
+.kin-image-file-actions button:active {
+  background: #35493b;
+}
+.kin-image-viewer-toolbar button:focus-visible,
+.kin-image-file-actions :focus-visible {
+  outline: 2px solid #d8b993;
+  outline-offset: 3px;
+}
+.kin-image-viewer-toolbar button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.kin-image-view > img {
+  touch-action: pan-y pinch-zoom;
+}
+.kin-image-caption > .kin-image-file-actions {
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.kin-image-unavailable {
+  display: grid;
+  place-items: center;
+  min-height: 32dvh;
+  padding: 24px;
+  color: #f7f5ef;
+}
+@media (max-width: 600px) {
+  .kin-image-viewer-toolbar {
+    gap: 8px;
+    font-size: 12px;
+  }
+  .kin-image-viewer-toolbar button {
+    gap: 4px;
+    padding: 8px;
+  }
+}

@@ -1,0 +1,176 @@
+0 HEAD
+1 _ATLAS
+2 TITL The Penhallow family
+2 _SUBTITLE A sample family history (fictional)
+2 _ROOT @I0015@
+2 _BOUNDARY @F0009@
+2 _INCLUDE @I0017@
+1 _ARCHIVE_CATALOG
+2 OBJE @WEB_VIS_JOHN@
+2 OBJE @WEB_VIS_ELIZABETH@
+2 OBJE @WEB_VIS_EDITH@
+2 OBJE @WEB_VIS_FAMILY@
+2 OBJE @WEB_VIS_HOUSE@
+2 SOUR @SRC_PZ_MAR1866@
+2 SOUR @SRC_OBIT1912@
+2 SOUR @SRC_LETTER1944@
+2 SOUR @WEB_JOAN_RECIPES@
+2 SOUR @WEB_ILLUSTRATIONS@
+0 @WEB_ILLUSTRATIONS@ SOUR
+1 TITL Photographs used to illustrate the Flyleaf sample family: public-domain images from the Library of Congress
+1 ABBR Library of Congress illustrations for the sample
+1 _URL https://www.loc.gov/pictures/
+1 NOTE None of these photographs shows anyone in the sample family. The sitters and the family group are unidentified, and the house is a survey subject in Mineral Point. Each image is credited in images/CREDITS.md.
+1 _ARCHIVE images/photographs/john-penhallow-portrait.jpg
+2 _KIND photograph
+2 _NATURE Unidentified man, glass negative, C.M. Bell studio, between 1873 and about 1916
+2 _SHA256 ef01005425ae285cb4bdc7e3dbcb6856a1d6dbdc40be5f41bc80479dab22228d
+2 _LOCATOR Library of Congress, LC-B5- 820907
+1 _ARCHIVE images/photographs/elizabeth-penhallow-portrait.jpg
+2 _KIND photograph
+2 _NATURE Unidentified woman, glass negative, C.M. Bell studio, between 1873 and about 1916
+2 _SHA256 1b1973bf8fc79ed6749d1417c116d2ef45ab5837d3b409550ca00bdf4b514ebd
+2 _LOCATOR Library of Congress, LC-B5- 800490
+1 _ARCHIVE images/photographs/edith-rowe-portrait.jpg
+2 _KIND photograph
+2 _NATURE Unidentified woman, glass negative, C.M. Bell studio, between 1873 and about 1916
+2 _SHA256 831376d40323ef61d854d9d4847747bc68b719987c4fb339ff25f664e2fed355
+2 _LOCATOR Library of Congress, LC-B5- 800494
+1 _ARCHIVE images/photographs/penhallow-family-group.jpg
+2 _KIND photograph
+2 _NATURE Unidentified family group, glass negative, C.M. Bell studio, between 1873 and about 1916
+2 _SHA256 f8059738fea6a8b2b7e04b2c0fd54a613ed6b338323743049f7173209ac28f58
+2 _LOCATOR Library of Congress, LC-B5- 860160
+1 _ARCHIVE images/photographs/mineral-point-cornish-miners-house-habs.jpg
+2 _KIND photograph
+2 _NATURE Cornish Miner's House No. 2, Mineral Point, view from the southeast
+2 _SHA256 ff7583c833add275c88d468d5891b53e2de6065cf8913fbaf7c74a4294811ca5
+2 _LOCATOR Historic American Buildings Survey, HABS WI-28-14, photograph 1
+0 @WEB_VIS_JOHN@ OBJE
+1 FILE images/photographs/john-penhallow-portrait.jpg
+2 _SHA256 ef01005425ae285cb4bdc7e3dbcb6856a1d6dbdc40be5f41bc80479dab22228d
+2 _KIND photograph
+1 TITL John Penhallow (illustration)
+1 _CREDIT Unidentified man, photographed by the C.M. Bell studio between 1873 and about 1916. Library of Congress, LC-B5- 820907. Used to illustrate the sample family.
+1 _RIGHTS No known restrictions on publication.
+1 _CONTENT photograph
+1 _ALBUM display
+1 _VISUAL_ROLE portrait
+1 _TYPE portrait
+1 _AVATAR Y
+1 _AVATAR_POSITION top
+1 _SUBJECT @I0001@
+1 _DISCOVERY_NOTE A public-domain studio portrait chosen to stand in for John in the sample. It does not show anyone in this family.
+1 _PUBLIC_NOTE This picture illustrates the sample family. The man in it is unidentified.
+1 SOUR @WEB_ILLUSTRATIONS@
+0 @WEB_VIS_ELIZABETH@ OBJE
+1 FILE images/photographs/elizabeth-penhallow-portrait.jpg
+2 _SHA256 1b1973bf8fc79ed6749d1417c116d2ef45ab5837d3b409550ca00bdf4b514ebd
+2 _KIND photograph
+1 TITL Elizabeth Penhallow (illustration)
+1 _CREDIT Unidentified woman, photographed by the C.M. Bell studio between 1873 and about 1916. Library of Congress, LC-B5- 800490. Used to illustrate the sample family.
+1 _RIGHTS No known restrictions on publication.
+1 _CONTENT photograph
+1 _ALBUM display
+1 _VISUAL_ROLE portrait
+1 _TYPE portrait
+1 _AVATAR Y
+1 _SUBJECT @I0002@
+1 _DISCOVERY_NOTE A public-domain studio portrait chosen to stand in for Elizabeth in the sample. It does not show anyone in this family.
+1 _PUBLIC_NOTE This picture illustrates the sample family. The woman in it is unidentified.
+1 SOUR @WEB_ILLUSTRATIONS@
+0 @WEB_VIS_EDITH@ OBJE
+1 FILE images/photographs/edith-rowe-portrait.jpg
+2 _SHA256 831376d40323ef61d854d9d4847747bc68b719987c4fb339ff25f664e2fed355
+2 _KIND photograph
+1 TITL Edith May Rowe (illustration)
+1 _CREDIT Unidentified woman, photographed by the C.M. Bell studio between 1873 and about 1916. Library of Congress, LC-B5- 800494. Used to illustrate the sample family.
+1 _RIGHTS No known restrictions on publication.
+1 _CONTENT photograph
+1 _ALBUM display
+1 _VISUAL_ROLE portrait
+1 _TYPE portrait
+1 _AVATAR Y
+1 _SUBJECT @I0006@
+1 _DISCOVERY_NOTE A public-domain studio portrait chosen to stand in for Edith in the sample. It does not show anyone in this family.
+1 _PUBLIC_NOTE This picture illustrates the sample family. The woman in it is unidentified.
+1 SOUR @WEB_ILLUSTRATIONS@
+0 @WEB_VIS_FAMILY@ OBJE
+1 FILE images/photographs/penhallow-family-group.jpg
+2 _SHA256 f8059738fea6a8b2b7e04b2c0fd54a613ed6b338323743049f7173209ac28f58
+2 _KIND photograph
+1 TITL William and Edith Penhallow with Lilian and Harold (illustration)
+1 _CREDIT Unidentified family, photographed by the C.M. Bell studio between 1873 and about 1916. Library of Congress, LC-B5- 860160. Used to illustrate the sample family.
+1 _RIGHTS No known restrictions on publication.
+1 _CONTENT photograph
+1 _ALBUM display
+1 _VISUAL_ROLE group
+1 _TYPE group
+1 _SUBJECT @I0005@
+1 _SUBJECT @I0006@
+1 _SUBJECT @I0007@
+1 _SUBJECT @I0008@
+1 _DISCOVERY_NOTE A public-domain studio group chosen to stand in for William, Edith and their two eldest children. It does not show anyone in this family.
+1 _PUBLIC_NOTE This picture illustrates the sample family. The family in it is unidentified.
+1 SOUR @WEB_ILLUSTRATIONS@
+0 @WEB_VIS_HOUSE@ OBJE
+1 FILE images/photographs/mineral-point-cornish-miners-house-habs.jpg
+2 _SHA256 ff7583c833add275c88d468d5891b53e2de6065cf8913fbaf7c74a4294811ca5
+2 _KIND photograph
+1 TITL A Cornish miner's stone house in Mineral Point
+1 _CREDIT Cornish Miner's House No. 2, Mineral Point, Wisconsin. Photograph by Alexander C. Guth for the Historic American Buildings Survey (HABS WI-28-14), Library of Congress.
+1 _RIGHTS No known restrictions on images made by the U.S. Government.
+1 _CONTENT photograph
+1 _ALBUM display
+1 _VISUAL_ROLE place
+1 _TYPE place
+1 _RELATED @I0001@
+1 _RELATED @I0002@
+1 _DISCOVERY_NOTE A real house surveyed by HABS, used to show the kind of stone cottage Cornish miners built in Mineral Point. It was not the Penhallows' home.
+1 _PUBLIC_NOTE The kind of house Cornish miners built in Mineral Point. It was not the Penhallows' home.
+1 SOUR @WEB_ILLUSTRATIONS@
+0 @WEB_C_penhallow@ _CHAP
+1 REFN penhallow
+1 TITL From St Just to Shake Rag Street
+1 _SUBTITLE Penhallow & Trembath
+1 _ORDER 1
+1 _SECTION wedding
+2 TITL A wedding at Penzance
+2 _ORDER 1
+2 DATE 1866
+2 _PERIOD 1866–1868
+2 NOTE John Penhallow, a tin miner from St Just, married Elizabeth Ann Trembath at the Wesleyan Methodist Chapel in Penzance on 9 October 1866. He was twenty-one and she was nineteen. John signed his name, and Elizabeth made her mark.
+2 NOTE Their son Richard was born at Penzance the next September. In the spring of 1868 the three of them sailed from Liverpool. They arrived in New York on 14 May, bound for Wisconsin.
+2 _PERSON @I0001@
+2 _PERSON @I0002@
+2 OBJE @WEB_VIS_JOHN@
+2 SOUR @SRC_PZ_MAR1866@
+2 SOUR @SRC_PASS1868@
+2 PLAC Penzance, Cornwall, England
+3 _PRECISION Locality; not an exact family address
+3 MAP
+4 LATI N50.121
+4 LONG W5.537
+2 _MANUSCRIPT book/sketches/0016-john-penhallow.typ
+3 _HASH 193d14f541e7f47f53ba17dd3389261c29effe0095d3de641d13e01dc43cc98a
+1 _SECTION mineral-point
+2 TITL Forty years in Mineral Point
+2 _ORDER 2
+2 DATE 1868
+2 _PERIOD 1868–1923
+2 NOTE The family reached Mineral Point in June 1868, and baby Richard died there that year. In 1880 John was working as a miner. Elizabeth kept house, with Mary Jane, nine, and William Henry, two.
+2 NOTE For more than thirty years John worked in the lead and zinc mines around the town, and later at the zinc works. He was a class leader in the Methodist church. He died at his home on Shake Rag Street on 3 March 1912. Elizabeth died in Mineral Point in January 1923.
+2 _PERSON @I0001@
+2 _PERSON @I0002@
+2 OBJE @WEB_VIS_HOUSE@
+2 OBJE @WEB_VIS_ELIZABETH@
+2 SOUR @SRC_US1880@
+2 SOUR @SRC_OBIT1912@
+2 PLAC Mineral Point, Iowa County, Wisconsin, USA
+3 _PRECISION Locality; not an exact family address
+3 MAP
+4 LATI N42.863
+4 LONG W90.182
+2 _MANUSCRIPT book/sketches/0016-john-penhallow.typ
+3 _HASH 193d14f541e7f47f53ba17dd3389261c29effe0095d3de641d13e01dc43cc98a
+0 TRLR

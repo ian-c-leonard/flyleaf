@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "source": "@WEB_JOAN_RECIPES@",
+  "indexing": {"not_titles": ["PASTRY", "FILLING"]},
+  "letterImage": "images/recipes/plates/1995-joan-penhallow-recipe-booklet-cover.jpg",
+  "labels": {
+    "title": "Joan’s Kitchen",
+    "person": "joan-treloar",
+    "byline": "Joan Penhallow",
+    "open": "Open her recipes",
+    "credit": "Family recipes Joan wrote down in 1995, with the cooks she learned them from.",
+    "compiledBy": "Written down by Joan Penhallow in 1995.",
+    "letter": "Read Joan’s note",
+    "letterDetail": "1995 · 1 page",
+    "letterContext": "Joan’s 1995 note",
+    "searchPlaceholder": "Find a recipe: pasties, saffron, lefse…",
+    "searchLabel": "Find a recipe in Joan’s booklet"
+  },
+  "volumes": [
+    {
+      "id": "joans-kitchen",
+      "shortTitle": "Joan’s Kitchen",
+      "path": "images/recipes/1995-joan-penhallow-recipe-booklet.pdf",
+      "sha256": "4527d2dd21e82664edb088ba5570254f588bb63c012df478da19d87c08eb7c04",
+      "kind": "volume",
+      "pages": 4,
+      "contentsPages": 1,
+      "summary": "Cornish pasties, saffron buns and heavy cake from the Penhallow and Treloar kitchens, with lefse and apple kuchen from the Solbergs and Kesslers.",
+      "categories": [
+        {
+          "label": "Pasties",
+          "heading": "CORNISH PASTIES (EDITH’S WAY)",
+          "page": 2
+        },
+        {
+          "label": "Baking",
+          "heading": "SAFFRON BUNS",
+          "page": 3
+        },
+        {
+          "label": "Solberg and Kessler recipes",
+          "heading": "RUTH SOLBERG’S LEFSE",
+          "page": 4
+        }
+      ]
+    }
+  ]
+}

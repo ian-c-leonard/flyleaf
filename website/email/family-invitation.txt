@@ -1,0 +1,15 @@
+Dear {{firstName}},
+
+I have been gathering our family's records, photographs and memories into a family history: a book and a private website made just for the family.
+
+Inside you will find the people and places of our family, old photographs, letters and records, and the whole book to read online or download.
+
+Open your invitation:
+{{inviteUrl}}
+
+The site is private to the family. Sign in with this email address; each time, a short code arrives by email.
+
+If you have a photograph, a story or a correction, use "Share something" on any page. I would love to hear from you.
+
+With love,
+{{maintainerFirstName}}

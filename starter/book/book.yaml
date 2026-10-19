@@ -1,0 +1,14 @@
+# The book's settings. Read by Flyleaf's book engine: plain `key: value`
+# lines, and chapters as `- {id: x, title: "...", lines: [a, b]}`. Do not put
+# a hash sign inside a value; everything after it is read as a comment.
+
+title: TITLE
+subtitle: A family history
+author: Compiled by the family
+root_refn:
+trim_width: 6in
+trim_height: 9in
+
+# Chapters group the family lines Flyleaf computes from the root person.
+# flyleaf import writes a first plan here; rename or split chapters freely.
+chapters:

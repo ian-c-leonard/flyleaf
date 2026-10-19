@@ -1,0 +1,84 @@
+name: Pages
+
+# flyleaf.family: the landing page in pages/, the sample family's website at
+# /demo/, and its book at /sample-book.pdf. Publishes only from a public repo,
+# and only after every test passes.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # Only the main repository publishes flyleaf.family; forks do not.
+    if: ${{ !github.event.repository.private && github.repository == 'ian-c-leonard/flyleaf' }}
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FLYLEAF_FAMILY: ${{ github.workspace }}/sample
+      FLYLEAF_BASE_PATH: /demo/
+      SOURCE_DATE_EPOCH: "1792204575"
+      TZ: America/Chicago
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Typst 0.14.2
+        run: |
+          curl -sSL -o typst.tar.xz https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz
+          echo "a6044cbad2a954deb921167e257e120ac0a16b20339ec01121194ff9d394996d  typst.tar.xz" | sha256sum --check --strict
+          tar -xf typst.tar.xz
+          mkdir -p "$HOME/.local/bin"
+          mv typst-x86_64-unknown-linux-musl/typst "$HOME/.local/bin/typst"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+        working-directory: website
+      - run: ./flyleaf book
+      - run: ./flyleaf site build
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp -R pages/. _site/
+          cp -R website/dist/client _site/demo
+          cp sample/build/book.pdf _site/sample-book.pdf
+          # Flyleaf's licence and credits; the demo carries its own licenses/.
+          cp LICENSE NOTICE _site/
+          echo "flyleaf.family" > _site/CNAME
+          # The demo is static: it has no sign-in page.
+          test ! -e _site/demo/login/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  # Only this job may publish to Pages.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

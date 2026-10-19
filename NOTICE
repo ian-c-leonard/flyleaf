@@ -1,0 +1,49 @@
+Flyleaf
+Copyright (c) 2026 Ian Leonard. MIT License (see LICENSE).
+
+Flyleaf ships, or copies into what it builds, work made by others. Each
+keeps its own licence.
+
+Fonts
+- Libertinus Serif and Libertinus Sans, the book's default typefaces
+  (book/fonts/). Copyright The Libertinus Project Authors. SIL Open Font
+  License 1.1: book/fonts/OFL.txt.
+- EB Garamond, the website's serif typeface (from the @fontsource/eb-garamond
+  package; copies in website/public/login/fonts/ and pages/fonts/).
+  Copyright The EB Garamond Project Authors. SIL Open Font License 1.1: every
+  site build publishes it as licenses/eb-garamond-OFL.txt.
+- Source Sans 3, the website's sans-serif typeface (from the
+  @fontsource-variable/source-sans-3 package; copies as above). Copyright
+  Adobe, with Reserved Font Name "Source". SIL Open Font License 1.1: every
+  site build publishes it as licenses/source-sans-3-OFL.txt.
+- The sample family's facsimile documents use IM FELL English (Igino
+  Marini), Pinyon Script (The Pinyon Project Authors) and Cedarville Cursive
+  (Kimberly Geswein), all under the SIL Open Font License 1.1, and Special
+  Elite (Astigmatic), under the Apache License 2.0. The fonts and their
+  licences are in sample/images/facsimiles/fonts/.
+
+Map data
+- website/geography/ holds Natural Earth data (naturalearthdata.com), which
+  is in the public domain.
+- The website's map shows tiles from OpenStreetMap. Map data copyright
+  OpenStreetMap contributors, available under the Open Database License; the
+  map credits them on screen.
+
+Software copied into the website
+- Every site build publishes licenses/third-party.txt: Flyleaf's licence and
+  the licence of every package its browser code may include, in full.
+- pdf.js (pdfjs-dist), the PDF reader. Copyright Mozilla Foundation. Apache
+  License 2.0: every site build also publishes it as pdfjs/LICENSE.
+- Leaflet, the map. Copyright Volodymyr Agafonkin. BSD 2-Clause License.
+- Phosphor Icons. Copyright Phosphor Icons. MIT License.
+
+The Flyleaf mark
+- The mark on flyleaf.family, in the README banner and in every site's
+  footer is Phosphor's "Tree" icon on a rounded square. Copyright Phosphor
+  Icons. MIT License.
+
+Sample family
+- The photographs come from the Library of Congress Prints and Photographs
+  Division, with no known restrictions on publication. The house photograph
+  was made by the U.S. Government for the Historic American Buildings
+  Survey. sample/images/CREDITS.md credits each one.

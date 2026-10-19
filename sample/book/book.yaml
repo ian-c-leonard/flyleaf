@@ -1,0 +1,21 @@
+# Book configuration — The Penhallows of St Just and Mineral Point
+# The Penhallow family is fictional. It exists to demonstrate and test Flyleaf.
+# Read by the book engine (strict YAML subset: scalars + `- {…}` flow-mapped
+# chapter entries only). Do not put a hash sign inside a value: the reader
+# treats everything after it as a comment.
+
+title: The Penhallows of St Just and Mineral Point
+subtitle: Five generations from the Cornish tin mines to Wisconsin
+author: Compiled from the Penhallow family records (a fictional sample family)
+root_refn: tamsin-penhallow
+trim_width: 6in
+trim_height: 9in
+
+# Chapters group COMPUTED lines. A computed line that appears in the GEDCOM
+# but is not mapped here is a coverage ERROR. The sample computes five lines:
+# origin, penhallow, treloar, solberg and kessler.
+chapters:
+  - {id: penhallow, title: "Penhallow and Treloar — From St Just to the Lead Region", lines: [penhallow, treloar]}
+  - {id: solberg, title: "Solberg and Kessler — Minneapolis and Madison", lines: [solberg, kessler]}
+  # charts: false leaves this chapter's family charts out.
+  - {id: present, title: "The Present Generation", lines: [origin], charts: false}

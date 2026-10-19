@@ -1,0 +1,158 @@
+.book-preview {
+  margin: 0;
+  position: fixed;
+  z-index: 90;
+  width: min(384px, calc(100vw - 24px));
+  box-sizing: border-box;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0 1.3rem 1.3rem;
+  border: 1px solid #c9c8b9;
+  border-radius: 3px;
+  background: #fcfaf4;
+  color: #283e35;
+  box-shadow: 0 8px 30px #293b3026;
+  font-family: 'Source Sans 3 Variable', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.book-preview-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #fcfaf4;
+  border-bottom: 1px solid #dcd7ca;
+  margin-bottom: 1rem;
+  min-height: 48px;
+  font-size: 0.8rem;
+  color: #59665b;
+}
+.book-preview-header button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -12px;
+  background: none;
+  color: inherit;
+  border: 0;
+  cursor: pointer;
+}
+.book-preview h3 {
+  margin: 0 0 0.5rem;
+  font:
+    500 1.65rem/1.14 'EB Garamond',
+    Georgia,
+    serif;
+}
+.book-preview p {
+  margin: 0.65rem 0;
+}
+.book-preview-person {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.book-preview-person img {
+  width: 72px;
+  height: 86px;
+  object-fit: contain;
+  background: #eae7dd;
+}
+.book-preview-person p,
+.book-preview-context {
+  color: #59665b;
+}
+.book-preview-person p.book-preview-relation {
+  margin-top: -0.35rem;
+  color: var(--wine);
+  font-weight: 600;
+}
+.book-preview-actions {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1rem;
+}
+.book-preview-source-notes {
+  color: #59665b;
+  font-size: 0.86rem;
+  border-top: 1px solid #e1dccf;
+}
+.book-preview-source-notes summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+}
+.book-preview-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.5rem 0;
+  text-align: left;
+  color: #526349;
+  font: inherit;
+  background: none;
+  border: 0;
+  border-top: 1px solid #e1dccf;
+  cursor: pointer;
+}
+.book-preview :focus-visible {
+  outline: 2px solid #a8481a;
+  outline-offset: 3px;
+}
+.book-preview [data-book-note] {
+  font: inherit;
+}
+.book-preview-register {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0;
+  margin: 0.25rem 0 1rem;
+  border: 0;
+  border-bottom: 1px solid #dcd7ca;
+  background: none;
+  color: #526349;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.native-book-content a[data-book-mention] {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #84907a80;
+  text-underline-offset: 0.17em;
+  text-decoration-thickness: 1px;
+}
+.native-book-content a[data-book-mention]:hover,
+.native-book-content a[data-book-mention]:focus-visible {
+  color: #365a4b;
+  text-decoration-color: currentColor;
+}
+@media (max-width: 600px) {
+  .book-preview {
+    border-radius: 8px;
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* These inline links open our own previews on a tap. Safari's URL peek/drag
+   competes with reading gestures; retain normal text selection and zoom.
+   Do not give them (or buttons) a touch-action: iPhone Safari then rebuilds
+   a touch map of every such element in the book after each visible change,
+   which held every tap in the book for about a second. */
+.native-book-content a[data-book-mention],
+.native-book-content a[role='doc-noteref'] {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}

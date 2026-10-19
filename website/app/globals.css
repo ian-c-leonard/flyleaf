@@ -1,0 +1,136 @@
+:root {
+  --paper: #fcfaf5;
+  --navy: #182d43;
+  --ink: #243443;
+  --muted: #70777a;
+  --wine: #713c46;
+  --brass: #a28b62;
+  --line: #dcded9;
+  --sans: 'Source Sans 3 Variable', sans-serif;
+  --serif: 'EB Garamond', Georgia, serif;
+  color-scheme: light;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+}
+body {
+  font-family: var(--sans);
+  font-size: 16px;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+  color: inherit;
+  border: 0;
+  background: none;
+}
+button,
+a,
+input {
+  outline-offset: 5px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--wine);
+}
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+h1,
+h2,
+h3,
+p,
+figure {
+  margin: 0;
+}
+button svg {
+  flex-shrink: 0;
+}
+::selection {
+  background: #d9c8c2;
+}
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4c8c7;
+  border-radius: 8px;
+}
+.icon-button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  padding: 8px;
+}
+.icon-button:hover {
+  background: #e9ece8;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border-bottom: 1px solid #9da7a1;
+  max-width: 650px;
+  padding: 13px 0;
+  margin-top: 35px;
+}
+.search-box input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-size: 18px;
+}
+.empty-note {
+  font-family: var(--serif);
+  font-size: 21px;
+  padding: 35px 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* A drawn chevron replaces the native disclosure marker, which iPhone
+   Safari can render as a blue emoji arrow. */
+summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.38em;
+  height: 0.38em;
+  margin: 0 0.6em 0.12em 0.1em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+details[open] > summary::before {
+  transform: rotate(45deg);
+}

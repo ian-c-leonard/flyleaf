@@ -1,0 +1,121 @@
+.profile-introduction {
+  margin-block: 24px;
+}
+.profile-source-marker {
+  color: var(--wine);
+  font-family: var(--sans);
+  font-size: 0.65em;
+  line-height: 1;
+  vertical-align: super;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 4px 2px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.profile-source-marker:hover,
+.profile-read-chapter:hover {
+  color: var(--ink);
+}
+.profile-source-marker:active {
+  background: var(--line);
+}
+.profile-source-marker:focus-visible,
+.profile-read-chapter:focus-visible,
+.profile-source-actions button:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 3px;
+}
+.profile-source-context {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.atlas-dialog.profile-source-modal {
+  width: min(640px, calc(100% - 32px));
+  height: fit-content;
+  max-height: min(800px, calc(100dvh - 32px));
+  margin: auto;
+  padding: 32px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  overflow-y: auto;
+}
+.profile-source-modal h2 {
+  font: 28px/1.2 var(--serif);
+  margin: 0 0 24px;
+}
+.profile-source-copy {
+  font: 20px/1.6 var(--serif);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.profile-source-actions {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+.profile-chapter-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 24px;
+  margin-top: 8px;
+}
+.profile-read-chapter {
+  max-width: 100%;
+  padding-block: 8px;
+  line-height: 1.4;
+  text-align: left;
+}
+.profile-read-chapter svg {
+  flex-shrink: 0;
+}
+.profile-read-chapter span {
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .atlas-dialog.profile-source-modal {
+    padding: 24px;
+  }
+  .profile-source-marker {
+    min-width: 28px;
+    min-height: 28px;
+  }
+}
+
+.profile-register-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--wine);
+  text-underline-offset: 3px;
+}
+.profile-register-link:hover {
+  color: var(--wine);
+}
+.profile-register-link:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 3px;
+}
+.profile-source-group {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  vertical-align: super;
+  color: var(--wine);
+  font: 0.65em/1 var(--sans);
+}
+.profile-source-group::before {
+  content: '[';
+}
+.profile-source-group::after {
+  content: ']';
+}
+.profile-source-group .profile-source-marker {
+  font: inherit;
+  vertical-align: baseline;
+}
+.profile-source-separator {
+  white-space: pre;
+}
