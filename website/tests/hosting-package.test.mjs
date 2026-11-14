@@ -18,7 +18,8 @@ import { syncBuiltinESMExports } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { prepareHosting } from '../scripts/prepare-hosting.mjs';
-import { checkLive, checkSignedOut } from '../scripts/verify-live.mjs';
+import { checkLive, checkSignedOut, publishedFiles } from '../scripts/verify-live.mjs';
+import { removeOsMetadata } from '../scripts/os-metadata.mjs';
 
 async function fixture() {
   const site = await mkdtemp(path.join(tmpdir(), 'family-package-'));
@@ -426,6 +427,43 @@ void test('hosting omits OS metadata while retaining intentional hidden web file
     );
     assert.equal(result.archiveFiles, 1);
     assert.equal(result.files[0].key, 'archive/images/photo.jpg');
+  } finally {
+    await rm(site, { recursive: true, force: true });
+  }
+});
+
+void test('a file the operating system adds after packaging is swept before upload and never counted', async () => {
+  const site = await fixture();
+  try {
+    // A hidden file the site means to publish stays.
+    await mkdir(path.join(site, 'dist/client/.well-known'), { recursive: true });
+    await writeFile(path.join(site, 'dist/client/.well-known/config.json'), 'kept');
+    const packaged = await prepareHosting(site);
+    const assets = path.join(site, 'dist/hosting/assets');
+    // macOS writes these whenever a Finder window shows the folder, even
+    // between packaging and upload.
+    const added = ['.DS_Store', '._index.html', 'data/.DS_Store'];
+    for (const relative of added)
+      await writeFile(path.join(assets, relative), 'finder');
+    // The live check counts the site's own files, so the stray ones neither
+    // stop a deploy nor pass as published files.
+    const { statics } = await publishedFiles(site);
+    assert.equal(statics.length, packaged.staticFiles);
+    assert.ok(statics.includes('.well-known/config.json'));
+    for (const relative of added) assert.ok(!statics.includes(relative), relative);
+    // Deploy sweeps the package as the last step before it uploads.
+    assert.deepEqual(await removeOsMetadata(assets), added);
+    for (const relative of added)
+      await assert.rejects(stat(path.join(assets, relative)), { code: 'ENOENT' });
+    assert.equal(await readFile(path.join(assets, '.well-known/config.json'), 'utf8'), 'kept');
+    const deploy = await readFile(
+      fileURLToPath(new URL('../scripts/deploy.sh', import.meta.url)),
+      'utf8',
+    );
+    assert.match(
+      deploy,
+      /\nnode scripts\/os-metadata\.mjs dist\/hosting\/assets\nwrangler deploy --message /,
+    );
   } finally {
     await rm(site, { recursive: true, force: true });
   }

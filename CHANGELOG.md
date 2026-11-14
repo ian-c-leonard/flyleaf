@@ -4,6 +4,10 @@
 
 - The website runs over plain HTTP as well as HTTPS. It no longer needs a
   browser feature that works only over HTTPS.
+- Deploy sweeps `.DS_Store` and similar system files out of the package just
+  before it uploads, and the live check no longer counts them. macOS could
+  add one between packaging and upload, which then went live and stopped
+  the check.
 - The tree check counts the people at `tree-link` who cite an original
   record or a scholarly source, so a confidence level does not stay behind
   the evidence. The research standards say when a record raises a level.

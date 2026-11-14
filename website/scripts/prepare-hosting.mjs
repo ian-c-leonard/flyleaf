@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { archiveKey } from '../worker/archive.ts';
 import { readWebBook, readWebBookBody } from '../app/lib/native-book.ts';
 import { isMain } from './is-main.mjs';
+import { isOsMetadata } from './os-metadata.mjs';
 
 // The book PDF's file name, from flyleaf.json (loaded by flyleaf-globals.mjs).
 const pdfName = globalThis.__FLYLEAF_SITE__.pdfName;
@@ -137,14 +138,7 @@ export async function prepareHosting(site = defaultSite) {
     await cp(source, assets, {
       recursive: true,
       filter: (candidate) => {
-        const name = path.basename(candidate);
-        if (
-          ['.DS_Store', '__MACOSX', 'Thumbs.db', 'desktop.ini'].includes(
-            name,
-          ) ||
-          name.startsWith('._')
-        )
-          return false;
+        if (isOsMetadata(path.basename(candidate))) return false;
         return !['images', 'publications'].some(
           (folder) => candidate === path.join(source, 'data', folder),
         );

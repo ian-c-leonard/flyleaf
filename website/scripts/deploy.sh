@@ -111,8 +111,11 @@ wrangler d1 migrations apply "$database" --remote
 step "Bundling the Worker"
 wrangler deploy --dry-run --outdir work/worker-bundle
 
+# macOS can add a .DS_Store to the package whenever a Finder window shows
+# it. Sweep the package last, so no such file is ever uploaded.
 step "Publishing the Worker and site files"
 message="$(git -C "$family" log -1 --format='%h %s' | cut -c1-100)"
+node scripts/os-metadata.mjs dist/hosting/assets
 wrangler deploy --message "$message"
 
 # Without a session, the home page must send a visitor to sign in, and the
