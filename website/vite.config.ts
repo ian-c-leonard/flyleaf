@@ -92,13 +92,39 @@ export const staticSite: Plugin = {
   },
 };
 
+// Empty the output folder before the build, and keep trying if it will not
+// empty at once. macOS rewrites a .DS_Store in any folder a Finder window
+// shows; one that lands while the folder is being removed stops Vite's own
+// emptying, which gives up at the first failure.
+let outputFolder = '';
+export const emptyOutput: Plugin = {
+  name: 'flyleaf-empty-output',
+  apply: 'build',
+  configResolved(config) {
+    outputFolder = path.resolve(config.root, config.build.outDir);
+  },
+  buildStart() {
+    rmSync(outputFolder, {
+      recursive: true,
+      force: true,
+      maxRetries: 20,
+      retryDelay: 50,
+    });
+  },
+};
+
 export default defineConfig({
   base: basePath(),
-  plugins: [familyContent, staticSite, react()],
+  plugins: [familyContent, emptyOutput, staticSite, react()],
   define: siteDefines(),
   // The app is one bundle of about 700 kB. A larger limit keeps Vite's size
   // note from burying the static-site warning at the end of the build.
-  build: { outDir: 'dist/client', chunkSizeWarningLimit: 1000 },
+  // emptyOutput above empties the folder, so Vite does not.
+  build: {
+    outDir: 'dist/client',
+    emptyOutDir: false,
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
     host: '127.0.0.1',
     port: 5173,

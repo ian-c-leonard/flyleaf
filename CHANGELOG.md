@@ -4,6 +4,9 @@
 
 - The website runs over plain HTTP as well as HTTPS. It no longer needs a
   browser feature that works only over HTTPS.
+- The site build empties its output folder itself, and keeps trying. On
+  macOS an open Finder window could stop the build with "Directory not
+  empty".
 - Deploy sweeps `.DS_Store` and similar system files out of the package just
   before it uploads, and the live check no longer counts them. macOS could
   add one between packaging and upload, which then went live and stopped
