@@ -4,6 +4,9 @@
 
 - The website runs over plain HTTP as well as HTTPS. It no longer needs a
   browser feature that works only over HTTPS.
+- The tree check counts the people at `tree-link` who cite an original
+  record or a scholarly source, so a confidence level does not stay behind
+  the evidence. The research standards say when a record raises a level.
 
 ## 0.1.0 (18 October 2026)
 

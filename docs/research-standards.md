@@ -126,6 +126,11 @@ For people at `tree-link`, it reports how many cite no source yet, without
 listing them. `flyleaf import` gives `tree-link` to everyone without a
 level, so at first this count is the size of the job ahead.
 
+It also reports how many people at `tree-link` cite a `primary` or
+`authoritative-secondary` source. Read each of them: if the record is about
+that person and places them in the family, raise their level (see
+[Confidence](#confidence)). This count never stops the build.
+
 A person with no confidence level at all is not flagged. The report counts
 them under `no-conflevel`, and the source checks above skip them. Give each
 person a level, so the checks cover them.
@@ -327,6 +332,18 @@ How to set the level:
 - A person who rests on inference alone, with no source, is `unknown`.
 - Raise a level only when a record you have cited supports it. Lower it when
   a record contradicts it and you cannot explain the conflict.
+- A record raises a level only when it records that person: their own
+  birth, baptism, marriage, death, burial, census, will or service entry, or
+  their child's birth or baptism entry that names them. A later record that
+  only mentions them does not: a child's death certificate, a relative's
+  obituary, a biography. Nor does a name alone on a roster or in a
+  directory, or an entry a printed volume took from private papers (see
+  [Published editions of vital records](#published-editions-of-vital-records)).
+- Review the levels after each round of research. A label set when a person
+  had one source goes out of date as records arrive. Changing a level marks
+  that person's story as out of date, like any other change to their
+  record. If nothing else changed, mark it current again with
+  `flyleaf coverage --mark PERSON`.
 - `primary` speaks to the person **and** their place in the family. A good
   death record supports the death. The person's place in the family needs
   evidence of its own.

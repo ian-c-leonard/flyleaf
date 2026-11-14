@@ -1383,6 +1383,22 @@ class TestNewFamilyValidation(unittest.TestCase):
         self.assertIn("[NO-SOURCE] @I2@ (ben-example) Ben Example: confidence=memoir but no source "
                       "is cited", result.stdout)
 
+    def test_a_tree_link_person_with_a_strong_source_is_counted(self):
+        # Import marks everyone tree-link. Once a person cites a good record,
+        # the check says so, so the label does not stay behind the evidence.
+        strong = SMALL_TREE.replace("1 TITL Example birth register",
+                                    "1 TITL Example birth register\n1 _TIER primary")
+        weak = SMALL_TREE.replace("1 TITL Example birth register",
+                                  "1 TITL Example family tree\n1 _TIER lead")
+        note = "1 person at tree-link cites an original record or a scholarly source"
+        for tree, expected in ((strong, True), (weak, False)):
+            with tempfile.TemporaryDirectory() as tmp:
+                family = small_family(Path(tmp), tree=tree)
+                self.assertEqual(run_script(family, "enrich-gedcom.py").returncode, 0)
+                result = run_script(family, "validate-gedcom.py")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(note in result.stdout, expected, result.stdout)
+
     def test_a_failed_check_says_what_to_do_next(self):
         tree = SMALL_TREE.replace("1 _CONFLEVEL tree-link", "1 _CONFLEVEL primary").replace(
             "1 TITL Example birth register", "1 TITL Example family tree\n1 _TIER lead")

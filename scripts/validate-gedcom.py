@@ -326,6 +326,7 @@ def main():
     errors = []
     warnings = []
     unsourced_links = 0
+    stronger_than_label = 0
     stats = {"primary": 0, "tree-link": 0, "memoir": 0, "unknown": 0, "no-conflevel": 0, "no-refn": 0, "no-source": 0}
     classification_stats = {"primary": 0, "authoritative-secondary": 0, "compiled-secondary": 0, "family-testimony": 0, "lead": 0, "unclassified": 0}
 
@@ -408,6 +409,12 @@ def main():
             else:
                 warnings.append(f"[NO-SOURCE] {loc}: confidence={conf} but no source is cited")
 
+        # A tree-link person who cites a strong source may have outgrown the
+        # label: counted, never listed, because only a reader can tell whether
+        # the record is about them.
+        if conf == "tree-link" and any(c in ("primary", "authoritative-secondary") for c in classes):
+            stronger_than_label += 1
+
         # Rule 4: primary confidence requires primary or authoritative-secondary source
         if conf == "primary" and refn not in EXEMPT:
             has_primary_grade = any(c in ("primary", "authoritative-secondary") for c in classes)
@@ -434,6 +441,12 @@ def main():
                                        if unsourced_links == 1 else
                                        "people linked from another tree (tree-link) cite")
               + " no source yet.")
+    if stronger_than_label:
+        print(f"  {stronger_than_label} " + ("person at tree-link cites" if stronger_than_label == 1
+                                           else "people at tree-link cite")
+              + " an original record or a scholarly source. If the record is about them and"
+              " places them in the family, raise their confidence (docs/research-standards.md,"
+              " \"Confidence\").")
 
     if warnings:
         print(f"\n━━━ {len(warnings)} WARNINGS ━━━")
