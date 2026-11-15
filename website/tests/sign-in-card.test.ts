@@ -62,4 +62,6 @@ void test('the sign-in page carries the card steps, hidden until the site turns 
   assert.match(page, /id="card-email"[^>]*type="email"[^>]*autocomplete="email"/);
   assert.match(page, /id="card-proof"[^>]*inputmode="numeric"[^>]*autocomplete="one-time-code"/);
   assert.match(page, /id="card-code"[^>]*autocomplete="off"[^>]*autocapitalize="characters"/);
+  // The chosen address is shown whole, in its own element.
+  assert.match(page, /<span id="card-proof-email" class="card-address"\s*>your email address<\/span\s*>\./);
 });

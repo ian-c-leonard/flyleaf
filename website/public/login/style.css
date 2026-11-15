@@ -502,6 +502,13 @@ footer a {
   border-radius: 4px;
   outline-offset: 2px;
 }
+/* An email address stays in one piece, on a line of its own if need be. */
+.card-address {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
 #card-code {
   text-transform: uppercase;
   letter-spacing: 1px;

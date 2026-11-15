@@ -125,8 +125,7 @@ export function startCards({ maintainer, pause, resume }) {
       strategy: 'email_code',
       emailAddressId: factor.emailAddressId,
     });
-    find('card-proof-sent').textContent =
-      `We sent a six-digit code to ${email}.`;
+    find('card-proof-email').textContent = email;
     say('The email can take a minute. Check your spam folder too.');
     show('proof');
   }
