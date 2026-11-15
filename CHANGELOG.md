@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Family cards. A relative whose email address you do not have can sign in
+  with the code on a printed card. They type the code, are welcomed by
+  name, and choose the email address they will sign in with.
+  `website/email/cards.mjs` makes the codes and a page of cards to print,
+  shows who has used their card, and cancels one. Cards are off unless
+  `auth.cards` is `true`. See "Cards for relatives whose email you do not
+  have" in docs/hosting.md.
 - The website runs over plain HTTP as well as HTTPS. It no longer needs a
   browser feature that works only over HTTPS.
 - The site build empties its output folder itself, and keeps trying. On

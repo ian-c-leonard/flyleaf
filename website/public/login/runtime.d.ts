@@ -7,6 +7,13 @@ export interface FamilyClerk {
   addListener(listener: (state: { session: unknown }) => void): () => void;
 }
 export function loadClerk(): Promise<FamilyClerk>;
+export function signInConfig(): Promise<{
+  publishableKey: string;
+  frontendApi: string;
+  clerkVersion: string;
+  uiVersion: string;
+  cards?: boolean;
+}>;
 export function allowedSession(): Promise<boolean>;
 export function destination(
   search?: string,

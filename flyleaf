@@ -565,8 +565,8 @@ def main():
         site(args)
     elif args.command == "test":
         make(family, "test")
-        for suite in ("test", "run test:worker", "run test:submissions", "run test:gateway",
-                      "run test:hosting", "run test:archive"):
+        for suite in ("test", "run test:worker", "run test:submissions", "run test:cards",
+                      "run test:gateway", "run test:hosting", "run test:archive"):
             run(["npm", *suite.split()], family, cwd=SITE)
     elif args.command == "gate":
         run([SITE / "scripts/rebuild-and-compare.sh", *(["--book"] if args.book else [])], family, cwd=SITE)

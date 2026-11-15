@@ -29,6 +29,7 @@ npm-debug.log*
 
 # Private invitee list and generated previews
 email/invitees.local.json
+email/cards.local.json
 email/out/
 # Made from the family's settings and content by scripts/prepare.mjs.
 /public/login/index.html

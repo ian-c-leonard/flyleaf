@@ -109,6 +109,7 @@ void test('Clerk SDK in the real Worker protects every archive route', async (t)
           '/login/style.css',
           '/login/app.js',
           '/login/runtime.js',
+          '/login/card.js',
           '/login/fonts/eb-garamond-latin-400-normal.woff2',
           '/login/fonts/source-sans-3-latin-wght-normal.woff2',
           '/login/fonts/eb-garamond-OFL.txt',
@@ -157,10 +158,16 @@ void test('Clerk SDK in the real Worker protects every archive route', async (t)
           '/login/fonts/%65b-garamond-latin-400-normal.woff2',
         ])
           assert.equal((await f.req(p)).status, 401, p);
-        assert.deepEqual(
-          Object.keys(await (await f.req('/login/config.json')).json()).sort(),
-          ['clerkVersion', 'frontendApi', 'publishableKey', 'uiVersion'],
-        );
+        const config = await (await f.req('/login/config.json')).json();
+        assert.deepEqual(Object.keys(config).sort(), [
+          'cards',
+          'clerkVersion',
+          'frontendApi',
+          'publishableKey',
+          'uiVersion',
+        ]);
+        // Card codes are off unless the family turns them on.
+        assert.equal(config.cards, false);
         for (const host of [
           'https://evil.example',
           'https://www.example.family',

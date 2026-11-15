@@ -9,7 +9,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FamilyError, readSettings, sharingOn } from '../flyleaf-settings.mjs';
+import {
+  cardsOn,
+  FamilyError,
+  readSettings,
+  sharingOn,
+} from '../flyleaf-settings.mjs';
 import { isMain } from './is-main.mjs';
 
 const site = fileURLToPath(new URL('..', import.meta.url));
@@ -42,6 +47,8 @@ export function workerVars(settings = readSettings(), { strict = true } = {}) {
     ALLOWED_HOSTS: domain,
     // Relatives may send things only when features.submissions is true.
     SUBMISSIONS_OPEN: sharingOn(settings) ? 'true' : 'false',
+    // Printed cards with a code let relatives in only when auth.cards is true.
+    CARDS_OPEN: cardsOn(settings) ? 'true' : 'false',
     CLERK_FRONTEND_API: need(
       auth.clerk_frontend_api,
       'auth.clerk_frontend_api',

@@ -39,6 +39,74 @@
         <div class="form-wrap">
           <p class="eyebrow">A private family collection</p>
           <h2 id="signin-title" class="visually-hidden">Family access</h2>
+          <section id="card" class="card" aria-labelledby="card-title" hidden>
+            <form id="card-code-form" novalidate>
+              <h3 id="card-title">Have a card?</h3>
+              <label for="card-code">Type the code from your card.</label>
+              <input
+                id="card-code"
+                name="code"
+                type="text"
+                autocomplete="off"
+                autocapitalize="characters"
+                autocorrect="off"
+                spellcheck="false"
+                maxlength="60"
+              />
+              <button type="submit">Continue</button>
+            </form>
+            <form id="card-email-form" novalidate hidden>
+              <h3 id="card-welcome" tabindex="-1">Welcome</h3>
+              <label for="card-email"
+                >Please enter your email address. You will use it to sign in
+                from now on.</label
+              >
+              <input
+                id="card-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                autocapitalize="off"
+                spellcheck="false"
+                maxlength="254"
+              />
+              <button type="submit">Continue</button>
+              <button type="button" class="card-link" id="card-restart">
+                Use a different card
+              </button>
+            </form>
+            <form id="card-proof-form" novalidate hidden>
+              <h3 id="card-proof-title" tabindex="-1">Check your email</h3>
+              <label for="card-proof"
+                ><span id="card-proof-sent"
+                  >We sent a six-digit code to your email address.</span
+                >
+                Type it here.</label
+              >
+              <input
+                id="card-proof"
+                name="proof"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="12"
+              />
+              <button type="submit">Sign in</button>
+              <button type="button" class="card-link" id="card-resend">
+                Send the code again
+              </button>
+              <button type="button" class="card-link" id="card-change-email">
+                Use a different email address
+              </button>
+            </form>
+            <p
+              id="card-status"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            ></p>
+          </section>
+          <p id="card-or" class="card-or" hidden>or</p>
           <div id="clerk-form"></div>
           <div class="login-actions">
             <button type="button" id="switch-account" hidden>
@@ -58,6 +126,10 @@
               check your spam folder. To request another code or link, return
               to the page where you requested it and use Resend when it becomes
               available.
+            </p>
+            <p id="card-help" hidden>
+              If you have a card, type its code at the top of this page. After
+              that first visit, sign in with the email address you chose.
             </p>
             <p>
               For an invitation or help signing in,

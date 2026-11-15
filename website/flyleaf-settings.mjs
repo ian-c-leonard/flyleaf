@@ -88,6 +88,15 @@ export function sharingOn(settings = readSettings()) {
   );
 }
 
+/** Relatives may sign in with the code on a printed card only when the
+ * family turns it on (auth.cards: true) and the site has sign-in. */
+export function cardsOn(settings = readSettings()) {
+  const cards = settings.auth?.cards;
+  if (cards !== undefined && typeof cards !== 'boolean')
+    throw new FamilyError('flyleaf.json: auth.cards must be true or false');
+  return cards === true && siteHosting(settings) === 'worker';
+}
+
 /** The footer says "Built with Flyleaf" unless the family sets
  * site.credit: false. */
 export function creditOn(settings = readSettings()) {

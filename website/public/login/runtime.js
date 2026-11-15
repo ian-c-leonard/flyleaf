@@ -105,9 +105,12 @@ export function trustedSignIn(config, host) {
 const invitedBy = () =>
   document.body?.dataset.maintainer || 'the family historian';
 
-export function loadClerk() {
-  if (!pending)
-    pending = (async () => {
+let settings;
+/** The site's sign-in settings: where its sign-in service is, and whether
+ * relatives may sign in with the code on a printed card (`cards`). */
+export function signInConfig() {
+  if (!settings)
+    settings = (async () => {
       const response = await fetch('/login/config.json', {
         credentials: 'same-origin',
         cache: 'no-store',
@@ -118,6 +121,22 @@ export function loadClerk() {
       const config = await response.json();
       if (!trustedSignIn(config, location.host))
         throw new Error('Sign-in is being prepared.');
+      return config;
+    })().catch((error) => {
+      settings = undefined;
+      throw error;
+    });
+  return settings;
+}
+
+export function loadClerk() {
+  if (!pending)
+    pending = (async () => {
+      const config = await signInConfig();
+      // A relative with a card chose their own address; the others were invited.
+      const whichEmail = config.cards
+        ? `Use the email address you chose, or the one ${invitedBy()} invited.`
+        : `Use the email address ${invitedBy()} invited.`;
       if (!window.__internal_ClerkUICtor)
         await script(
           `${config.frontendApi}/npm/@clerk/ui@${config.uiVersion}/dist/ui.browser.js`,
@@ -138,7 +157,7 @@ export function loadClerk() {
             signIn: {
               start: {
                 title: 'Sign in',
-                subtitle: `Use the email address ${invitedBy()} invited.`,
+                subtitle: whichEmail,
               },
               emailCode: {
                 title: 'Enter your code',

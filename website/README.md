@@ -12,7 +12,7 @@ folder.
 | `npm run dev` | Prepare the data and serve the site while you edit. |
 | `npm run preview` | Serve the last build. |
 | `npm test` | The app's unit tests. |
-| `npm run test:worker`, `test:submissions`, `test:gateway` | The Worker's tests. |
+| `npm run test:worker`, `test:submissions`, `test:cards`, `test:gateway` | The Worker's tests. |
 | `npm run test:hosting` | The hosting, deploy and invitation scripts' tests. |
 | `npm run test:archive` | The archive upload and sync tests. |
 | `npm run typecheck`, `lint`, `worker:typecheck`, `worker:lint`, `archive:lint` | Type and lint checks. |

@@ -11,7 +11,7 @@ folder, in `website/dist/`. `flyleaf new` makes a family folder from
     book/                 book settings, chapters, sketches, front and back matter
     images/               photographs, documents and other originals
     site/                 website content (every file is optional)
-    email/                the invitation letter, if you write your own
+    email/                the invitation letter and the card, if you write your own
     build/                the book PDF and other output
 
 ## How Flyleaf finds the family folder
@@ -112,6 +112,8 @@ Only needed for `site.hosting: "worker"`. See [hosting.md](hosting.md).
 | `auth.clerk_publishable_key`, `auth.clerk_frontend_api` | The Clerk sign-in service. |
 | `auth.allowed_emails`, `auth.admin_emails` | Who may sign in, and who reviews what relatives send. |
 | `auth.viewer_people` | Each invited email address and the person in the tree it belongs to, so the site can say "your grandmother". |
+| `auth.cards` | `true` to let relatives sign in with the code on a printed card and choose their own email address. Anything else, or no setting, keeps cards off. |
+| `auth.card_address` | The address printed on each card, such as `www.example.family`. Without it, `site.domain`. |
 | `cloudflare.*` | Worker name, account id, the two R2 buckets and the D1 database. |
 | `features.submissions` | `true` to let relatives send photographs, memories and corrections. Anything else, or no setting, keeps sending off. A static site never offers it. |
 | `email.from`, `email.invitation_subject` | For the invitation emails `website/email/invite.mjs` prepares. |

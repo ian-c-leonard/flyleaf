@@ -25,6 +25,7 @@
     "test:gateway": "node --experimental-strip-types --test tests/gateway.test.mjs",
     "test:worker": "node --test tests/worker-runtime.test.mjs",
     "test:submissions": "node --test tests/submissions-runtime.test.mjs",
+    "test:cards": "node --test tests/cards-runtime.test.mjs",
     "worker:lint": "oxlint worker public/login/*.js",
     "test:hosting": "node --experimental-strip-types --import ./flyleaf-globals.mjs --test tests/hosting-package.test.mjs",
     "archive": "node scripts/archive.mjs",

@@ -233,6 +233,83 @@ relative, who would only crowd it.
    `.txt`, or use the plain one Flyleaf provides.
 4. Deploy, so the new addresses can sign in.
 
+### Cards for relatives whose email you do not have
+
+A card is a small printed note with a short code, such as `K7M-4QX`. The
+relative goes to the site and types the code. The site welcomes them by
+name and asks for the email address they want to sign in with. It sends a
+six-digit code to that address, and they are in. From then on they sign in
+with that email. You never need to know it beforehand.
+
+1. Set `auth.cards` to `true` in flyleaf.json and deploy. The sign-in page
+   then shows "Have a card?" above the email sign-in.
+2. Check three things in Clerk. The emailed verification code must be on as
+   a way to sign in. A password must not be required. If Clerk requires a
+   first and last name, the card supplies both. Sign-up can stay invitation
+   only: the site makes each card holder's account itself.
+
+   The site makes each account with its email address already marked as
+   verified. What proves a relative owns the address is the sign-in itself.
+   So every way to sign in that you turn on in Clerk must go through the
+   relative's inbox, as an emailed code or link does.
+3. List the people in `email/cards.local.json` in the family folder:
+
+       [{"person": "tom-penhallow", "firstName": "Tom", "lastName": "Penhallow"}]
+
+   `person` is their id in the tree. The names are the ones the site greets
+   them by and gives their account.
+4. Make the cards. The script prints which family it is using:
+
+       FLYLEAF_FAMILY=../my-family node website/email/cards.mjs
+
+   Each person on the list without a card gets a code. The script writes
+   the code beside their name in `cards.local.json`, and writes the cards to
+   `email/out/cards.html`. Open that page in a browser and print it at 100%
+   on US Letter paper turned sideways. Each sheet makes four cards of 5.5 by
+   4.25 inches, which fit an A2 envelope. To word the card your own way,
+   copy `website/email/family-cards.html` into the family's `email/` folder
+   and edit it. Keep `<!-- card -->` and `<!-- /card -->` around one card.
+5. See who has used their card with `--status`. Cancel a card with
+   `--cancel <person>`. That also ends the sign-in the card gave, within a
+   minute, and removes the account the site made for it. Run the script
+   again to make that person a new card.
+
+Making and cancelling cards needs no deploy.
+
+To stop taking new cards, set `auth.cards` back to `false` and deploy. The
+"Have a card?" box goes, and no code works. Relatives who have already used
+a card keep their sign-in. `--status` and `--cancel` still work.
+
+How a card keeps the site private:
+
+- A code opens the site, so `cards.local.json` and `email/out/` must stay
+  out of git. The script stops if git would add either. The site's database
+  holds a hash of each code, not the code.
+- A card lets its email in only after the relative has signed in with that
+  email. A mistyped address opens nothing, and the relative can type the
+  right one. A card may try five addresses in all.
+- When a relative changes the address, the site removes the account it made
+  for the old one. It removes only an account it made for a card, that
+  nobody has signed in with, at an address no card names and flyleaf.json
+  does not invite.
+- A card works once. A used card typed again reminds its holder which
+  address they chose, by its first letter and the part after `@`.
+- A card that is never used stops working after 365 days. `--days 90` sets
+  another length for the cards a run makes. The page to print leaves out a
+  card that no longer works, and the script says so.
+- Guessing is limited. One internet address may send 30 wrong codes an hour.
+  Everyone together may send 300 wrong codes a day. Right codes are not
+  counted. The numbers live in `website/shared/card-policy.json`.
+- Past the daily limit, no card works until the day ends, by the clock in
+  UTC. Someone who keeps sending wrong codes for ten hours can cause that.
+  Relatives who are already let in are not affected, and the Worker's log
+  shows `family_card_limit`. A Cloudflare rate-limiting rule on
+  `/api/card/*` stops such a sender earlier.
+- The card prints `site.domain` as the address to go to. Set
+  `auth.card_address` to print another, such as `www.example.family`, when
+  that address forwards to the site.
+- An administrator can see the site as each person a card was made for.
+
 ## Privacy
 
 - The map's pictures come from OpenStreetMap's tile servers
@@ -243,5 +320,8 @@ relative, who would only crowd it.
 - On a Worker site, sign-in runs through Clerk, which holds each invited
   relative's email address. Cloudflare keeps the Worker's request logs for
   you, with the part of each address after `?` removed.
+- With cards, the site's database holds each card's person, name and
+  chosen email address. To limit guessing it counts wrong codes by a hash
+  of the sender's internet address, and clears each count within a day.
 - The site has no analytics or advertising. Apart from the map and sign-in,
   every file it loads comes from the site itself, fonts included.

@@ -54,11 +54,13 @@ function workerBundle() {
 
 /** The real Worker in Miniflare with a local Clerk mock. Settings default to
  * invented ones (helpers/worker-settings.mjs); `email` is the signed-in
- * member that token() vouches for unless a test changes it. */
+ * member that token() vouches for unless a test changes it. `api` answers
+ * the Clerk requests a test expects beyond sign-in itself, such as making an
+ * account; any request it leaves unanswered fails the test. */
 export async function clerkFixture(
   assets,
   overrides = {},
-  { email = 'ada@example.org' } = {},
+  { email = 'ada@example.org', api } = {},
 ) {
   const keys = await generateKeyPair('RS256');
   const jwk = {
@@ -105,6 +107,8 @@ export async function clerkFixture(
         if (url.pathname === '/v1/jwks') return Response.json({ keys: [jwk] });
         if (url.pathname === '/v1/clients/handshake_payload')
           return Response.json({ directives });
+        const answer = api && (await api(request, url));
+        if (answer) return answer;
         throw Error('Unexpected Clerk fixture request: ' + url.pathname);
       },
     }),

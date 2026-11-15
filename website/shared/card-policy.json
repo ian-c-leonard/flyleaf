@@ -1,0 +1,6 @@
+{
+  "wrongPerAddressHour": 30,
+  "wrongPerDay": 300,
+  "emailChanges": 5,
+  "validDays": 365
+}

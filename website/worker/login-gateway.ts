@@ -1,11 +1,13 @@
 import { createClerkClient } from '@clerk/backend';
 import { protect, message, archiveKey, readArchive } from './archive.ts';
 import { submissions } from './submissions.ts';
+import { cardHolder, cardPeople, cardRequest, cardsOn } from './cards.ts';
 import { configure, site } from './site.ts';
 const publicAssets = new Set([
   '/login/style.css',
   '/login/app.js',
   '/login/runtime.js',
+  '/login/card.js',
   '/login/monogram.png',
   '/login/fonts/eb-garamond-latin-400-normal.woff2',
   '/login/fonts/source-sans-3-latin-wght-normal.woff2',
@@ -60,8 +62,15 @@ export default {
     const intake =
       url.pathname === '/api/submissions' ||
       url.pathname.startsWith('/api/submissions/');
+    // A family card's three steps (worker/cards.ts). Checking a code and
+    // choosing an email come before sign-in; confirming comes after it.
+    const card = url.pathname.startsWith('/api/card/');
     const mutation = !['GET', 'HEAD'].includes(request.method);
-    if (mutation && !(intake && ['POST', 'PUT'].includes(request.method)))
+    if (
+      mutation &&
+      !(intake && ['POST', 'PUT'].includes(request.method)) &&
+      !(card && request.method === 'POST')
+    )
       return message(405, 'Method not allowed.', { Allow: 'GET, HEAD' });
     if (mutation && request.headers.get('Origin') !== origin)
       return message(403, 'Please submit through the family website.');
@@ -86,9 +95,12 @@ export default {
           frontendApi: clerkOrigin,
           clerkVersion: '6.31.1',
           uiVersion: '1.32.3',
+          cards: cardsOn(env),
         }),
       );
     try {
+      if (card && mutation && url.pathname !== '/api/card/confirm')
+        return await cardRequest(request, env);
       const headers = new Headers(request.headers);
       // The canonical origin above is authoritative; never trust client forwarding headers.
       headers.set('Host', host);
@@ -143,25 +155,51 @@ export default {
         typeof claims?.email === 'string'
           ? claims.email.trim().toLowerCase()
           : '';
-      const allowed =
+      // Signed in, with an email address the sign-in service has verified.
+      const verified =
         typeof auth.userId === 'string' &&
         !!auth.userId &&
         typeof auth.sessionId === 'string' &&
         !!auth.sessionId &&
         claims?.iss === clerkOrigin &&
         claims.email_verified === true &&
-        !!email &&
+        !!email;
+      // The last card step: the holder has signed in with the email they
+      // chose, and is not on any list yet.
+      if (card && mutation)
+        return withSessionHeaders(
+          // `canonical` now holds the request's body.
+          await cardRequest(canonical, env, verified ? { email } : undefined),
+          state.headers,
+        );
+      // Let in: an email in flyleaf.json, or one a confirmed card chose. A
+      // relative who used a card stays let in when new cards are turned off.
+      const invited =
+        verified &&
         env.ALLOWED_EMAILS.split(',').some(
           (entry) => entry.trim().toLowerCase() === email,
         );
+      const holder =
+        verified && !invited ? await cardHolder(env, email) : null;
+      const allowed = invited || !!holder;
       if (!allowed)
         return withSessionHeaders(
           signIn(request, !!auth.userId),
           state.headers,
         );
       let response: Response;
-      if (url.pathname === '/api/session')
-        response = Response.json({ allowed: true, ...viewerFor(env, email) });
+      if (url.pathname === '/api/session') {
+        const viewer = viewerFor(env, email);
+        // An invited email with no person of its own may have one by a card.
+        if (!viewer.person)
+          viewer.person =
+            (holder || (await cardHolder(env, email)))?.person || '';
+        if (viewer.viewers)
+          viewer.viewers = [
+            ...new Set([...viewer.viewers, ...(await cardPeople(env))]),
+          ].sort();
+        response = Response.json({ allowed: true, ...viewer });
+      }
       else if (intake)
         response = await submissions(canonical, env, {
           userId: auth.userId!,
@@ -209,7 +247,7 @@ export function missingClaims(maintainer: string) {
 export function viewerFor(
   env: { VIEWER_PEOPLE?: string; ADMIN_EMAILS?: string },
   email: string,
-) {
+): { person: string; admin: boolean; viewers?: string[] } {
   const entries = (list = '') =>
     list
       .split(',')
