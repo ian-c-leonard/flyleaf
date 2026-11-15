@@ -28,7 +28,7 @@ import { digestStream } from './archive-sync.mjs';
 import { etagMd5 } from './upload-new-originals.mjs';
 import { familyRoot, readSettings } from '../flyleaf-settings.mjs';
 import { isMain } from './is-main.mjs';
-import { holdsOsMetadata } from './os-metadata.mjs';
+import { notPublished } from './os-metadata.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const address = (relative) =>
@@ -49,9 +49,9 @@ export async function publishedFiles(site) {
         .split(path.sep)
         .join('/'),
     )
-    // The operating system can add its own files after packaging. They are
-    // not part of the site, and deploy removes them before it uploads.
-    .filter((relative) => !holdsOsMetadata(relative))
+    // The upload ignore file, and anything the operating system adds after
+    // packaging, are not part of the site and are never uploaded.
+    .filter((relative) => !notPublished(relative))
     .sort();
   if (statics.length !== plan.staticFiles)
     throw new Error(

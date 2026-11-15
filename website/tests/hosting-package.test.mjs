@@ -19,7 +19,11 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { prepareHosting } from '../scripts/prepare-hosting.mjs';
 import { checkLive, checkSignedOut, publishedFiles } from '../scripts/verify-live.mjs';
-import { removeOsMetadata } from '../scripts/os-metadata.mjs';
+import {
+  notPublished,
+  removeOsMetadata,
+  uploadIgnoreText,
+} from '../scripts/os-metadata.mjs';
 
 async function fixture() {
   const site = await mkdtemp(path.join(tmpdir(), 'family-package-'));
@@ -432,7 +436,7 @@ void test('hosting omits OS metadata while retaining intentional hidden web file
   }
 });
 
-void test('a file the operating system adds after packaging is swept before upload and never counted', async () => {
+void test('a file the operating system adds after packaging is never uploaded and never counted', async () => {
   const site = await fixture();
   try {
     // A hidden file the site means to publish stays.
@@ -445,11 +449,23 @@ void test('a file the operating system adds after packaging is swept before uplo
     const added = ['.DS_Store', '._index.html', 'data/.DS_Store'];
     for (const relative of added)
       await writeFile(path.join(assets, relative), 'finder');
-    // The live check counts the site's own files, so the stray ones neither
-    // stop a deploy nor pass as published files.
+    // Finder can add one in the seconds between a sweep and the upload, so
+    // the package tells the uploader itself to leave them out, at any depth.
+    const ignore = await readFile(path.join(assets, '.assetsignore'), 'utf8');
+    assert.equal(ignore, uploadIgnoreText());
+    assert.deepEqual(ignore.trim().split('\n'), [
+      '.DS_Store',
+      '._*',
+      'Thumbs.db',
+      '__MACOSX',
+      'desktop.ini',
+    ]);
+    // The live check counts the site's own files, so neither the stray files
+    // nor the ignore file stop a deploy or pass as published files.
     const { statics } = await publishedFiles(site);
     assert.equal(statics.length, packaged.staticFiles);
     assert.ok(statics.includes('.well-known/config.json'));
+    assert.ok(!statics.includes('.assetsignore'));
     for (const relative of added) assert.ok(!statics.includes(relative), relative);
     // Deploy sweeps the package as the last step before it uploads.
     assert.deepEqual(await removeOsMetadata(assets), added);
@@ -480,6 +496,8 @@ async function liveSite(site) {
   for (const entry of await readdir(assets, { recursive: true, withFileTypes: true }))
     if (entry.isFile()) {
       const file = path.join(entry.parentPath, entry.name);
+      // Like the uploader, leave out what the package says not to upload.
+      if (notPublished(path.relative(assets, file))) continue;
       files.set('/' + path.relative(assets, file), { body: await readFile(file) });
     }
   for (const file of plan.files) {

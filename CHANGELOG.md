@@ -7,10 +7,10 @@
 - The site build empties its output folder itself, and keeps trying. On
   macOS an open Finder window could stop the build with "Directory not
   empty".
-- Deploy sweeps `.DS_Store` and similar system files out of the package just
-  before it uploads, and the live check no longer counts them. macOS could
-  add one between packaging and upload, which then went live and stopped
-  the check.
+- A deploy never uploads `.DS_Store` or similar system files. macOS could
+  add one to the package between packaging and upload; it then went live
+  and stopped the live check. The package now tells the uploader to leave
+  them out, deploy sweeps them first, and the check no longer counts them.
 - The tree check counts the people at `tree-link` who cite an original
   record or a scholarly source, so a confidence level does not stay behind
   the evidence. The research standards say when a record raises a level.

@@ -11,6 +11,21 @@ const NAMES = new Set(['.DS_Store', '__MACOSX', 'Thumbs.db', 'desktop.ini']);
 /** True for a file or folder name the operating system made. */
 export const isOsMetadata = (name) => NAMES.has(name) || name.startsWith('._');
 
+/** The file that tells wrangler what in the package never to upload. Wrangler
+ * reads it from the package's top folder and does not upload the file itself. */
+export const UPLOAD_IGNORE = '.assetsignore';
+
+/** The contents of that file: operating-system metadata, at any depth. Finder
+ * can add a .DS_Store between any sweep and the upload, so the uploader itself
+ * must refuse it. */
+export const uploadIgnoreText = () =>
+  [...NAMES, '._*'].sort().join('\n') + '\n';
+
+/** True for a path in the package that is not part of the site: the upload
+ * ignore file, or operating-system metadata. */
+export const notPublished = (relative) =>
+  relative === UPLOAD_IGNORE || holdsOsMetadata(relative);
+
 /** True when any part of a relative path is operating-system metadata. */
 export const holdsOsMetadata = (relative) =>
   relative.split(/[\\/]/).some(isOsMetadata);

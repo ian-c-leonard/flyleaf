@@ -16,7 +16,11 @@ import { fileURLToPath } from 'node:url';
 import { archiveKey } from '../worker/archive.ts';
 import { readWebBook, readWebBookBody } from '../app/lib/native-book.ts';
 import { isMain } from './is-main.mjs';
-import { isOsMetadata } from './os-metadata.mjs';
+import {
+  isOsMetadata,
+  UPLOAD_IGNORE,
+  uploadIgnoreText,
+} from './os-metadata.mjs';
 
 // The book PDF's file name, from flyleaf.json (loaded by flyleaf-globals.mjs).
 const pdfName = globalThis.__FLYLEAF_SITE__.pdfName;
@@ -243,6 +247,7 @@ export async function prepareHosting(site = defaultSite) {
       staticBytes = 0;
     async function check(directory) {
       for (const entry of await readdir(directory, { withFileTypes: true })) {
+        if (isOsMetadata(entry.name)) continue;
         const file = path.join(directory, entry.name);
         if (entry.isDirectory()) await check(file);
         else {
@@ -257,6 +262,9 @@ export async function prepareHosting(site = defaultSite) {
       }
     }
     await check(assets);
+    // Not one of the site's files, so it is written after the count: it tells
+    // the uploader to leave out anything the operating system adds later.
+    await writeFile(path.join(assets, UPLOAD_IGNORE), uploadIgnoreText());
     if (count > 20000)
       throw new Error('Static file count exceeds the Workers Free limit.');
     const output = {

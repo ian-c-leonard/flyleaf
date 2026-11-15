@@ -19,6 +19,8 @@ import {
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { isOsMetadata } from './os-metadata.mjs';
+
 const site = fileURLToPath(new URL('..', import.meta.url));
 const roots = ['dist/hosting/assets', 'work/worker-bundle'];
 
@@ -43,6 +45,8 @@ function digest(file) {
 
 function walk(dir, out) {
   for (const name of readdirSync(dir).sort()) {
+    // The operating system's own files are never part of a build.
+    if (isOsMetadata(name)) continue;
     const full = path.join(dir, name);
     if (skip.has(path.relative(site, full))) continue;
     if (statSync(full).isDirectory()) walk(full, out);
