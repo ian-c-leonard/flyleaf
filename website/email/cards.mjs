@@ -19,8 +19,14 @@
 // after that (docs/hosting.md). The list lives in the family's email folder
 // (paths.email in flyleaf.json, default email/), in cards.local.json:
 //   [{ "person": "tamsin-penhallow", "firstName": "Tamsin", "lastName": "Penhallow" }]
-// `person` is the person's id in the family tree. The script adds each code
-// to this file, and writes the page to print to out/cards.html. A code opens
+// `person` is the person's id in the family tree. An entry may also have:
+//   "cardName":  the name printed on the card, when the first name is not
+//                enough, such as "Tamsin Penhallow"
+//   "household": people with the same household share one printed card, which
+//                is headed with this text, such as "Tamsin, Jory and the
+//                children". Each still has a code and a sign-in of their own.
+// The script adds each code to this file, and writes the page to print to
+// out/cards.html. A code opens
 // the site, so both files must stay out of git; the script checks.
 // The site's database holds only a hash of each code.
 import { randomInt } from 'node:crypto';
@@ -81,6 +87,9 @@ export function readList(text, people = null) {
     if (seen.has(entry.person))
       throw new FamilyError(`${where}: ${entry.person} is on the list twice.`);
     seen.add(entry.person);
+    for (const key of ['cardName', 'household'])
+      if (entry[key] !== undefined && (typeof entry[key] !== 'string' || !entry[key].trim()))
+        throw new FamilyError(`${where}: "${key}" must be text, or left out.`);
     if (people && !people.has(entry.person))
       throw new FamilyError(
         `${where}: nobody in the family tree has the id "${entry.person}".`,
@@ -89,33 +98,70 @@ export function readList(text, people = null) {
   return list;
 }
 
-/** The page to print: the template's card block, once for each card. Every
- * value is escaped for HTML. */
+/** The printed cards for the people on the list: one for each person, and
+ * one for each household, placed where its first member stands. A card is
+ * `{ name, people }`, and each of its people has a firstName and a code. */
+export function groupCards(entries) {
+  const cards = [];
+  const households = new Map();
+  for (const entry of entries) {
+    const label = entry.household?.trim();
+    if (!label) {
+      cards.push({ name: entry.cardName?.trim() || entry.firstName, people: [entry] });
+    } else if (households.has(label)) {
+      households.get(label).people.push(entry);
+    } else {
+      const card = { name: label, people: [entry] };
+      households.set(label, card);
+      cards.push(card);
+    }
+  }
+  return cards;
+}
+
+/** The page to print. The template's card block prints once for each card
+ * with one person. A card for a household uses the household block, with its
+ * person block once for each member; a template without one prints each
+ * member's own card instead. Every value is escaped for HTML. */
 export function cardsPage(template, cards, values) {
+  const household = /<!-- household -->([\s\S]*)<!-- \/household -->/.exec(template);
   const parts = /^([\s\S]*)<!-- card -->([\s\S]*)<!-- \/card -->([\s\S]*)$/.exec(
-    template,
+    household ? template.replace(household[0], '') : template,
   );
   if (!parts)
     throw new FamilyError(
       'family-cards.html needs <!-- card --> and <!-- /card --> around one card.',
     );
   const [, head, block, tail] = parts;
-  const sheets = [];
-  for (let i = 0; i < cards.length; i += 4)
-    sheets.push(
-      '<section class="sheet">' +
-        cards
-          .slice(i, i + 4)
-          .map((card) =>
-            fill(
-              block,
-              { ...values, firstName: card.firstName, code: card.code },
-              { html: true },
-            ),
-          )
-          .join('') +
-        '</section>',
+  const member = household && /^([\s\S]*)<!-- person -->([\s\S]*)<!-- \/person -->([\s\S]*)$/.exec(household[1]);
+  if (household && !member)
+    throw new FamilyError(
+      'In family-cards.html, the household card needs <!-- person --> and <!-- /person --> around one name and code.',
     );
+  const one = (name, person) =>
+    fill(block, { ...values, firstName: name, code: person.code }, { html: true });
+  const printed = [];
+  for (const card of cards) {
+    // A plain list entry is a card for one person.
+    const people = card.people || [card];
+    const name = card.name || card.cardName || card.firstName;
+    if (people.length === 1) printed.push(one(name, people[0]));
+    else if (!member)
+      for (const person of people) printed.push(one(person.cardName || person.firstName, person));
+    else
+      printed.push(
+        fill(member[1], { ...values, name }, { html: true }) +
+          people
+            .map((person) =>
+              fill(member[2], { ...values, firstName: person.firstName, code: person.code }, { html: true }),
+            )
+            .join('') +
+          fill(member[3], { ...values, name }, { html: true }),
+      );
+  }
+  const sheets = [];
+  for (let i = 0; i < printed.length; i += 4)
+    sheets.push('<section class="sheet">' + printed.slice(i, i + 4).join('') + '</section>');
   return (
     fill(head, values, { html: true }) +
     sheets.join('\n') +
@@ -391,7 +437,7 @@ if (isMain(import.meta.url)) {
     mkdirSync(path.dirname(pageFile), { recursive: true });
     writeFileSync(
       pageFile,
-      cardsPage(template, toPrint, {
+      cardsPage(template, groupCards(toPrint), {
         familyName: settings.family.name,
         address: settings.auth.card_address || settings.site.domain,
         maintainerFirstName: settings.maintainer.first_name,
@@ -414,7 +460,7 @@ if (isMain(import.meta.url)) {
           `the page. For a new one: --cancel ${entry.person}, then run this again.`,
       );
     console.log(
-      `Cards to print (${toPrint.length}): ${path.relative(process.cwd(), pageFile)}\n` +
+      `Cards to print (${groupCards(toPrint).length}): ${path.relative(process.cwd(), pageFile)}\n` +
         'Open it in a browser and print at 100%. Keep it private: each code opens the site.',
     );
   }

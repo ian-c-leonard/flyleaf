@@ -9,6 +9,9 @@
   shows who has used their card, and cancels one. Cards are off unless
   `auth.cards` is `true`. See "Cards for relatives whose email you do not
   have" in docs/hosting.md.
+- One printed card can serve a household: give several people on the card
+  list the same `household`, and the card lists each member's own code.
+  `cardName` sets the name printed on a card.
 - The website runs over plain HTTP as well as HTTPS. It no longer needs a
   browser feature that works only over HTTPS.
 - The site build empties its output folder itself, and keeps trying. On

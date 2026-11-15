@@ -257,7 +257,14 @@ with that email. You never need to know it beforehand.
        [{"person": "tom-penhallow", "firstName": "Tom", "lastName": "Penhallow"}]
 
    `person` is their id in the tree. The names are the ones the site greets
-   them by and gives their account.
+   them by and gives their account. Two more settings change what prints:
+
+   - `"cardName": "Tom Penhallow"` prints that name on the card, for when
+     two relatives share a first name.
+   - `"household": "Tom, Ada and the children"` puts everyone with the same
+     household on one card, headed with that text. Each person keeps a code
+     and a sign-in of their own, so a child can sign in later without a
+     card of their own.
 4. Make the cards. The script prints which family it is using:
 
        FLYLEAF_FAMILY=../my-family node website/email/cards.mjs
@@ -269,6 +276,10 @@ with that email. You never need to know it beforehand.
    4.25 inches, which fit an A2 envelope. To word the card your own way,
    copy `website/email/family-cards.html` into the family's `email/` folder
    and edit it. Keep `<!-- card -->` and `<!-- /card -->` around one card.
+   A household's card sits between `<!-- household -->` and
+   `<!-- /household -->`, with `<!-- person -->` and `<!-- /person -->`
+   around one member's name and code. A template without it prints a card
+   for each member.
 5. See who has used their card with `--status`. Cancel a card with
    `--cancel <person>`. That also ends the sign-in the card gave, within a
    minute, and removes the account the site made for it. Run the script

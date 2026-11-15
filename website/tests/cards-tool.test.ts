@@ -9,6 +9,7 @@ import {
   cardsPage,
   cardsToPrint,
   database,
+  groupCards,
   keptOutOfGit,
   makeCards,
   newCode,
@@ -174,6 +175,50 @@ void test('the page to print holds one card for each person, four to a sheet, wi
   // The page loads nothing from anywhere: it is opened from a folder.
   assert.doesNotMatch(page, /(src|href)="(?!data:)[^"]+"/);
   assert.throws(() => cardsPage('<p>{{code}}</p>', cards, {}), /needs <!-- card -->/);
+});
+
+void test('a household shares one printed card, with each member’s own code', () => {
+  const template = readFileSync(new URL('../email/family-cards.html', import.meta.url), 'utf8');
+  const entry = (firstName: string, code: string, more = {}) => ({ person: firstName.toLowerCase(), firstName, lastName: 'Penhallow', code, ...more });
+  const list = [
+    entry('Tamsin', 'K7M-4QX', { cardName: 'Tamsin Penhallow' }),
+    entry('Jory', 'R9T-6WD', { household: 'Jory, Kerra and the children' }),
+    entry('Morwenna', 'W6C-3FD'),
+    entry('Kerra', 'H3N-7PG', { household: ' Jory, Kerra and the children ' }),
+    entry('Daveth <b>', 'C4D-9FG', { household: 'Jory, Kerra and the children' }),
+  ];
+  const cards = groupCards(list);
+  // One card each for Tamsin and Morwenna; the household's stands where Jory does.
+  assert.deepEqual(cards.map((card) => [card.name, card.people.map((person) => person.firstName)]), [
+    ['Tamsin Penhallow', ['Tamsin']],
+    ['Jory, Kerra and the children', ['Jory', 'Kerra', 'Daveth <b>']],
+    ['Morwenna', ['Morwenna']],
+  ]);
+  const values = { familyName: 'The Penhallow family', address: 'www.example.family', maintainerFirstName: 'Carol', maintainerEmail: 'carol@example.com', serifFont: 'AAAA', sansFont: 'BBBB' };
+  const page = cardsPage(template, cards, values);
+  assert.equal(page.split('<article class="card">').length - 1, 2);
+  assert.equal(page.split('<article class="card household">').length - 1, 1);
+  assert.ok(page.includes('<p class="for">For Tamsin Penhallow</p>'));
+  assert.ok(page.includes('<p class="for">For Jory, Kerra and the children</p>'));
+  for (const [name, code] of [['Jory', 'R9T-6WD'], ['Kerra', 'H3N-7PG'], ['Daveth &lt;b&gt;', 'C4D-9FG']])
+    assert.ok(page.includes(`<span>${name}</span><span class="code">${code}</span>`), name);
+  assert.doesNotMatch(page, /\{\{|<!-- \/?(card|household|person) -->/);
+  // A family's own template without a household card prints each member's own.
+  const plain = cardsPage('<i><!-- card --><b>{{firstName}}={{code}}</b><!-- /card --></i>', cards, {});
+  assert.equal(
+    plain,
+    '<i><section class="sheet"><b>Tamsin Penhallow=K7M-4QX</b><b>Jory=R9T-6WD</b><b>Kerra=H3N-7PG</b><b>Daveth &lt;b&gt;=C4D-9FG</b></section>\n<section class="sheet"><b>Morwenna=W6C-3FD</b></section></i>',
+  );
+  assert.throws(
+    () => cardsPage('<!-- card -->{{code}}<!-- /card --><!-- household -->{{name}}<!-- /household -->', cards, {}),
+    /household card needs <!-- person -->/,
+  );
+  // The list says so when a household or a printed name is not text.
+  for (const bad of [{ household: '' }, { household: 4 }, { cardName: ' ' }])
+    assert.throws(
+      () => readList(JSON.stringify([{ person: 'tamsin', firstName: 'Tamsin', lastName: 'Penhallow', ...bad }])),
+      /must be text, or left out/,
+    );
 });
 
 void test('the status of each card is one plain line', () => {
