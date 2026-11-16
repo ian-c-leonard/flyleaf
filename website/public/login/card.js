@@ -73,6 +73,7 @@ export function startCards({ maintainer, pause, resume }) {
   let code = '';
   let email = '';
   let firstName = '';
+  const welcome = () => (firstName ? `Welcome, ${firstName}` : 'Welcome');
   let busy = false;
 
   function say(text, error = false) {
@@ -144,7 +145,7 @@ export function startCards({ maintainer, pause, resume }) {
     const response = await send('confirm', { code });
     if (!response.ok) return refused(response);
     for (const form of Object.values(forms)) form.hidden = true;
-    say(`Welcome, ${firstName}. Opening the family collection…`);
+    say(`${welcome()}. Opening the family collection…`);
     location.replace(destination());
   }
   function restart() {
@@ -164,11 +165,12 @@ export function startCards({ maintainer, pause, resume }) {
       say('Checking your card…');
       const response = await send('check', { code: typed });
       const body = await response.json().catch(() => null);
-      if (!response.ok || !body?.firstName)
+      // A blank card has no name yet: its first name is ''.
+      if (!response.ok || typeof body?.firstName !== 'string')
         return say(cardProblem(response.status, body, maintainer), true);
       code = typed;
-      firstName = body.firstName;
-      find('card-welcome').textContent = `Welcome, ${firstName}`;
+      firstName = body.firstName.trim();
+      find('card-welcome').textContent = welcome();
       say('');
       pause();
       show('email');

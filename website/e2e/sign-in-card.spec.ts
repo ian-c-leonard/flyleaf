@@ -68,9 +68,11 @@ async function open(
       return route.fulfill({ json: { used: true, hint: 'j…@example.com' } });
     if (typed === 'SLOWDOWN2222')
       return route.fulfill({ status: 429, json: { error: 'too-many', wait: 'hour' } });
-    if (typed !== 'K7M4QX')
+    // Tamsin's card, and a blank card nobody has been named for yet.
+    if (typed !== 'K7M4QX' && typed !== 'T4N6QW')
       return route.fulfill({ status: 404, json: { error: 'no-match' } });
-    if (step === 'check') return route.fulfill({ json: { firstName: 'Tamsin' } });
+    if (step === 'check')
+      return route.fulfill({ json: { firstName: typed === 'K7M4QX' ? 'Tamsin' : '' } });
     if (step === 'email') {
       if (body.email?.startsWith('sixth@'))
         return route.fulfill({ status: 429, json: { error: 'too-many-emails' } });
@@ -421,4 +423,21 @@ test('a refused last step is explained, and the relative is not told they are in
   // There is a way forward: another address.
   await page.getByRole('button', { name: 'Use a different email address' }).click();
   await expect(page.locator('#card-email')).toBeFocused();
+});
+
+test('a blank card is welcomed without a name, and let in', async ({ page }) => {
+  const { sent } = await open(page);
+  await page.locator('#card-code').fill('t4n 6qw');
+  await page.locator('#card-code').press('Enter');
+  await expect(page.locator('#card-welcome')).toHaveText('Welcome');
+  await expect(page.locator('#card-status')).toHaveText('');
+  await page.locator('#card-email').fill('guest@example.com');
+  await page.locator('#card-email').press('Enter');
+  await expect(page.locator('#card-proof-sent')).toHaveText(
+    'We sent a six-digit code to guest@example.com.',
+  );
+  await page.locator('#card-proof').fill('424242');
+  await page.locator('#card-proof').press('Enter');
+  await expect(page.getByRole('heading', { name: 'FAMILY HOME' })).toBeVisible();
+  expect(sent.map((request) => request.step)).toEqual(['check', 'email', 'confirm']);
 });

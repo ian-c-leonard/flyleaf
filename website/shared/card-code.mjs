@@ -30,3 +30,18 @@ export async function sha256Hex(text) {
 /** What the site database holds in place of a code. */
 export const cardCodeHash = (text) =>
   sha256Hex('flyleaf-card:' + normalizeCardCode(text));
+
+// A blank card has a code and a number but no name: the maintainer writes
+// the name on it by hand and tells the card tool afterwards who has it. Until
+// then the site knows its holder only as this made-up person, which no
+// person in a family tree can have as an id.
+
+/** The stand-in person for blank card number `number`. */
+export const blankCardPerson = (number) => 'blank:' + number;
+
+/** The number of the blank card a stand-in person names, or 0 for anyone
+ * else. */
+export function blankCardNumber(person) {
+  const match = /^blank:([1-9]\d{0,3})$/.exec(String(person ?? ''));
+  return match ? Number(match[1]) : 0;
+}

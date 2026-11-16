@@ -559,3 +559,31 @@ void test('when the sign-in service refuses, the card is left as it was', async 
   assert.equal((await s.post('email', { code, email: 'tamsin@example.com' })).status, 200);
   assert.equal((await s.row(code)).email, 'tamsin@example.com');
 });
+
+void test('a blank card lets its holder in without a name, as nobody in the tree', async (t) => {
+  const s = await site(t);
+  await s.card('T4N-6QW', 'blank:7', '', '');
+  await s.card('K7M-4QX', 'tamsin-penhallow', 'Tamsin', 'Penhallow');
+  // The card is welcomed, with no name to say.
+  const checked = await s.post('check', { code: 'T4N-6QW' });
+  assert.equal(checked.status, 200);
+  assert.deepEqual(await checked.json(), { firstName: '' });
+  await s.use('T4N-6QW', 'guest@example.com');
+  // The account made for it has no name yet.
+  const made = s.clerk.made.at(-1);
+  assert.deepEqual(made.email_address, ['guest@example.com']);
+  assert.equal('first_name' in made, false);
+  assert.equal('last_name' in made, false);
+  assert.deepEqual(made.private_metadata, { flyleaf_card: true });
+  // Its holder is let in, and is not taken for anyone in the tree.
+  const session = await s.session('guest@example.com');
+  assert.equal(session.status, 200);
+  assert.deepEqual(await session.json(), { allowed: true, person: '', admin: false });
+  // The maintainer can view the site as Tamsin, but not as a blank card.
+  assert.deepEqual((await (await s.session('ada@example.org')).json()).viewers, [
+    'tamsin-penhallow',
+  ]);
+  // A blank card that has been used says so like any other.
+  const again = await s.post('check', { code: 'T4N-6QW' });
+  assert.equal((await again.json()).used, true);
+});

@@ -265,6 +265,13 @@ with that email. You never need to know it beforehand.
      household on one card, headed with that text. Each person keeps a code
      and a sign-in of their own, so a child can sign in later without a
      card of their own.
+
+   A blank card is for someone you have not chosen yet. Add `{"blank": 1}`
+   to the list, then `{"blank": 2}` and so on. Each prints with a line for
+   the name and its number in small type. Write the name on it by hand and
+   give it to anyone. Its holder is let in and welcomed without a name, and
+   sees the site as a visitor would, not from their own place in the tree.
+   When you know who has it, tell the script (step 5).
 4. Make the cards. The script prints which family it is using:
 
        FLYLEAF_FAMILY=../my-family node website/email/cards.mjs
@@ -279,11 +286,25 @@ with that email. You never need to know it beforehand.
    A household's card sits between `<!-- household -->` and
    `<!-- /household -->`, with `<!-- person -->` and `<!-- /person -->`
    around one member's name and code. A template without it prints a card
-   for each member.
-5. See who has used their card with `--status`. Cancel a card with
-   `--cancel <person>`. That also ends the sign-in the card gave, within a
+   for each member. A blank card sits between `<!-- blank -->` and
+   `<!-- /blank -->`, with `{{number}}` where its number prints. A template
+   without it prints the ordinary card with no name.
+5. See who has used their card with `--status`. A used blank card shows the
+   email address its holder chose, which often tells you who they are.
+   Cancel a card with `--cancel <person>`, or a blank card with its number:
+   `--cancel 3`. That also ends the sign-in the card gave, within a
    minute, and removes the account the site made for it. Run the script
    again to make that person a new card.
+
+   Say who has a blank card with `--assign`:
+
+       FLYLEAF_FAMILY=../my-family node website/email/cards.mjs --assign 3 \
+         --first Ada --last Penhallow --person ada-penhallow
+
+   The site then welcomes them by name, and their account carries the name.
+   `--person` is their id in the tree: with it, the site shows them their
+   own relatives. Leave it out for someone who is not in the tree. You can
+   run `--assign` before or after the card is used, and again to correct it.
 
 Making and cancelling cards needs no deploy.
 

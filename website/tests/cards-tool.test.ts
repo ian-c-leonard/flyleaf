@@ -6,6 +6,9 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
   CODE_CHARACTERS,
+  assignBlank,
+  cardLabel,
+  cardPerson,
   cardsPage,
   cardsToPrint,
   database,
@@ -17,7 +20,12 @@ import {
   removeCardAccounts,
   statusLines,
 } from '../email/cards.mjs';
-import { cardCodeHash, cardCodeShape } from '../shared/card-code.mjs';
+import {
+  blankCardNumber,
+  blankCardPerson,
+  cardCodeHash,
+  cardCodeShape,
+} from '../shared/card-code.mjs';
 
 const DAY = 86_400_000;
 
@@ -319,4 +327,179 @@ void test('cancelling a card removes only the account the site made for it', asy
     'GET users?limit=10&email_address=own%40example.com',
     'GET users?limit=10&email_address=gone%40example.com',
   ]);
+});
+
+void test('a blank card is a numbered entry with no name, made and printed like any other', async () => {
+  // The stand-in person for a blank card cannot be mistaken for a person.
+  assert.equal(blankCardPerson(3), 'blank:3');
+  assert.equal(blankCardNumber('blank:3'), 3);
+  for (const other of ['', 'blank', 'blank:0', 'blank:03', 'blank:3x', 'tamsin-penhallow', 'blank-3', null])
+    assert.equal(blankCardNumber(other), 0, String(other));
+  const people = new Set(['tamsin-penhallow', 'jory-penhallow']);
+  const good = [
+    { person: 'tamsin-penhallow', firstName: 'Tamsin', lastName: 'Penhallow' },
+    { blank: 1 },
+    { blank: 3 },
+    // Named since, for someone who is not in the tree, and for someone who is.
+    { blank: 4, firstName: 'Morwenna', lastName: 'Rowe' },
+    { blank: 5, firstName: 'Jory', lastName: 'Penhallow', person: 'jory-penhallow' },
+  ];
+  assert.deepEqual(readList(JSON.stringify(good), people), good);
+  for (const [bad, said] of [
+    [[{ blank: 0 }], /"blank" is the number printed on a blank card/],
+    [[{ blank: '2' }], /"blank" is the number printed on a blank card/],
+    [[{ blank: 1.5 }], /"blank" is the number printed on a blank card/],
+    [[{ blank: 2 }, { blank: 2 }], /entry 2: blank card 2 is on the list twice/],
+    [[{ blank: 2, household: 'The Rowes' }], /a blank card cannot share a household card/],
+    [[{ blank: 2, firstName: 'Morwenna' }], /"lastName" is missing/],
+    [[{ blank: 2, person: 'jory-penhallow' }], /"firstName" is missing/],
+    [[{ blank: 2, firstName: 'A', lastName: 'B', person: 'nobody' }], /nobody in the family tree has the id "nobody"/],
+    [[{ blank: 2, firstName: 'A', lastName: 'B', person: 'tamsin-penhallow' }, good[0]], /tamsin-penhallow is on the list twice/],
+    [[{ person: 'blank:2', firstName: 'A', lastName: 'B' }], /"blank:2" cannot be a person's id/],
+  ] as const)
+    assert.throws(() => readList(JSON.stringify(bad), people), said, JSON.stringify(bad));
+  assert.deepEqual(good.map(cardPerson), ['tamsin-penhallow', 'blank:1', 'blank:3', 'blank:4', 'jory-penhallow']);
+  assert.deepEqual(good.map(cardLabel), ['Tamsin', 'blank card 1', 'blank card 3', 'Morwenna', 'Jory']);
+
+  // The site is told a blank card's stand-in person and no name.
+  const list: { blank: number; code?: string }[] = [{ blank: 3 }];
+  const asked: unknown[][] = [];
+  const now = Date.UTC(2026, 10, 14);
+  await makeCards(list, {
+    query: async (_sql: string, params: unknown[]) => {
+      asked.push(params);
+      return [];
+    },
+    now,
+    days: 30,
+    code: () => 'T4N-6QW',
+  });
+  assert.deepEqual(asked, [[await cardCodeHash('T4N-6QW'), 'blank:3', '', '', now, now + 30 * DAY]]);
+  assert.equal(list[0].code, 'T4N-6QW');
+
+  // The page: the blank block, with the card's number and no name.
+  const template = readFileSync(new URL('../email/family-cards.html', import.meta.url), 'utf8');
+  const values = { familyName: 'The Penhallow family', address: 'www.example.family', maintainerFirstName: 'Carol', maintainerEmail: 'carol@example.com', serifFont: 'AAAA', sansFont: 'BBBB' };
+  const cards = groupCards([
+    { firstName: 'Tamsin', code: 'K7M-4QX' },
+    { blank: 3, code: 'T4N-6QW' },
+    { blank: 4, firstName: 'Morwenna', lastName: 'Rowe', code: 'H3N-7PG' },
+  ]);
+  assert.deepEqual(cards.map((card: { name: string; blank?: number }) => [card.name, card.blank]), [
+    ['Tamsin', undefined],
+    ['', 3],
+    ['Morwenna', undefined],
+  ]);
+  const page = cardsPage(template, cards, values);
+  assert.equal(page.split('<article class="card">').length - 1, 2);
+  assert.equal(page.split('<article class="card blank">').length - 1, 1);
+  assert.ok(page.includes('<p class="for">For <span class="write"></span></p>'));
+  assert.ok(page.includes('<span class="number">No. 3</span>'));
+  assert.ok(page.includes('<span class="code">T4N-6QW</span>'));
+  assert.ok(page.includes('<p class="for">For Morwenna</p>'));
+  assert.doesNotMatch(page, /\{\{|<!-- \/?(card|household|person|blank) -->/);
+  // With no blank cards, the blank block leaves nothing behind.
+  assert.doesNotMatch(cardsPage(template, cards.slice(0, 1), values), /class="card blank"|No\. |<!-- \/?blank -->/);
+  // A family's own template without a blank block prints the card with no name.
+  assert.equal(
+    cardsPage('<i><!-- card --><b>{{firstName}}={{code}}</b><!-- /card --></i>', cards, {}),
+    '<i><section class="sheet"><b>Tamsin=K7M-4QX</b><b>=T4N-6QW</b><b>Morwenna=H3N-7PG</b></section></i>',
+  );
+  assert.equal(
+    cardsPage('<!-- card -->{{firstName}}<!-- /card --><!-- blank -->[{{number}}:{{code}}]<!-- /blank -->', cards, {}),
+    '<section class="sheet">Tamsin[3:T4N-6QW]Morwenna</section>',
+  );
+
+  // Status and printing know a blank card by its number.
+  const row = { person: 'blank:3', first_name: '', last_name: '', email: null, confirmed_at: null, expires_at: now + 30 * DAY };
+  assert.deepEqual(
+    statusLines(
+      [
+        row,
+        { ...row, email: 'guest@example.com', confirmed_at: now - DAY },
+        { ...row, person: 'blank:4', first_name: 'Morwenna', last_name: 'Rowe' },
+      ],
+      now,
+    ),
+    [
+      'Blank card 3: not used yet; the card works until 2026-12-14',
+      'Blank card 3: signed in as guest@example.com on 2026-11-13',
+      'Morwenna Rowe (blank card 4): not used yet; the card works until 2026-12-14',
+    ],
+  );
+  const { print, used } = cardsToPrint(
+    [
+      { blank: 3, code: 'T4N-6QW' },
+      { blank: 4, code: 'H3N-7PG' },
+      { blank: 6 },
+    ],
+    [
+      { person: 'blank:3', confirmed_at: now - DAY, expires_at: now + DAY },
+      { person: 'blank:4', confirmed_at: null, expires_at: now + DAY },
+    ],
+    now,
+  );
+  assert.deepEqual(print.map((card) => card.blank), [4]);
+  assert.deepEqual(used.map((card) => card.blank), [3]);
+});
+
+void test('saying who has a blank card names them on the site and in their account', async () => {
+  type Entry = { blank?: number; person?: string; firstName?: string; lastName?: string; code?: string };
+  const list: Entry[] = [
+    { person: 'tamsin-penhallow', firstName: 'Tamsin', lastName: 'Penhallow', code: 'K7M-4QX' },
+    { blank: 3, code: 'T4N-6QW' },
+    { blank: 4 },
+  ];
+  const asked: { sql: string; params: unknown[] }[] = [];
+  const calls: string[] = [];
+  let rows: { email: string | null }[] = [{ email: 'guest@example.com' }];
+  const options = {
+    query: async (sql: string, params: unknown[]) => {
+      asked.push({ sql, params });
+      return rows;
+    },
+    clerk: async (method: string, where: string, body?: unknown) => {
+      calls.push(method + ' ' + where + (body ? ' ' + JSON.stringify(body) : ''));
+      return method === 'GET'
+        ? [{ id: 'user_1', private_metadata: { flyleaf_card: true } }, { id: 'user_2' }]
+        : {};
+    },
+  };
+  // In the tree: the site shows them their own relatives.
+  assert.deepEqual(
+    await assignBlank(list, 3, { firstName: ' Jory ', lastName: 'Penhallow', person: 'jory-penhallow' }, options),
+    { email: 'guest@example.com', renamed: true },
+  );
+  assert.match(asked[0].sql, /^UPDATE cards SET person = \?1, first_name = \?2, last_name = \?3 WHERE person = \?4 RETURNING email$/);
+  assert.deepEqual(asked[0].params, ['jory-penhallow', 'Jory', 'Penhallow', 'blank:3']);
+  assert.deepEqual(list[1], { blank: 3, code: 'T4N-6QW', firstName: 'Jory', lastName: 'Penhallow', person: 'jory-penhallow' });
+  // Only the account the site made for the card is renamed.
+  assert.deepEqual(calls, [
+    'GET users?limit=10&email_address=guest%40example.com',
+    'PATCH users/user_1 {"first_name":"Jory","last_name":"Penhallow"}',
+  ]);
+  // Said again, for someone who is not in the tree: the card finds its row by
+  // the person it had, and goes back to its stand-in.
+  rows = [{ email: null }];
+  assert.deepEqual(
+    await assignBlank(list, 3, { firstName: 'Morwenna', lastName: 'Rowe' }, options),
+    { email: '', renamed: false },
+  );
+  assert.deepEqual(asked[1].params, ['blank:3', 'Morwenna', 'Rowe', 'jory-penhallow']);
+  assert.deepEqual(list[1], { blank: 3, code: 'T4N-6QW', firstName: 'Morwenna', lastName: 'Rowe' });
+  assert.equal(calls.length, 2);
+  // What cannot be done is said plainly, and nothing is asked of the site.
+  const before = asked.length;
+  await assert.rejects(assignBlank(list, 9, { firstName: 'A', lastName: 'B' }, options), /There is no blank card 9 on the list/);
+  await assert.rejects(assignBlank(list, 4, { firstName: 'A', lastName: 'B' }, options), /Blank card 4 has not been made yet/);
+  await assert.rejects(assignBlank(list, 3, { firstName: 'A', lastName: ' ' }, options), /Give both names/);
+  await assert.rejects(
+    assignBlank(list, 3, { firstName: 'Tamsin', lastName: 'Penhallow', person: 'tamsin-penhallow' }, options),
+    /tamsin-penhallow already has a card on the list/,
+  );
+  assert.equal(asked.length, before);
+  // A card the site no longer has.
+  rows = [];
+  await assert.rejects(assignBlank(list, 3, { firstName: 'A', lastName: 'B' }, options), /The site has no card for blank card 3/);
+  assert.equal(list[1].firstName, 'Morwenna');
 });

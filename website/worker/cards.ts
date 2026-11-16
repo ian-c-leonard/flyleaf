@@ -4,7 +4,11 @@
 // made for. The card lets that email in only once the relative has also
 // signed in with it: a mistyped address never opens the site to a stranger.
 import policy from '../shared/card-policy.json' with { type: 'json' };
-import { cardCodeHash, sha256Hex } from '../shared/card-code.mjs';
+import {
+  blankCardNumber,
+  cardCodeHash,
+  sha256Hex,
+} from '../shared/card-code.mjs';
 import { protect } from './archive.ts';
 import { listed } from './site.ts';
 
@@ -190,15 +194,17 @@ async function accounts(env: Env, email: string) {
   return (await response.json()) as Account[];
 }
 
-/** Make the relative's account, with the name the card was made for. The
- * account is marked as made for a card, so it can be removed if unused. */
+/** Make the relative's account, with the name the card was made for. A
+ * blank card has no name yet, so its account has none either. The account is
+ * marked as made for a card, so it can be removed if unused. */
 async function createAccount(env: Env, email: string, card: Card) {
   const response = await clerk(env, 'users', {
     method: 'POST',
     body: JSON.stringify({
       email_address: [email],
-      first_name: card.first_name,
-      last_name: card.last_name,
+      // JSON leaves out a name that is undefined.
+      first_name: card.first_name || undefined,
+      last_name: card.last_name || undefined,
       skip_password_requirement: true,
       private_metadata: { flyleaf_card: true },
     }),
@@ -359,8 +365,10 @@ export async function cardRequest(
 const holders = new Map<string, { person: string; until: number }>();
 
 /** The person a signed-in email is, when a confirmed card chose that email.
- * A cancelled card stops opening the site within a minute. A site that has
- * cards off, and may never have had them, treats a failed lookup as no card. */
+ * The holder of a blank card is let in as nobody in particular (person ''),
+ * until the maintainer says who they are. A cancelled card stops opening the
+ * site within a minute. A site that has cards off, and may never have had
+ * them, treats a failed lookup as no card. */
 export async function cardHolder(env: Env, email: string, now = Date.now()) {
   const known = holders.get(email);
   if (known && known.until > now) return { person: known.person };
@@ -378,13 +386,14 @@ export async function cardHolder(env: Env, email: string, now = Date.now()) {
   }
   holders.delete(email);
   if (!row) return null;
+  const person = blankCardNumber(row.person) ? '' : row.person;
   if (holders.size >= 500) holders.clear();
-  holders.set(email, { person: row.person, until: now + 60_000 });
-  return { person: row.person };
+  holders.set(email, { person, until: now + 60_000 });
+  return { person };
 }
 
 /** Every person a card was made for, so the maintainer can see the site as
- * each of them before the card is used. */
+ * each of them before the card is used. Blank cards name nobody. */
 export async function cardPeople(env: Env, now = Date.now()) {
   try {
     const rows = await env.SUBMISSIONS_DB.prepare(
@@ -392,7 +401,9 @@ export async function cardPeople(env: Env, now = Date.now()) {
     )
       .bind(now)
       .all<{ person: string }>();
-    return rows.results.map((row) => row.person);
+    return rows.results
+      .map((row) => row.person)
+      .filter((person) => !blankCardNumber(person));
   } catch (error) {
     if (cardsOn(env)) throw error;
     return [];

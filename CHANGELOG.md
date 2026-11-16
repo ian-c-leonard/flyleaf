@@ -12,6 +12,10 @@
 - One printed card can serve a household: give several people on the card
   list the same `household`, and the card lists each member's own code.
   `cardName` sets the name printed on a card.
+- Blank cards. `{"blank": 1}` on the card list makes a card with a code, a
+  line to write a name on, and a small number. Its holder is let in and
+  welcomed without a name. `cards.mjs --assign 1 --first … --last …
+  [--person …]` records who has it, before or after it is used.
 - The website runs over plain HTTP as well as HTTPS. It no longer needs a
   browser feature that works only over HTTPS.
 - The site build empties its output folder itself, and keeps trying. On

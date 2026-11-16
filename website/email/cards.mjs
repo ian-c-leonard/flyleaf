@@ -9,6 +9,10 @@
 //   node website/email/cards.mjs --cancel <person>  cancel a person's card, the
 //                                                   sign-in it gave them, and
 //                                                   the account made for it
+//                                                   (a blank card: its number)
+//   node website/email/cards.mjs --assign 3 --first Tamsin --last Penhallow
+//                                [--person tamsin-penhallow]
+//                                                   say who has blank card 3
 //   node website/email/cards.mjs --days 90          how long a new card may
 //                                                   wait to be used (365)
 //
@@ -25,6 +29,11 @@
 //   "household": people with the same household share one printed card, which
 //                is headed with this text, such as "Tamsin, Jory and the
 //                children". Each still has a code and a sign-in of their own.
+// A blank card is for someone you have not chosen yet. Its entry is only
+// { "blank": 3 }, where 3 is the number printed small on the card. You write
+// the name on the card by hand. Its holder is let in and welcomed without a
+// name. When you know who has it, --assign records their name, and the
+// person they are in the family tree if they are in it.
 // The script adds each code to this file, and writes the page to print to
 // out/cards.html. A code opens
 // the site, so both files must stay out of git; the script checks.
@@ -42,7 +51,11 @@ import {
   readSettings,
 } from '../flyleaf-settings.mjs';
 import { isMain } from '../scripts/is-main.mjs';
-import { cardCodeHash } from '../shared/card-code.mjs';
+import {
+  blankCardNumber,
+  blankCardPerson,
+  cardCodeHash,
+} from '../shared/card-code.mjs';
 import policy from '../shared/card-policy.json' with { type: 'json' };
 import { fill } from './invite.mjs';
 
@@ -79,34 +92,70 @@ export function readList(text, people = null) {
   if (!Array.isArray(list))
     throw new FamilyError('cards.local.json must be a list: [{ ... }, { ... }]');
   const seen = new Set();
+  const numbers = new Set();
+  const isText = (value) => typeof value === 'string' && !!value.trim();
   for (const [index, entry] of list.entries()) {
     const where = `cards.local.json, entry ${index + 1}`;
-    for (const key of ['person', 'firstName', 'lastName'])
-      if (typeof entry?.[key] !== 'string' || !entry[key].trim())
-        throw new FamilyError(`${where}: "${key}" is missing.`);
-    if (seen.has(entry.person))
-      throw new FamilyError(`${where}: ${entry.person} is on the list twice.`);
-    seen.add(entry.person);
+    const blank = entry?.blank;
+    if (blank !== undefined) {
+      if (!Number.isInteger(blank) || blank < 1 || blank > 9999)
+        throw new FamilyError(
+          `${where}: "blank" is the number printed on a blank card: a whole number from 1.`,
+        );
+      if (numbers.has(blank))
+        throw new FamilyError(`${where}: blank card ${blank} is on the list twice.`);
+      numbers.add(blank);
+      if (entry.household !== undefined)
+        throw new FamilyError(`${where}: a blank card cannot share a household card.`);
+      // Named later, with --assign: both names, and the person if in the tree.
+      const named = ['person', 'firstName', 'lastName'].some((key) => entry[key] !== undefined);
+      for (const key of named ? ['firstName', 'lastName'] : [])
+        if (!isText(entry[key])) throw new FamilyError(`${where}: "${key}" is missing.`);
+      if (entry.person !== undefined && !isText(entry.person))
+        throw new FamilyError(`${where}: "person" must be text, or left out.`);
+    } else {
+      for (const key of ['person', 'firstName', 'lastName'])
+        if (!isText(entry?.[key])) throw new FamilyError(`${where}: "${key}" is missing.`);
+    }
+    if (entry.person !== undefined) {
+      if (blankCardNumber(entry.person))
+        throw new FamilyError(`${where}: "${entry.person}" cannot be a person's id.`);
+      if (seen.has(entry.person))
+        throw new FamilyError(`${where}: ${entry.person} is on the list twice.`);
+      seen.add(entry.person);
+      if (people && !people.has(entry.person))
+        throw new FamilyError(
+          `${where}: nobody in the family tree has the id "${entry.person}".`,
+        );
+    }
     for (const key of ['cardName', 'household'])
-      if (entry[key] !== undefined && (typeof entry[key] !== 'string' || !entry[key].trim()))
+      if (entry[key] !== undefined && !isText(entry[key]))
         throw new FamilyError(`${where}: "${key}" must be text, or left out.`);
-    if (people && !people.has(entry.person))
-      throw new FamilyError(
-        `${where}: nobody in the family tree has the id "${entry.person}".`,
-      );
   }
   return list;
 }
 
+/** Who the site's database says an entry's card is for: the person, or the
+ * stand-in for a blank card nobody in the tree has been given. */
+export const cardPerson = (entry) => entry.person || blankCardPerson(entry.blank);
+
+/** What to call an entry's card in a message. */
+export const cardLabel = (entry) =>
+  entry.firstName ||
+  (entry.blank !== undefined ? `blank card ${entry.blank}` : entry.person);
+
 /** The printed cards for the people on the list: one for each person, and
  * one for each household, placed where its first member stands. A card is
- * `{ name, people }`, and each of its people has a firstName and a code. */
+ * `{ name, people }`, and each of its people has a firstName and a code. A
+ * blank card nobody has been named for is `{ name: '', blank, people }`. */
 export function groupCards(entries) {
   const cards = [];
   const households = new Map();
   for (const entry of entries) {
     const label = entry.household?.trim();
-    if (!label) {
+    if (entry.blank !== undefined && !entry.firstName) {
+      cards.push({ name: '', blank: entry.blank, people: [entry] });
+    } else if (!label) {
       cards.push({ name: entry.cardName?.trim() || entry.firstName, people: [entry] });
     } else if (households.has(label)) {
       households.get(label).people.push(entry);
@@ -122,12 +171,15 @@ export function groupCards(entries) {
 /** The page to print. The template's card block prints once for each card
  * with one person. A card for a household uses the household block, with its
  * person block once for each member; a template without one prints each
- * member's own card instead. Every value is escaped for HTML. */
+ * member's own card instead. A blank card uses the blank block, which has
+ * {{number}} and room to write a name; a template without one prints the
+ * card block with no name. Every value is escaped for HTML. */
 export function cardsPage(template, cards, values) {
   const household = /<!-- household -->([\s\S]*)<!-- \/household -->/.exec(template);
-  const parts = /^([\s\S]*)<!-- card -->([\s\S]*)<!-- \/card -->([\s\S]*)$/.exec(
-    household ? template.replace(household[0], '') : template,
-  );
+  const blank = /<!-- blank -->([\s\S]*)<!-- \/blank -->/.exec(template);
+  let rest = template;
+  for (const block of [household, blank]) if (block) rest = rest.replace(block[0], '');
+  const parts = /^([\s\S]*)<!-- card -->([\s\S]*)<!-- \/card -->([\s\S]*)$/.exec(rest);
   if (!parts)
     throw new FamilyError(
       'family-cards.html needs <!-- card --> and <!-- /card --> around one card.',
@@ -145,7 +197,13 @@ export function cardsPage(template, cards, values) {
     // A plain list entry is a card for one person.
     const people = card.people || [card];
     const name = card.name || card.cardName || card.firstName;
-    if (people.length === 1) printed.push(one(name, people[0]));
+    if (card.blank !== undefined)
+      printed.push(
+        blank
+          ? fill(blank[1], { ...values, number: card.blank, code: people[0].code }, { html: true })
+          : one('', people[0]),
+      );
+    else if (people.length === 1) printed.push(one(name, people[0]));
     else if (!member)
       for (const person of people) printed.push(one(person.cardName || person.firstName, person));
     else
@@ -218,9 +276,10 @@ export async function makeCards(
         'VALUES (?1, ?2, ?3, ?4, CAST(?5 AS INTEGER), CAST(?6 AS INTEGER))',
       [
         await cardCodeHash(fresh),
-        entry.person,
-        entry.firstName.trim(),
-        entry.lastName.trim(),
+        cardPerson(entry),
+        // A blank card has no name until --assign gives it one.
+        (entry.firstName || '').trim(),
+        (entry.lastName || '').trim(),
         now,
         now + days * DAY,
       ],
@@ -237,7 +296,13 @@ export async function makeCards(
 export function statusLines(rows, now = Date.now()) {
   const date = (time) => new Date(Number(time)).toISOString().slice(0, 10);
   return rows.map((row) => {
-    const who = `${row.first_name} ${row.last_name} (${row.person})`;
+    const number = blankCardNumber(row.person);
+    const name = `${row.first_name} ${row.last_name}`.trim();
+    const who = !number
+      ? `${name} (${row.person})`
+      : name
+        ? `${name} (blank card ${number})`
+        : `Blank card ${number}`;
     if (row.confirmed_at) return `${who}: signed in as ${row.email} on ${date(row.confirmed_at)}`;
     if (Number(row.expires_at) <= now) return `${who}: not used; the card stopped working on ${date(row.expires_at)}`;
     if (row.email) return `${who}: chose ${row.email}, has not signed in with it yet`;
@@ -248,7 +313,7 @@ export function statusLines(rows, now = Date.now()) {
 /** The cards to print, and those left off the page: a used card, and an
  * unused one past its last day, which no longer works. `rows` is what the
  * site knows of each card.
- * @template {{ person: string, code?: string }} Entry
+ * @template {{ person?: string, blank?: number, code?: string }} Entry
  * @param {Entry[]} list
  * @param {{ person: string, confirmed_at: unknown, expires_at: unknown }[]} rows
  * @param {number} [now] */
@@ -265,11 +330,11 @@ export function cardsToPrint(list, rows, now = Date.now()) {
   const held = list.filter((entry) => entry.code);
   return {
     print: held.filter((entry) => {
-      const card = state.get(entry.person);
+      const card = state.get(cardPerson(entry));
       return !card || (!card.used && !card.expired);
     }),
-    used: held.filter((entry) => state.get(entry.person)?.used),
-    expired: held.filter((entry) => state.get(entry.person)?.expired),
+    used: held.filter((entry) => state.get(cardPerson(entry))?.used),
+    expired: held.filter((entry) => state.get(cardPerson(entry))?.expired),
   };
 }
 
@@ -295,6 +360,55 @@ export async function removeCardAccounts(emails, { query, invited = [], clerk })
       }
   }
   return removed;
+}
+
+/** Record who has a blank card: their name, and the person they are in the
+ * family tree when they are in it. The site then welcomes them by name and
+ * shows them their own relatives. The account the site made for them, if
+ * they have signed in, gets the name too. Returns the card's email address,
+ * if one was chosen, and whether its account was renamed.
+ * @param {{ blank?: number, person?: string, firstName?: string, lastName?: string, code?: string }[]} list
+ * @param {number} number
+ * @param {{ firstName: string, lastName: string, person?: string }} who
+ * @param {{ query: Function, clerk: Function }} options */
+export async function assignBlank(list, number, who, { query, clerk }) {
+  const entry = list.find((item) => item.blank === number);
+  if (!entry) throw new FamilyError(`There is no blank card ${number} on the list.`);
+  if (!entry.code)
+    throw new FamilyError(
+      `Blank card ${number} has not been made yet. Run the script without options first.`,
+    );
+  const firstName = who.firstName.trim();
+  const lastName = who.lastName.trim();
+  if (!firstName || !lastName)
+    throw new FamilyError('Give both names: --first <name> --last <name>');
+  if (who.person && list.some((item) => item !== entry && item.person === who.person))
+    throw new FamilyError(`${who.person} already has a card on the list.`);
+  const rows = await query(
+    'UPDATE cards SET person = ?1, first_name = ?2, last_name = ?3 ' +
+      'WHERE person = ?4 RETURNING email',
+    [who.person || blankCardPerson(number), firstName, lastName, cardPerson(entry)],
+  );
+  if (!rows.length)
+    throw new FamilyError(`The site has no card for blank card ${number}. Was it cancelled?`);
+  entry.firstName = firstName;
+  entry.lastName = lastName;
+  if (who.person) entry.person = who.person;
+  else delete entry.person;
+  const emails = rows.map((row) => row.email).filter(Boolean);
+  let renamed = false;
+  for (const email of emails) {
+    const found = await clerk('GET', 'users?limit=10&email_address=' + encodeURIComponent(email));
+    for (const account of found)
+      if (account.private_metadata?.flyleaf_card === true) {
+        await clerk('PATCH', 'users/' + encodeURIComponent(account.id), {
+          first_name: firstName,
+          last_name: lastName,
+        });
+        renamed = true;
+      }
+  }
+  return { email: emails[0] || '', renamed };
 }
 
 /** True unless a file is, or would be, inside a git repository that does not
@@ -335,14 +449,18 @@ if (isMain(import.meta.url)) {
   if (!token)
     throw new FamilyError('cloudflare.env has no CLOUDFLARE_API_TOKEN.');
   // The sign-in service, asked with the family's own key.
-  const clerk = async (method, where) => {
+  const clerk = async (method, where, body) => {
     const key = readFileSync(path.join(credentials, 'clerk.env'), 'utf8')
       .match(/^(?:export\s+)?CLERK_SECRET_KEY=(.*)$/m)?.[1]
       .trim()
       .replace(/^['"]|['"]$/g, '');
     const response = await fetch('https://api.clerk.com/v1/' + where, {
       method,
-      headers: { Authorization: `Bearer ${key}` },
+      headers: {
+        Authorization: `Bearer ${key}`,
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
       signal: AbortSignal.timeout(30_000),
     });
     if (!response.ok)
@@ -378,13 +496,42 @@ if (isMain(import.meta.url)) {
   if (args.includes('--status')) {
     const lines = statusLines(await rows());
     console.log(lines.length ? lines.join('\n') : 'No cards have been made.');
+  } else if (args.includes('--assign')) {
+    const number = Number(option('--assign'));
+    const who = {
+      firstName: option('--first') || '',
+      lastName: option('--last') || '',
+      person: option('--person') || undefined,
+    };
+    if (!Number.isInteger(number) || number < 1)
+      throw new FamilyError(
+        'Give the number on the blank card: --assign 3 --first <name> --last <name> [--person <person id>]',
+      );
+    if (who.person && people && !people.has(who.person))
+      throw new FamilyError(`Nobody in the family tree has the id "${who.person}".`);
+    const { email, renamed } = await assignBlank(list, number, who, { query, clerk });
+    save();
+    console.log(
+      `Blank card ${number} is ${who.firstName} ${who.lastName}'s` +
+        (who.person ? ` (${who.person}).` : '. They are not linked to a person in the tree.') +
+        (email
+          ? ` They ${renamed ? 'signed in' : 'chose to sign in'} as ${email}.`
+          : ' The card has not been used yet.') +
+        '\nThe site knows them by name within a minute.',
+    );
   } else if (args.includes('--cancel')) {
-    const person = option('--cancel');
-    if (!person) throw new FamilyError('Name the person: --cancel <person id>');
+    const named = option('--cancel');
+    if (!named)
+      throw new FamilyError('Name the person, or the number on a blank card: --cancel <person id>');
+    // A number names a blank card, whoever has since been named for it.
+    const blank = /^\d+$/.test(named)
+      ? list.find((entry) => entry.blank === Number(named))
+      : undefined;
+    const person = blank ? cardPerson(blank) : /^\d+$/.test(named) ? blankCardPerson(Number(named)) : named;
     const gone = await query('DELETE FROM cards WHERE person = ?1 RETURNING email', [person]);
-    if (!gone.length) throw new FamilyError(`No card was made for ${person}.`);
+    if (!gone.length) throw new FamilyError(`No card was made for ${named}.`);
     for (const entry of list)
-      if (entry.person === person) {
+      if (cardPerson(entry) === person) {
         delete entry.code;
         delete entry.made;
       }
@@ -398,7 +545,7 @@ if (isMain(import.meta.url)) {
       clerk,
     });
     console.log(
-      `Cancelled the card for ${person}.` +
+      `Cancelled ${blank ? 'blank card ' + named : 'the card for ' + person}.` +
         (emails.length
           ? ` ${emails.join(', ')} can no longer open the site, within a minute.`
           : ' No email address had been chosen with it.') +
@@ -449,15 +596,21 @@ if (isMain(import.meta.url)) {
     console.log(
       made.length
         ? `Made ${made.length} new ${made.length === 1 ? 'card' : 'cards'}: ` +
-            made.map((entry) => entry.firstName).join(', ') + '.'
+            made.map(cardLabel).join(', ') + '.'
         : 'Everyone on the list already has a card.',
     );
+    const said = (entry) => cardLabel(entry).replace(/^b/, 'B');
     for (const entry of used)
-      console.log(`${entry.firstName} has used their card; it is left off the page.`);
+      console.log(
+        entry.firstName
+          ? `${entry.firstName} has used their card; it is left off the page.`
+          : `${said(entry)} has been used; it is left off the page.`,
+      );
     for (const entry of expired)
       console.log(
-        `${entry.firstName}'s card was not used in time and no longer works; it is left off ` +
-          `the page. For a new one: --cancel ${entry.person}, then run this again.`,
+        (entry.firstName ? `${entry.firstName}'s card` : said(entry)) +
+          ' was not used in time and no longer works; it is left off ' +
+          `the page. For a new one: --cancel ${entry.person || entry.blank}, then run this again.`,
       );
     console.log(
       `Cards to print (${groupCards(toPrint).length}): ${path.relative(process.cwd(), pageFile)}\n` +
