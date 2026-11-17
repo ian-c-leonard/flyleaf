@@ -90,6 +90,22 @@ ul.points li::before { content: ""; position: absolute; left: 0; top: 0.62em; wi
 .gallery img { border: 1px solid var(--line); background: var(--card); aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
 .gallery figcaption { font-size: 0.98rem; }
 .gallery figcaption strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.25rem; }
+.cards { margin-top: 64px; }
+.cards h3 { font-size: 1.9rem; }
+.card-fan { margin: 0; display: grid; justify-items: center; padding-block: 19%; }
+.card-fan img { grid-area: 1 / 1; width: min(78%, 400px); background: #fff; border: 1px solid var(--line); box-shadow: 0 18px 34px -24px rgba(31, 42, 38, 0.55); }
+.card-fan img:first-child { transform: translate(-9%, -33%) rotate(-4deg); }
+.card-fan img:last-child { transform: translate(7%, 27%) rotate(2deg); }
+
+/* Pictures lift a little under the pointer. `translate` is separate from the
+   rotations some of them carry, so the two combine. */
+.browser, .pages img, .book-figure img, .gallery img, .card-fan img { transition: translate 0.25s ease, box-shadow 0.25s ease; }
+.browser:hover, .pages img:hover, .book-figure img:hover, .gallery img:hover, .card-fan img:hover { translate: 0 -6px; box-shadow: 0 30px 46px -24px rgba(31, 42, 38, 0.5); }
+.pages img:hover, .card-fan img:hover { z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .browser, .pages img, .book-figure img, .gallery img, .card-fan img { transition: none; }
+  .browser:hover, .pages img:hover, .book-figure img:hover, .gallery img:hover, .card-fan img:hover { translate: none; }
+}
 
 .evidence { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 32px; }
 .evidence div { background: var(--card); border: 1px solid var(--line); padding: 22px; display: grid; gap: 8px; align-content: start; }
@@ -199,6 +215,23 @@ footer .wrap { display: flex; justify-content: space-between; gap: 18px; flex-wr
         <figure><img src="img/site-places.webp" alt="Places on a map" width="1440" height="900" loading="lazy"><figcaption><strong>Places</strong>The towns where the family lived. Each place you give a map point appears on the map.</figcaption></figure>
         <figure><img src="img/site-archive.webp" alt="The family archive" width="1440" height="900" loading="lazy"><figcaption><strong>The archive</strong>Letters, certificates, newspaper pages and recipes, with what each one shows.</figcaption></figure>
         <figure><img src="img/site-treasures.webp" alt="The family treasures page" width="1440" height="900" loading="lazy"><figcaption><strong>Treasures</strong>Keepsakes such as a family recipe book or recorded music. On a private site, you can also let relatives send photographs, memories and corrections for you to review. Sending is off until you turn it on.</figcaption></figure>
+      </div>
+      <div class="split cards">
+        <div class="stack">
+          <h3>Cards for relatives without email</h3>
+          <p>Some relatives you can&rsquo;t reach by email. Print each of them a card with a short code. They go to the site, type the code, and choose the email address they will sign in with from then on.</p>
+          <ul class="points">
+            <li>One card can serve a household, with each person&rsquo;s own code on it.</li>
+            <li>Blank cards, to hand out at a reunion. Write the name on by hand, and tell Flyleaf later who has each one.</li>
+            <li>See who has used a card, and cancel one that goes astray.</li>
+            <li>Cards are off until you turn them on. The site keeps only a scrambled form of each code, and limits wrong guesses.</li>
+          </ul>
+          <p class="small">For a private site with sign-in. <a href="https://github.com/ian-c-leonard/flyleaf/blob/main/docs/hosting.md#cards-for-relatives-whose-email-you-do-not-have">How to set up cards</a>.</p>
+        </div>
+        <figure class="card-fan">
+          <img src="img/site-card-back.webp" alt="The other side of a sample card: the family&rsquo;s name and the site&rsquo;s address" width="1056" height="816" loading="lazy">
+          <img src="img/site-card.webp" alt="A sample card for Tamsin Penhallow, with the site&rsquo;s address and a short code to type" width="1056" height="816" loading="lazy">
+        </figure>
       </div>
     </div>
   </section>
