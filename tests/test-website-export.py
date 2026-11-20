@@ -7,6 +7,7 @@ import io
 import json
 import os
 import re
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,6 +18,7 @@ SCRIPTS = Path(__file__).resolve().parent.parent / 'scripts'
 sys.path.insert(0, str(SCRIPTS))
 from booklib import Tree, SRC_GED
 import flyleaf_settings
+import working_folders
 
 MODULE = SCRIPTS.joinpath("export-website.py")
 RESEARCH_FOLDERS = ["capture", "captures", "correlation", "independent-reading", "review"]
@@ -851,6 +853,42 @@ class PackageTests(FamilyFolder):
         recovered = list(self.output.parent.glob('.data-previous-*/bundle/family.ged'))
         self.assertEqual(len(recovered), 1)
         self.assertEqual(recovered[0].read_bytes(), before)
+
+    def test_a_file_dropped_into_a_working_folder_does_not_stop_the_build(self):
+        # macOS can add a .DS_Store while a working folder is being emptied.
+        # The new package is already in place by then, so the delete is
+        # tried again and the build goes on.
+        self.build()
+        real_rmtree = shutil.rmtree
+        dropped = []
+
+        def finder_writes_once(path, *args, **kwargs):
+            folder = Path(path)
+            if folder.name not in dropped and folder.name.startswith('.data-'):
+                dropped.append(folder.name)
+                real_rmtree(folder, *args, **kwargs)
+                folder.mkdir()
+                (folder / '.DS_Store').write_bytes(b'Bud1')
+                raise OSError(66, 'Directory not empty', str(folder))
+            return real_rmtree(path, *args, **kwargs)
+
+        with patch.object(shutil, 'rmtree', finder_writes_once), \
+                patch.object(working_folders.time, 'sleep', lambda seconds: None):
+            self.build("1 OCCU Revised occupation\n")
+        self.assertEqual(sorted(name.split('-')[1] for name in dropped), ['previous', 'stage'])
+        self.assertIn('Revised occupation', (self.output / 'family.ged').read_text())
+        self.assertEqual(list(self.output.parent.glob('.data-*')), [])
+
+    def test_a_working_folder_that_cannot_be_deleted_still_stops_the_build(self):
+        self.build()
+
+        def never(path, *args, **kwargs):
+            raise OSError(66, 'Directory not empty', str(path))
+
+        with patch.object(shutil, 'rmtree', never), \
+                patch.object(working_folders.time, 'sleep', lambda seconds: None):
+            with self.assertRaises(OSError):
+                self.build("1 OCCU Revised occupation\n")
 
     def test_manuscript_validation_requires_existing_file_and_valid_hash(self):
         (self.root / "chapter.typ").write_text("A chapter")

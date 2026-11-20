@@ -14,7 +14,7 @@ RECEIPT = ROOT / 'build/book-publication.json'
 CODE = ('build-book.py', 'book_publication.py', 'book-assemble.py', 'book-coverage.py',
         'book-figures.py', 'bookcharts.py', 'bookbib.py', 'booklib.py', 'ascii_ids.py', 'build_clock.py',
         'flyleaf_settings.py', 'enrich-gedcom.py', 'validate-gedcom.py', 'source_tiers.py',
-        'gedcom_confidence.py',
+        'gedcom_confidence.py', 'working_folders.py',
         'extract-claims.py', 'check-footnotes.py', 'check-register-sources.py',
         'check-bibliography.py', 'check-charts.py')
 # The flyleaf.json sections the book build reads: the book's own settings, the

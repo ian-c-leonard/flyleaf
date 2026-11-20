@@ -52,6 +52,9 @@
 - The site build empties its output folder itself, and keeps trying. On
   macOS an open Finder window could stop the build with "Directory not
   empty".
+- The book build and the site data build keep trying in the same way when
+  they remove their working folders. A `.DS_Store` written into one could
+  stop a build after its new output was already in place.
 - A deploy never uploads `.DS_Store` or similar system files. macOS could
   add one to the package between packaging and upload; it then went live
   and stopped the live check. The package now tells the uploader to leave

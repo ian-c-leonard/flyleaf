@@ -307,10 +307,11 @@ export async function prepareHosting(site = defaultSite) {
       }
       throw error;
     }
-    if (movedOld) await rm(backup, { recursive: true });
+    // macOS can add a .DS_Store while a folder is emptied: keep trying.
+    if (movedOld) await rm(backup, { recursive: true, maxRetries: 20, retryDelay: 50 });
     return output;
   } finally {
-    if (!installed) await rm(stage, { recursive: true, force: true });
+    if (!installed) await rm(stage, { recursive: true, force: true, maxRetries: 20, retryDelay: 50 });
   }
 }
 

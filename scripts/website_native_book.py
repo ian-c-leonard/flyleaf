@@ -20,13 +20,13 @@ import os
 import re
 import shutil
 import subprocess
-import tempfile
 import xml.etree.ElementTree as ET
 
 import bookbib
 import booklib
 import flyleaf_settings
 from book_publication import digest, verify_receipt
+from working_folders import working_folder
 from website_book_archive import current_book_map
 from website_book_parity import Expected, Actual, compare
 from website_book_annotations import DATE_STYLES, annotate, load_catalogue, written_date
@@ -783,7 +783,7 @@ def build_web_book(receipt_path, stage, admitted, renamed=None):
     # In the family's build folder, inside Typst's --root, wherever Flyleaf is.
     workspace = ROOT / 'build' / 'web-book'
     workspace.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='native-book-', dir=workspace) as tmp:
+    with working_folder('native-book-', workspace) as tmp:
         work = Path(tmp)
         html = compile_book(source, receipt, work)
         body = BookHTML().parse(html)

@@ -255,7 +255,7 @@ export async function freezeArchive(site, target) {
       ...JSON.parse(await readFile(path.join(batchDir, 'batch.json'))),
     };
   } finally {
-    await rm(stage, { recursive: true, force: true });
+    await rm(stage, { recursive: true, force: true, maxRetries: 20, retryDelay: 50 });
   }
 }
 

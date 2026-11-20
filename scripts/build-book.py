@@ -14,6 +14,7 @@ from pathlib import Path
 import booklib
 import build_clock
 import flyleaf_settings
+from working_folders import remove_working_folder, working_folder
 
 SOURCE_GEDCOM = flyleaf_settings.path('source_gedcom')
 PDF_NAME = flyleaf_settings.require('book.pdf_name')
@@ -38,7 +39,7 @@ def install(stage, build_dir):
             if target.exists():
                 shutil.copyfile(target, backup / name)
     except BaseException:
-        shutil.rmtree(backup)
+        remove_working_folder(backup)
         raise
     try:
         for name in names:
@@ -56,9 +57,9 @@ def install(stage, build_dir):
                     target.unlink(missing_ok=True)
         except BaseException as rollback:
             raise RuntimeError(f'Restore the previous book from {backup}') from rollback
-        shutil.rmtree(backup)
+        remove_working_folder(backup)
         raise
-    shutil.rmtree(backup)
+    remove_working_folder(backup)
 
 
 def acquire_lock(lock, stale_after=120):
@@ -87,7 +88,7 @@ def acquire_lock(lock, stale_after=120):
                 raise busy
             else:
                 raise busy
-        shutil.rmtree(lock)
+        remove_working_folder(lock)
         lock.mkdir()
     (lock / 'pid').write_text(str(os.getpid()))
 
@@ -98,7 +99,7 @@ def build():
     lock = build_dir / '.book-publication-lock'
     acquire_lock(lock)
     try:
-        with tempfile.TemporaryDirectory(prefix='.book-publication-', dir=build_dir) as directory:
+        with working_folder('.book-publication-', build_dir) as directory:
             stage = Path(directory)
             # SOURCE_DATE_EPOCH pins the edition date and the PDF timestamp, so
             # a pinned rebuild reproduces the published bytes exactly.
@@ -202,7 +203,7 @@ def build():
             print(f'→ build/book.pdf ({receipt["book"]["pages"]} pages), checked; the build is recorded '
                   'so the website can tell if the book is out of date.')
     finally:
-        shutil.rmtree(lock)
+        remove_working_folder(lock)
 
 
 # Other editions of the built book: the archival PDF (PDF/A-2b, for library
@@ -219,7 +220,7 @@ def edition(option):
     """Compile build/book.typ again, set in exactly the book's fonts: the
     font files in flyleaf.json, never the fonts this computer has installed."""
     arguments, made = EDITIONS[option]
-    with tempfile.TemporaryDirectory(prefix='.book-fonts-', dir=ROOT / 'build') as directory:
+    with working_folder('.book-fonts-', ROOT / 'build') as directory:
         for source in FONTS:
             shutil.copyfile(source, Path(directory) / source.name)
         env = dict(os.environ, TYPST_FONT_PATHS=directory, TYPST_IGNORE_SYSTEM_FONTS='true',

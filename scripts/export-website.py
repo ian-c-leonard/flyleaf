@@ -20,6 +20,7 @@ from booklib import ROOT, SRC_GED, Tree, possibly_living
 from website_assets import PAGE_FORMATS, reader_asset, skip_reason, STRUCTURED_READER_KINDS
 from website_visuals import PERSON_FIELDS, VISUAL_FIELDS, validate_visual_roots, validate_visual_media
 import flyleaf_settings
+from working_folders import remove_working_folder, working_folder
 
 EVENTS = {'BIRT', 'BAPM', 'CHR', 'DEAT', 'BURI', 'MARR', 'DIV', 'CENS', 'RESI',
           'EMIG', 'IMMI', 'NATU', 'EDUC', 'GRAD', 'OCCU', 'RETI', 'MILI', 'EVEN', 'ADOP', 'PROB', 'WILL'}
@@ -635,7 +636,7 @@ def package(tree, output, edition='document', strict_assets=False, previews=Fals
     staging.mkdir(parents=True, exist_ok=True)
     # Staging is a fresh directory: no stale asset or pre-existing
     # destination symlink can survive a successful replacement.
-    with tempfile.TemporaryDirectory(prefix=f'.{output.name}-stage-', dir=staging) as tmp:
+    with working_folder(f'.{output.name}-stage-', staging) as tmp:
         stage = Path(tmp) / 'bundle'
         stage.mkdir()
         document = '\n'.join(render(node) for node in selected) + '\n0 TRLR\n'
@@ -712,7 +713,7 @@ def package(tree, output, edition='document', strict_assets=False, previews=Fals
             backup_directory.rmdir()
             raise
         else:
-            shutil.rmtree(backup_directory)
+            remove_working_folder(backup_directory)
     notes['missingAssets'] = manifest['missingAssets']
     if report:
         Path(report).parent.mkdir(parents=True, exist_ok=True)
