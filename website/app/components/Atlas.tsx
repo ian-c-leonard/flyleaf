@@ -2,6 +2,7 @@ import BrowsingImage from './BrowsingImage';
 import FamilyImageViewer from './FamilyImageViewer';
 import FlyleafCredit from './FlyleafCredit';
 import SessionControls, { MenuSignOut } from './SessionControls';
+import CardStatus from './CardStatus';
 import ShareSomething from './ShareSomething';
 import { bookCardLine, homeInvitation, siteContents } from '../lib/home-copy';
 import {
@@ -43,6 +44,7 @@ import recipeContents from '@content/family-recipes.json';
 import { familyRecipeBook } from '../lib/family-recipes';
 import homeRecordList from '@content/home-records.json';
 import FamilyAlbum from './FamilyAlbum';
+import { albumMatches, familyAlbum } from '../lib/family-album';
 import PersonGallery from './PersonGallery';
 import ProfileIntroduction from './ProfileIntroduction';
 import Album, { AlbumLink } from './Album';
@@ -72,6 +74,8 @@ import { site } from '../lib/settings';
 import {
   branchChoices,
   familyFocus,
+  mayBeLiving,
+  ownSide,
   familyGroupPhotos,
   immediateFamily,
   viewpointChoices,
@@ -106,6 +110,8 @@ import {
 import { sitePath } from '../lib/paths';
 // Remembers an administrator's chosen view on this device.
 const viewAsKey = `${site.id}.viewAs`;
+// Who a reader says they are, when their sign-in names nobody.
+const meKey = `${site.id}.me`;
 // The family's recipe book, or null when it has none.
 const recipeBook = familyRecipeBook(recipeContents);
 const navigation: [Destination, string][] = [
@@ -163,6 +169,22 @@ export default function Atlas() {
       return '';
     }
   });
+  const [me, setMe] = useState(() => {
+    try {
+      return localStorage.getItem(meKey) || '';
+    } catch {
+      return '';
+    }
+  });
+  const chooseMe = (id: string) => {
+    setMe(id);
+    try {
+      if (id) localStorage.setItem(meKey, id);
+      else localStorage.removeItem(meKey);
+    } catch {
+      /* Remembering it is a convenience only. */
+    }
+  };
   useEffect(() => {
     if (site.hosting !== 'worker') return;
     fetch('/api/session', { credentials: 'same-origin', cache: 'no-store' })
@@ -189,6 +211,7 @@ export default function Atlas() {
   const [bookNavigation, setBookNavigation] = useState(0);
   const [error, setError] = useState('');
   const [branchOpen, setBranchOpen] = useState(false);
+  const [cardsOpen, setCardsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [previews, setPreviews] = useState<PreviewIndex>({});
@@ -491,15 +514,39 @@ export default function Atlas() {
   const focused = focus?.data;
   const known = (id: string) => !!id && !!data?.people.some((p) => p.id === id);
   const chosenView = session.admin && known(viewAs) ? viewAs : '';
+  // A reader whose sign-in names nobody can say who they are ("This is me"
+  // on a profile). It changes only the words on the page.
+  const self = !known(session.person) && known(me) ? me : '';
   const viewerId =
     chosenView ||
     (known(session.person) ? session.person : '') ||
+    self ||
     data?.rootId ||
     '';
   // Labels speak to the reader ('Your grandmother') when we know who is
   // reading; otherwise they describe the root person's family ('Tamsin's
   // grandmother', for a family whose root is Tamsin).
-  const personalView = !!(chosenView || known(session.person));
+  const personalView = !!(chosenView || known(session.person) || self);
+  // A reader who belongs to one side of the family starts on that side, once
+  // on each device. After that, the branch they choose is theirs to keep.
+  const side = useMemo(
+    () => (data && personalView ? ownSide(data, viewerId) : ''),
+    [data, personalView, viewerId],
+  );
+  useEffect(() => {
+    const now = current.current;
+    if (!side || now.view !== 'home' || now.branch || now.person) return;
+    const key = `${site.id}.ownSide.${viewerId}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+    } catch {
+      return; // Without storage the choice could not be remembered.
+    }
+    navigate({ branch: side, focus: side }, true);
+    // Only a change of reader starts this again.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [side, viewerId]);
   // One finder per reader: search and sorting share each relationship.
   const relationshipToViewer = useMemo(
     () => (data ? relationshipFinder(data, viewerId) : null),
@@ -725,6 +772,12 @@ export default function Atlas() {
     });
     setQuery('');
   }
+  /** Open the people list with the name box selected. The list is drawn
+   * before the tap ends, so a phone raises its keyboard at once. */
+  function findSomeone() {
+    flushSync(() => go('people'));
+    peopleSearch.current?.focus();
+  }
   function suggestCorrection(id: string) {
     navigate({
       view: 'share',
@@ -859,9 +912,28 @@ export default function Atlas() {
         )}
       </main>
     );
-  const branchLabel = focus?.anchor
-    ? `${focus.anchor.given.split(' ')[0]} ${focus.anchor.surname}’s branch`
-    : 'All the family';
+  // A side of the family is named for the two families it joins: "the
+  // Penhallow and Trembath side". Without parents, it is the person's own.
+  const sideName = (anchor: Person) => {
+    const surnames = [
+      ...new Set(
+        anchor.parents.flatMap((id) => {
+          const parent = data.people.find((p) => p.id === id);
+          return parent?.surname ? [parent.surname] : [];
+        }),
+      ),
+    ];
+    return surnames.length
+      ? `the ${wordList(surnames)}`
+      : `${anchor.given.split(' ')[0]}’s`;
+  };
+  // The reader's own side is named for its families; any other branch for
+  // the person it starts from.
+  const branchLabel = !focus?.anchor
+    ? 'All the family'
+    : route.branch === side
+      ? `${capitalized(sideName(focus.anchor))} side`
+      : `${focus.anchor.given.split(' ')[0]} ${focus.anchor.surname}’s branch`;
   const rootPerson = data.people.find((p) => p.id === data.rootId)!;
   const relationText = (relation: { label: string; kind: string }) =>
     relation.kind === 'self'
@@ -911,10 +983,29 @@ export default function Atlas() {
   );
   const homeLetters =
     homeRecipes && !!recipeBook?.volumes.some((v) => v.kind === 'letter');
+  // Named searches of the family album, each with a first picture to show.
+  const photoCollections =
+    route.view === 'home' || route.view === 'treasures'
+      ? site.photos.collections.flatMap((collection) => {
+          const found = familyAlbum(
+            data,
+            focus?.anchor ? focus.members : undefined,
+            viewerId,
+          ).filter((entry) =>
+            albumMatches(data, entry, { query: collection.search }),
+          );
+          return found.length
+            ? [{ ...collection, count: found.length, cover: found[0].asset }]
+            : [];
+        })
+      : [];
+  const hasTreasures =
+    homeAlbums.length > 0 || homeRecipes || photoCollections.length > 0;
   const treasureWords = (music: string, letters: string) => [
     ...(homeAlbums.length ? [music] : []),
     ...(homeRecipes ? ['recipes'] : []),
     ...(homeLetters ? [letters] : []),
+    ...(photoCollections.length ? ['photographs'] : []),
   ];
   const albumIntro =
     site.albumIntro ||
@@ -938,6 +1029,41 @@ export default function Atlas() {
           resolveFile={resolveFile}
           onOpen={openAlbum}
         />
+      ))}
+      {photoCollections.map((collection) => (
+        <button
+          key={collection.title}
+          className="kin-music-link"
+          onClick={() =>
+            navigate({
+              view: 'photos',
+              photoSection: 'all',
+              photoQuery: collection.search,
+              person: '',
+              image: '',
+              record: '',
+            })
+          }
+        >
+          <BrowsingImage
+            original={resolveFile(collection.cover.path)}
+            src={
+              previewUrl(collection.cover.path, '640') ||
+              resolveFile(collection.cover.path)
+            }
+            alt=""
+            loading="lazy"
+          />
+          <span>
+            <small>
+              {collection.count} {collection.count === 1 ? 'photograph' : 'photographs'}
+            </small>
+            <strong>{collection.title}</strong>
+            <span>
+              Open the album <ArrowRightIcon size={17} aria-hidden="true" />
+            </span>
+          </span>
+        </button>
       ))}
       {homeRecipes && recipeBook && (
         <button
@@ -1053,12 +1179,7 @@ export default function Atlas() {
         <button
           className="kin-search-toggle"
           aria-label="Search people"
-          onClick={() => {
-            // The list is drawn before the tap ends, so a phone raises its
-            // keyboard and the reader can type a name at once.
-            flushSync(() => go('people'));
-            peopleSearch.current?.focus();
-          }}
+          onClick={findSomeone}
         >
           <MagnifyingGlassIcon size={21} />
         </button>
@@ -1134,6 +1255,18 @@ export default function Atlas() {
               </select>
             </label>
           )}
+          {session.admin && site.hosting === 'worker' && (
+            <button
+              className="kin-menu-sign-out"
+              onClick={() => {
+                setMenuOpen(false);
+                setCardsOpen(true);
+              }}
+            >
+              Family cards: who has signed in
+              <ArrowRightIcon size={19} aria-hidden="true" />
+            </button>
+          )}
           <MenuSignOut />
         </nav>
       )}
@@ -1167,9 +1300,15 @@ export default function Atlas() {
           <>
             <section className="kin-home-hero">
               <div className="kin-welcome">
-                <span className="kin-eyebrow">{data.title}</span>
+                <span className="kin-eyebrow">{site.welcomeName}</span>
                 <h1>
-                  {focus?.anchor ? (
+                  {focus?.anchor && route.branch === side ? (
+                    <>
+                      Your side
+                      <br />
+                      of the family
+                    </>
+                  ) : focus?.anchor ? (
                     <>
                       {focus.anchor.given.split(' ')[0]}’s
                       <br />
@@ -1184,24 +1323,70 @@ export default function Atlas() {
                   )}
                 </h1>
                 <p>{homeInvitation(has)}</p>
+                {focus?.anchor && route.branch === side && (
+                  <p className="kin-own-side">
+                    You are seeing {sideName(focus.anchor)} side of the
+                    family. Choose{' '}
+                    <button
+                      className="kin-inline-link"
+                      onClick={() => chooseBranch('')}
+                    >
+                      All the family
+                    </button>{' '}
+                    to see everyone.
+                  </p>
+                )}
+                <div className="kin-start">
+                  <span className="kin-eyebrow">Start here</span>
+                  <ol>
+                    <li>
+                      {personalView ? (
+                        <button onClick={() => navigate({ person: viewerId })}>
+                          <span>Open your own page</span>
+                          <ArrowRightIcon size={18} />
+                        </button>
+                      ) : (
+                        <button onClick={findSomeone}>
+                          <span>Find yourself</span>
+                          <ArrowRightIcon size={18} />
+                        </button>
+                      )}
+                    </li>
+                    <li>
+                      <button onClick={findSomeone}>
+                        <span>
+                          {personalView
+                            ? 'See how you are related to anyone'
+                            : 'Find a relative'}
+                        </span>
+                        <ArrowRightIcon size={18} />
+                      </button>
+                    </li>
+                    {highlights.length > 0 && (
+                      <li>
+                        <button onClick={() => readBook(highlights[0].anchor)}>
+                          <span>Read one story</span>
+                          <ArrowRightIcon size={18} />
+                        </button>
+                      </li>
+                    )}
+                  </ol>
+                </div>
                 <div className="kin-hero-actions">
-                  <button
-                    className="kin-button"
-                    onClick={() =>
-                      highlights[0]
-                        ? readBook(highlights[0].anchor)
-                        : go('people')
-                    }
-                  >
-                    {highlights.length ? 'Read a chapter' : 'Browse people'}
-                    <ArrowRightIcon size={18} />
-                  </button>
                   <button
                     className="kin-text-link"
                     onClick={() => setBranchOpen(true)}
                   >
                     Find your branch <TreeIcon size={18} />
                   </button>
+                  {site.sharing && (
+                    <button
+                      className="kin-text-link"
+                      onClick={() => go('share')}
+                    >
+                      Something wrong, or a photo to add?
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="kin-featured-photo" {...heroCarousel.bind}>
@@ -1261,7 +1446,7 @@ export default function Atlas() {
                 {homePeople.map((p) => personLink(p))}
               </div>
             </section>
-            {(homeAlbums.length > 0 || homeRecipes) && (
+            {hasTreasures && (
               <section className="kin-section kin-treasures">
                 <div className="kin-section-heading">
                   <div>
@@ -1519,11 +1704,11 @@ export default function Atlas() {
             <div className="kin-page-heading">
               <span className="kin-eyebrow">{branchLabel}</span>
               <h1>Family treasures</h1>
-              {(homeAlbums.length > 0 || homeRecipes) && (
+              {hasTreasures && (
                 <p>{`Family ${wordList(treasureWords('music', 'keepsakes'))}.`}</p>
               )}
             </div>
-            {homeAlbums.length > 0 || homeRecipes ? (
+            {hasTreasures ? (
               treasureGrid()
             ) : (
               <output className="kin-empty" style={{ display: 'block' }}>
@@ -1576,6 +1761,7 @@ export default function Atlas() {
             referenceId={viewerId}
             section={route.photoSection}
             onSectionChange={(photoSection) => navigate({ photoSection })}
+            initialQuery={route.photoQuery}
             renderPicture={(entry, orderedAssetIds) =>
               photo(entry.asset, '', orderedAssetIds)
             }
@@ -1685,6 +1871,7 @@ export default function Atlas() {
           </button>
         </section>
       )}
+      {cardsOpen && <CardStatus onClose={() => setCardsOpen(false)} />}
       <footer className="kin-footer">
         <span>
           {data.title}
@@ -1701,6 +1888,9 @@ export default function Atlas() {
             <button onClick={() => go('share')}>Share something</button>
           )}
           {has.news && <button onClick={() => go('news')}>What’s new</button>}
+          {session.admin && site.hosting === 'worker' && (
+            <button onClick={() => setCardsOpen(true)}>Family cards</button>
+          )}
         </div>
         <p>
           <span>
@@ -1875,6 +2065,28 @@ export default function Atlas() {
             >
               Explore this person’s branch <TreeIcon size={18} />
             </button>
+            {!known(session.person) &&
+              !chosenView &&
+              (person.id === self ? (
+                <p className="kin-outside">
+                  This is you.{' '}
+                  <button
+                    className="kin-inline-link"
+                    onClick={() => chooseMe('')}
+                  >
+                    Not you?
+                  </button>
+                </p>
+              ) : (
+                mayBeLiving(data, person) && (
+                  <button
+                    className="kin-text-link"
+                    onClick={() => chooseMe(person.id)}
+                  >
+                    This is me <CheckIcon size={18} />
+                  </button>
+                )
+              ))}
             {person.relationshipNotes.includes('adopted') && (
               <p className="kin-outside">This family includes an adoption.</p>
             )}

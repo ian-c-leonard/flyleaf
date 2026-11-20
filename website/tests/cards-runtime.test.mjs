@@ -595,3 +595,40 @@ void test('a blank card lets its holder in without a name, as nobody in the tree
   const again = await s.post('check', { code: 'T4N-6QW' });
   assert.equal((await again.json()).used, true);
 });
+
+void test('the maintainer sees who has signed in with each card, and nobody else does', async (t) => {
+  const s = await site(t);
+  await s.card('K7M-4QX', 'tamsin-penhallow', 'Tamsin', 'Penhallow');
+  await s.card('H3N-7PG', 'jory-penhallow', 'Jory', 'Penhallow');
+  await s.card('T4N-6QW', 'blank:7', '', '');
+  // A card that ran out unused is not on the list.
+  await s.card('R9T-6WD', 'kerra-penhallow', 'Kerra', 'Penhallow', {
+    expires_at: Date.now() - 1000,
+  });
+  await s.use('K7M-4QX', 'tamsin@example.com');
+  assert.equal(
+    (await s.post('email', { code: 'T4N-6QW', email: 'guest@example.com' })).status,
+    200,
+  );
+  const list = async (email) =>
+    s.f.req('/api/cards', { headers: await s.as(email) });
+  const response = await list('ada@example.org');
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('Cache-Control'), 'private, no-store');
+  const { cards } = await response.json();
+  assert.deepEqual(
+    cards.map((c) => [c.name, c.blank, c.person, c.email, c.state]),
+    [
+      ['', 7, '', 'guest@example.com', 'email-chosen'],
+      ['Jory Penhallow', 0, 'jory-penhallow', '', 'unused'],
+      ['Tamsin Penhallow', 0, 'tamsin-penhallow', 'tamsin@example.com', 'signed-in'],
+    ],
+  );
+  assert.equal(typeof cards[2].signedInAt, 'number');
+  // No code, and no hash of one, leaves the site.
+  assert.doesNotMatch(JSON.stringify(cards), /code|hash/i);
+  // A relative who signed in with a card is not shown the list.
+  assert.equal((await list('tamsin@example.com')).status, 404);
+  // Nor is a visitor who has not signed in.
+  assert.equal((await s.f.req('/api/cards')).status, 401);
+});

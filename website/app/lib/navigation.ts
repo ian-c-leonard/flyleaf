@@ -40,6 +40,8 @@ export type Route = ArchiveBrowseState & {
   image: string;
   album: string;
   photoSection: AlbumFilter;
+  /** Words the family album is searched for, as a link from Home sets them. */
+  photoQuery: string;
   bookPage: string;
   bookVersion: string;
   bookAnchor: string;
@@ -63,6 +65,7 @@ export const homeRoute: Route = {
   image: '',
   album: '',
   photoSection: 'all',
+  photoQuery: '',
   bookPage: '',
   bookVersion: '',
   bookAnchor: '',
@@ -101,6 +104,7 @@ export function readRoute(
   const photoSection = params.get('photoSection') || '';
   if (Object.hasOwn(albumFilters, photoSection))
     route.photoSection = photoSection as AlbumFilter;
+  route.photoQuery = (params.get('photoQuery') || '').slice(0, 120);
   route.archiveQuery = (params.get('archiveQuery') || '').slice(0, 120);
   const archiveKind = params.get('archiveKind') || '';
   if (Object.hasOwn(archiveFilters, archiveKind))

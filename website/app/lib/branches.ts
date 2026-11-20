@@ -75,17 +75,10 @@ export function familyGroupPhotos(data: AtlasData) {
   });
 }
 
-/** Ancestry, the anchor's descendants, and collateral households.
- * Recorded partners stay visible, but a partner does not bring their separate
- * ancestors, other partners or children from another household. This keeps a
- * selected half or quarter recognisable without importing the other ancestry.
- * Shared stories are selected as complete authored units, never rewritten.
- * The canonical model stays intact for relationship navigation outside focus.
- */
-export function familyFocus(data: AtlasData, anchorId: string) {
-  const byId = new Map(data.people.map((p) => [p.id, p]));
-  const anchor = byId.get(anchorId);
-  if (!anchor) return { data, anchor: null, members: new Set(byId.keys()) };
+/** Who belongs to a person's branch. `core` is the person's ancestors and
+ * descendants, and their ancestors' other descendants; `members` adds the
+ * husbands and wives of those people. */
+function branchMembers(byId: Map<string, Person>, anchor: Person) {
   const ancestors = new Set<string>();
   const pending = [anchor.id];
   while (pending.length) {
@@ -133,6 +126,45 @@ export function familyFocus(data: AtlasData, anchorId: string) {
   for (const id of core)
     for (const partner of byId.get(id)!.partners)
       if (byId.has(partner)) members.add(partner);
+  return { core, members };
+}
+
+/** The side of the family a reader belongs to: the parent of the root person
+ * whose branch holds them. It is '' for a reader who belongs to both sides
+ * (the root person, their brothers and sisters, and their descendants) or to
+ * neither, and for the root person's own parents: the whole tree is their
+ * children's. A reader who married in belongs to their partner's side. */
+export function ownSide(data: AtlasData, personId: string): string {
+  const byId = new Map(data.people.map((p) => [p.id, p]));
+  const person = byId.get(personId);
+  const root = byId.get(data.rootId);
+  if (!person || !root || root.parents.includes(person.id)) return '';
+  const sides = root.parents
+    .filter((id) => byId.has(id))
+    .map((id) => ({ id, core: branchMembers(byId, byId.get(id)!).core }));
+  const holding = (who: string) =>
+    sides.filter((side) => side.core.has(who)).map((side) => side.id);
+  const own = holding(person.id);
+  if (own.length) return own.length === 1 ? own[0] : '';
+  for (const partner of person.partners) {
+    const theirs = holding(partner);
+    if (theirs.length === 1) return theirs[0];
+  }
+  return '';
+}
+
+/** Ancestry, the anchor's descendants, and collateral households.
+ * Recorded partners stay visible, but a partner does not bring their separate
+ * ancestors, other partners or children from another household. This keeps a
+ * selected half or quarter recognisable without importing the other ancestry.
+ * Shared stories are selected as complete authored units, never rewritten.
+ * The canonical model stays intact for relationship navigation outside focus.
+ */
+export function familyFocus(data: AtlasData, anchorId: string) {
+  const byId = new Map(data.people.map((p) => [p.id, p]));
+  const anchor = byId.get(anchorId);
+  if (!anchor) return { data, anchor: null, members: new Set(byId.keys()) };
+  const { members } = branchMembers(byId, anchor);
   const people = data.people.filter((p) => members.has(p.id));
   const chapters = data.chapters
     .map((chapter) => ({

@@ -191,7 +191,7 @@ test('whole family → branch → chapter → original → life and register, wi
   await expect(
     page.getByRole('heading', { name: 'Robert’s family branch' }),
   ).toBeVisible();
-  await page.getByRole('button', { name: 'Read a chapter' }).click();
+  await page.getByRole('button', { name: 'Read one story' }).click();
   await expect(page).toHaveURL(/view=book.*bookAnchor=/);
   const anchor = new URLSearchParams(page.url().split('#')[1]).get(
     'bookAnchor',

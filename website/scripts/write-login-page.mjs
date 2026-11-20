@@ -30,6 +30,7 @@ export function renderLoginPage(settings = readSettings()) {
   const pronoun = settings.maintainer?.pronoun;
   const values = {
     familyName: settings.family?.name,
+    welcomeName: settings.family?.welcome_name || settings.family?.name,
     maintainerName: settings.maintainer?.name,
     maintainerFirstName: settings.maintainer?.first_name,
     maintainerEmail: settings.maintainer?.email,

@@ -187,6 +187,114 @@ button:disabled {
   color: #677065;
   max-width: 410px;
 }
+/* The maintainer's list of family cards. */
+.kin-cards h2 {
+  font: 34px/1.1 var(--serif);
+  margin: 6px 0 12px;
+}
+.kin-cards ul {
+  list-style: none;
+  margin: 18px 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.kin-cards li {
+  display: grid;
+  gap: 2px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.kin-cards li strong {
+  font: 20px/1.3 var(--serif);
+}
+.kin-cards li span {
+  font-size: 14px;
+  color: var(--muted);
+}
+.kin-cards li[data-state='signed-in'] span {
+  color: var(--navy);
+  font-weight: 600;
+}
+.kin-cards li small {
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.kin-cards h3 {
+  font: 22px/1.2 var(--serif);
+  margin: 30px 0 8px;
+}
+.kin-cards ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.kin-cards ol li {
+  display: list-item;
+  padding: 6px 0;
+  border: 0;
+}
+.kin-cards ol li strong {
+  font: inherit;
+  font-weight: 600;
+}
+/* Three things to try first, on Home. */
+.kin-start {
+  margin-top: 28px;
+  max-width: 410px;
+}
+.kin-start ol {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  counter-reset: start;
+  border-top: 1px solid var(--line);
+}
+.kin-start li {
+  counter-increment: start;
+  border-bottom: 1px solid var(--line);
+}
+.kin-start button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 2px;
+  text-align: left;
+  font: 17px/1.3 var(--sans);
+  color: var(--ink);
+}
+.kin-start button::before {
+  content: counter(start);
+  flex: none;
+  width: 26px;
+  font: 22px/1 var(--serif);
+  color: var(--wine);
+}
+.kin-start button span {
+  flex: 1;
+  min-width: 0;
+}
+.kin-start button:hover {
+  color: var(--wine);
+}
+/* The line that tells a reader they are on their own side of the family. */
+.kin-welcome > p.kin-own-side {
+  margin-top: 12px;
+  font-size: 15px;
+}
+.kin-inline-link {
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.kin-inline-link:hover {
+  color: var(--wine);
+}
 .kin-hero-actions {
   display: flex;
   gap: 28px;
@@ -792,7 +900,8 @@ button:disabled {
   backdrop-filter: blur(3px);
 }
 .kin-branch-picker,
-.kin-life {
+.kin-life,
+.kin-cards {
   padding: 35px 40px 42px;
 }
 .kin-modal-top {
@@ -1526,7 +1635,8 @@ button:disabled {
     max-height: calc(100dvh - 24px);
   }
   .kin-branch-picker,
-  .kin-life {
+  .kin-life,
+  .kin-cards {
     padding: 22px 23px 30px;
   }
   .kin-modal-top {

@@ -50,6 +50,7 @@ Paths are relative to the family folder. Required values are marked.
 |---|---|
 | `flyleaf` | The version of this settings format, now `1`. Leave it as it is: a later release may use it to update older settings. |
 | `family.name` (required) | The family's name as readers see it: "The Penhallow family". |
+| `family.welcome_name` | A longer name for the sign-in page and the top of Home, when the site covers more than one family: "The Penhallow and Trembath families". Default: `family.name`. |
 | `site.id` (required) | A short id, used to name browser storage. |
 | `site.domain`, `site.origin` (required) | Where the website lives: `example.family`, `https://example.family`. |
 | `site.tagline` | The line under the name in the site header. |
@@ -125,6 +126,7 @@ Only needed for `site.hosting: "worker"`. See [hosting.md](hosting.md).
 |---|---|
 | `photos.occasion_words` | Words in a photograph's title that mark a family occasion, beyond wedding, graduation and engagement. Such photographs go in the album's occasions section, and a year in the title dates them. |
 | `photos.dated_words` | Other words in a portrait's title that mean the title gives its year, such as "senior". Built in: yearbook, passport, school, class, the occasion words and the yearbook names. |
+| `photos.collections` | Named searches of the family album, shown as cards on Home with the family's other treasures: `[{ "title": "Harvest suppers through the years", "search": "harvest supper" }]`. A card opens the album with every picture whose title, note or people match the search. A collection with no pictures is left out. |
 | `photos.yearbook_names` | The names of school yearbooks in your archive. A portrait whose title names one is dated by the year in that title. |
 | `places.region_names` | Places the book should call regions ("in Cornwall") rather than towns ("at Penzance"). |
 | `research.exempt_refns` | People the source checks skip, such as the compiler. |

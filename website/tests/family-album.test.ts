@@ -82,6 +82,22 @@ void test('Photos opens All by default and an explicit collection survives its s
       readRoute('#view=photos&photoSection=' + invalid, data).photoSection,
       'all',
     );
+  // A link can open the album already searched, as a Home collection does.
+  const searched = readRoute(
+    routeHref({ ...ordinary, photoQuery: 'Harvest supper' }),
+    data,
+  );
+  assert.equal(searched.photoQuery, 'Harvest supper');
+  assert.equal(ordinary.photoQuery, '');
+  assert.equal(
+    new URLSearchParams(routeHref(ordinary).slice(1)).has('photoQuery'),
+    false,
+  );
+  assert.equal(
+    readRoute('#view=photos&photoQuery=' + 'x'.repeat(500), data).photoQuery
+      .length,
+    120,
+  );
 });
 function link(
   data: AtlasData,

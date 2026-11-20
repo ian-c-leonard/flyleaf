@@ -393,6 +393,33 @@ export async function cardHolder(env: Env, email: string, now = Date.now()) {
   return { person };
 }
 
+/** For the maintainer on the day: every card that still works or has been
+ * used, and how far its holder has got. A card's code is never kept, so it
+ * is not here. */
+export async function cardStatus(env: Env, now = Date.now()) {
+  const rows = await env.SUBMISSIONS_DB.prepare(
+    'SELECT person, first_name, last_name, email, confirmed_at FROM cards ' +
+      'WHERE confirmed_at IS NOT NULL OR expires_at > ?1 ' +
+      'ORDER BY last_name, first_name, person',
+  )
+    .bind(now)
+    .all<{
+      person: string;
+      first_name: string;
+      last_name: string;
+      email: string | null;
+      confirmed_at: number | null;
+    }>();
+  return rows.results.map((row) => ({
+    name: `${row.first_name} ${row.last_name}`.trim(),
+    blank: blankCardNumber(row.person),
+    person: blankCardNumber(row.person) ? '' : row.person,
+    email: row.email || '',
+    state: row.confirmed_at ? 'signed-in' : row.email ? 'email-chosen' : 'unused',
+    signedInAt: row.confirmed_at,
+  }));
+}
+
 /** Every person a card was made for, so the maintainer can see the site as
  * each of them before the card is used. Blank cards name nobody. */
 export async function cardPeople(env: Env, now = Date.now()) {

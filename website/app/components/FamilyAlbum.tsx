@@ -28,6 +28,8 @@ export interface FamilyAlbumProps {
   referenceId?: string;
   section: AlbumFilter;
   onSectionChange: (section: AlbumFilter) => void;
+  /** Words to search for when the album opens from a link. */
+  initialQuery?: string;
   renderPicture: (view: AlbumView, orderedAssetIds: string[]) => ReactNode;
   onPerson: (id: string) => void;
   onOriginals: (asset: Asset) => void;
@@ -165,6 +167,7 @@ function SelectedFamilyAlbum({
   referenceId,
   section,
   onSectionChange,
+  initialQuery = '',
   renderPicture,
   onPerson,
   onOriginals,
@@ -174,7 +177,14 @@ function SelectedFamilyAlbum({
     () => familyAlbum(data, memberIds, referenceId),
     [data, memberIds, referenceId],
   );
-  const [query, setQuery] = useState('');
+  // A link from Home can open the album already searched. After that the
+  // reader's own typing stays on this page.
+  const [query, setQuery] = useState(initialQuery);
+  const [linkedQuery, setLinkedQuery] = useState(initialQuery);
+  if (linkedQuery !== initialQuery) {
+    setLinkedQuery(initialQuery);
+    setQuery(initialQuery);
+  }
   const [personId, setPersonId] = useState('');
   const [period, setPeriod] = useState<AlbumPeriod>('all');
   const [filtersOpen, setFiltersOpen] = useState(false);

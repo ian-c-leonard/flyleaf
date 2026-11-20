@@ -33,6 +33,33 @@ void test('optional naming and research settings are off unless the family sets 
   assert.equal(chosen.researchTab, 'How we found them');
 });
 
+void test('the welcome name and photo collections are the family’s to set', () => {
+  const plain = siteSettings(minimal);
+  assert.equal(plain.welcomeName, 'The Penhallow family');
+  assert.deepEqual(plain.photos.collections, []);
+  const chosen = siteSettings({
+    ...minimal,
+    family: {
+      ...minimal.family,
+      welcome_name: 'The Penhallow and Trembath families',
+    },
+    photos: {
+      collections: [
+        { title: ' Harvest suppers through the years ', search: 'harvest supper' },
+      ],
+    },
+  });
+  assert.equal(chosen.welcomeName, 'The Penhallow and Trembath families');
+  assert.deepEqual(chosen.photos.collections, [
+    { title: 'Harvest suppers through the years', search: 'harvest supper' },
+  ]);
+  for (const bad of ['Thanksgiving', [{ title: 'No search' }], [{ search: 'x' }]])
+    assert.throws(
+      () => siteSettings({ ...minimal, photos: { collections: bad } }),
+      /photos\.collections/,
+    );
+});
+
 void test('the footer credits Flyleaf unless the family turns it off', () => {
   assert.equal(siteSettings(minimal).credit, true);
   const off = siteSettings({

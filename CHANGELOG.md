@@ -18,6 +18,23 @@
   [--person …]` records who has it, before or after it is used. Until then
   its account in Clerk is called "Blank card No. 1", because Clerk can
   require a name.
+- A reader who belongs to one side of the family starts on that side, once
+  on each device: a grandparent, an aunt, an uncle or a cousin, and the
+  people they married. Home says so and offers "All the family". The root
+  person, their brothers and sisters and their parents start with everyone.
+- Home opens with "Start here": open your own page (or find yourself),
+  see how you are related to anyone, and read one story. A reader whose
+  sign-in names nobody can choose "This is me" on a profile; the site then
+  says "your grandmother" where it said "Tamsin's grandmother". The choice
+  is kept in that browser only.
+- "Family cards", in the maintainer's menu and footer, lists each card and
+  how far its holder has got: signed in, an email typed, or not used. It
+  shows no code.
+- `photos.collections` names searches of the family album and shows each
+  as a card on Home: "Harvest suppers through the years". A link can open
+  the album already searched (`photoQuery`).
+- `family.welcome_name` names every family the site covers on the sign-in
+  page and at the top of Home: "The Penhallow and Trembath families".
 - A hosted site sends an address typed without "https" to the same page
   over https. It used to answer "Please use the family website address."
 - On a phone, signing out is a labelled row at the foot of the menu. It was

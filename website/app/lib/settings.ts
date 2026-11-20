@@ -5,6 +5,9 @@ export type SiteSettings = {
   id: string;
   origin: string;
   familyName: string;
+  /** The name that welcomes readers on Home and at sign-in: the family's
+   * name, or a longer one that names every family the site covers. */
+  welcomeName: string;
   maintainer: {
     name: string;
     firstName: string;
@@ -38,6 +41,8 @@ export type SiteSettings = {
     /** Other title words that date a portrait by its title, such as
      * "senior" for a school year. */
     datedWords: string[];
+    /** Named searches of the family album, shown on Home. */
+    collections: { title: string; search: string }[];
   };
   names: {
     /** Show married women as "Given (Maiden) Married"; otherwise everyone

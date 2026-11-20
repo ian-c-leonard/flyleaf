@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { parseGedcom } from '../app/lib/gedcom.ts';
 import {
   familyFocus,
+  ownSide,
   ancestryPath,
   branchChoices,
   immediateFamily,
@@ -485,4 +486,82 @@ void test('immediate family ends for every small or looping family shape', () =>
       `0 @F2@ FAM\n1 HUSB @P@\n1 CHIL @B@\n`,
   );
   assert.deepEqual(ids(marriedIn), ['A', 'B', 'P']);
+});
+
+void test('a reader starts on the side of the family they belong to', () => {
+  const data = parseGedcom(`0 HEAD
+1 _ATLAS
+2 _ROOT @R@
+0 @R@ INDI
+1 NAME Root /Family/
+1 FAMC @F@
+0 @S@ INDI
+1 NAME Sibling /Family/
+1 FAMC @F@
+0 @SW@ INDI
+1 NAME Sibling /Wife/
+0 @A@ INDI
+1 NAME Father /Family/
+1 FAMC @G@
+0 @A2@ INDI
+1 NAME Later /Wife/
+0 @B@ INDI
+1 NAME Mother /Other/
+1 FAMC @H@
+0 @AU@ INDI
+1 NAME Aunt /Family/
+1 FAMC @G@
+0 @AUH@ INDI
+1 NAME Aunt /Husband/
+0 @CO@ INDI
+1 NAME Cousin /Husband/
+1 FAMC @J@
+0 @UN@ INDI
+1 NAME Uncle /Other/
+1 FAMC @H@
+0 @GF@ INDI
+1 NAME Grandfather /Family/
+0 @GM@ INDI
+1 NAME Grandmother /Other/
+0 @X@ INDI
+1 NAME Unrelated /Friend/
+0 @F@ FAM
+1 HUSB @A@
+1 WIFE @B@
+1 CHIL @R@
+1 CHIL @S@
+0 @F2@ FAM
+1 HUSB @A@
+1 WIFE @A2@
+0 @FS@ FAM
+1 HUSB @S@
+1 WIFE @SW@
+0 @G@ FAM
+1 HUSB @GF@
+1 CHIL @A@
+1 CHIL @AU@
+0 @H@ FAM
+1 WIFE @GM@
+1 CHIL @B@
+1 CHIL @UN@
+0 @J@ FAM
+1 HUSB @AUH@
+1 WIFE @AU@
+1 CHIL @CO@
+0 TRLR`);
+  const side = (id: string) => ownSide(data, id);
+  // Both sides are theirs: the root person, a brother or sister, and the
+  // people they married.
+  for (const id of ['R', 'S', 'SW']) assert.equal(side(id), '', id);
+  // The whole tree is their children's.
+  for (const id of ['A', 'B']) assert.equal(side(id), '', id);
+  // One side is theirs: a grandparent, an aunt or uncle, a cousin.
+  for (const id of ['GF', 'AU', 'CO']) assert.equal(side(id), 'A', id);
+  for (const id of ['GM', 'UN']) assert.equal(side(id), 'B', id);
+  // Someone who married in belongs to their partner's side.
+  assert.equal(side('AUH'), 'A');
+  assert.equal(side('A2'), 'A');
+  // A friend, or nobody at all, has no side.
+  assert.equal(side('X'), '');
+  assert.equal(side('missing'), '');
 });

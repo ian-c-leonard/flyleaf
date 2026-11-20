@@ -116,6 +116,19 @@ const words = (value, name) => {
   return value;
 };
 
+/** Named searches of the family album, shown on Home: "Thanksgiving through
+ * the years" for every picture that says Thanksgiving. */
+const collections = (value) => {
+  if (value === undefined || value === null) return [];
+  const text = (v) => typeof v === 'string' && !!v.trim();
+  if (!Array.isArray(value) || value.some((c) => !text(c?.title) || !text(c?.search)))
+    throw new FamilyError(
+      'flyleaf.json: photos.collections must be a list such as ' +
+        '[{ "title": "Thanksgiving through the years", "search": "Thanksgiving" }]',
+    );
+  return value.map((c) => ({ title: c.title.trim(), search: c.search.trim() }));
+};
+
 /** The public settings the browser app is built with. */
 export function siteSettings(settings = readSettings()) {
   const need = (value, name) => {
@@ -127,6 +140,10 @@ export function siteSettings(settings = readSettings()) {
     id: need(settings.site?.id, 'site.id'),
     origin: need(settings.site?.origin, 'site.origin'),
     familyName: need(settings.family?.name, 'family.name'),
+    // The name that welcomes readers on Home. A family that covers more than
+    // one surname can name them all here.
+    welcomeName:
+      settings.family?.welcome_name || need(settings.family?.name, 'family.name'),
     maintainer: {
       name: need(settings.maintainer?.name, 'maintainer.name'),
       firstName: need(settings.maintainer?.first_name, 'maintainer.first_name'),
@@ -166,6 +183,7 @@ export function siteSettings(settings = readSettings()) {
         'photos.yearbook_names',
       ),
       datedWords: words(settings.photos?.dated_words, 'photos.dated_words'),
+      collections: collections(settings.photos?.collections),
     },
     names: {
       // "Given (Maiden) Married" for married women. Off: recorded names only.

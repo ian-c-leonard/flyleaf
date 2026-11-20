@@ -291,6 +291,11 @@ with that email. You never need to know it beforehand.
    without it prints the ordinary card with no name.
 5. See who has used their card with `--status`. A used blank card shows the
    email address its holder chose, which often tells you who they are.
+   On the day you hand the cards out, the site shows you the same list:
+   open the menu on your phone, or the foot of any page, and choose
+   "Family cards". It says who has signed in, who has typed an email and
+   not yet signed in, and whose card is unused. Only an address in
+   `auth.admin_emails` sees it.
    Cancel a card with `--cancel <person>`, or a blank card with its number:
    `--cancel 3`. That also ends the sign-in the card gave, within a
    minute, and removes the account the site made for it. Run the script

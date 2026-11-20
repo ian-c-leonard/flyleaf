@@ -1,7 +1,13 @@
 import { createClerkClient } from '@clerk/backend';
 import { protect, message, archiveKey, readArchive } from './archive.ts';
 import { submissions } from './submissions.ts';
-import { cardHolder, cardPeople, cardRequest, cardsOn } from './cards.ts';
+import {
+  cardHolder,
+  cardPeople,
+  cardRequest,
+  cardsOn,
+  cardStatus,
+} from './cards.ts';
 import { configure, site } from './site.ts';
 const publicAssets = new Set([
   '/login/style.css',
@@ -212,6 +218,11 @@ export default {
           ].sort();
         response = Response.json({ allowed: true, ...viewer });
       }
+      // The maintainer's list of cards and who has signed in with each.
+      else if (url.pathname === '/api/cards')
+        response = viewerFor(env, email).admin
+          ? Response.json({ cards: await cardStatus(env) })
+          : message(404, 'Not found.');
       else if (intake)
         response = await submissions(canonical, env, {
           userId: auth.userId!,
