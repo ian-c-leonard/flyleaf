@@ -194,17 +194,18 @@ async function accounts(env: Env, email: string) {
   return (await response.json()) as Account[];
 }
 
-/** Make the relative's account, with the name the card was made for. A
- * blank card has no name yet, so its account has none either. The account is
- * marked as made for a card, so it can be removed if unused. */
+/** Make the relative's account, with the name the card was made for. The
+ * sign-in service can be set to require a name, and a blank card has none
+ * yet. Its account carries the card's number until the card is named
+ * (cards.mjs --assign). The family site never shows this name. The account
+ * is marked as made for a card, so it can be removed if unused. */
 async function createAccount(env: Env, email: string, card: Card) {
   const response = await clerk(env, 'users', {
     method: 'POST',
     body: JSON.stringify({
       email_address: [email],
-      // JSON leaves out a name that is undefined.
-      first_name: card.first_name || undefined,
-      last_name: card.last_name || undefined,
+      first_name: card.first_name || 'Blank card',
+      last_name: card.last_name || `No. ${blankCardNumber(card.person)}`,
       skip_password_requirement: true,
       private_metadata: { flyleaf_card: true },
     }),

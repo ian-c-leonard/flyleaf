@@ -100,7 +100,20 @@ export default function ProfileIntroduction({
       {introduction.blocks.map((block) => (
         <div key={block.passage} data-profile-passage={block.passage}>
           <p className="kin-life-intro">
-            {introductionDisplayRuns(block).map((run, i) => {
+            {introductionDisplayRuns(block).map((run, i, runs) => {
+              // A source number stays on the line with the word before it:
+              // that word leaves its sentence and is drawn with the number.
+              const lastWord = (text: string) => {
+                const at = text.search(/\S+$/);
+                return at < 0 ? text.length : at;
+              };
+              const numbered = (other: (typeof runs)[number] | undefined) =>
+                !!other && ('group' in other || 'note' in other);
+              const before = runs[i - 1];
+              const held =
+                before && 'text' in before
+                  ? before.text.slice(lastWord(before.text))
+                  : '';
               const sourceButton = (
                 note: ProfileNote,
                 grouped: boolean,
@@ -122,7 +135,10 @@ export default function ProfileIntroduction({
                   </button>
                 );
               };
-              if ('text' in run) return run.text;
+              if ('text' in run)
+                return numbered(runs[i + 1])
+                  ? run.text.slice(0, lastWord(run.text))
+                  : run.text;
               if ('register' in run)
                 return (
                   <a
@@ -140,19 +156,30 @@ export default function ProfileIntroduction({
                 );
               if ('group' in run)
                 return (
-                  <span key={i} className="profile-source-group">
-                    {run.group.map((part, index) =>
-                      'text' in part ? (
-                        <span key={index} className="profile-source-separator">
-                          {part.text}
-                        </span>
-                      ) : (
-                        sourceButton(part.note, true, index)
-                      ),
-                    )}
+                  <span key={i} className="profile-source-hold">
+                    {held}
+                    <span className="profile-source-group">
+                      {run.group.map((part, index) =>
+                        'text' in part ? (
+                          <span
+                            key={index}
+                            className="profile-source-separator"
+                          >
+                            {',\u00a0'}
+                          </span>
+                        ) : (
+                          sourceButton(part.note, true, index)
+                        ),
+                      )}
+                    </span>
                   </span>
                 );
-              return sourceButton(run.note, false, i);
+              return (
+                <span key={i} className="profile-source-hold">
+                  {held}
+                  {sourceButton(run.note, false, i)}
+                </span>
+              );
             })}
           </p>
         </div>

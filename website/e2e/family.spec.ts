@@ -21,6 +21,40 @@ test('an empty branch search can search the whole family without losing its quer
   await expect(page).not.toHaveURL(/branch=/);
 });
 
+test('the search button opens the people list ready for a name', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page
+    .getByRole('button', { name: 'Search people', exact: true })
+    .click();
+  // The box is already selected, so a phone shows its keyboard at once.
+  await expect(
+    page.getByRole('textbox', { name: 'Search people', exact: true }),
+  ).toBeFocused();
+  await page.keyboard.type('Robert');
+  await expect(
+    page
+      .locator('.kin-person')
+      .filter({ hasText: 'Robert John Penhallow' })
+      .first(),
+  ).toBeVisible();
+});
+
+test('on a phone the header buttons keep their full width', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'phone', 'A phone layout.');
+  await page.goto('/');
+  for (const name of ['Search people', 'Open navigation']) {
+    const box = await page
+      .getByRole('button', { name, exact: true })
+      .boundingBox();
+    expect(box!.width, name).toBeGreaterThanOrEqual(35);
+    expect(box!.height, name).toBeGreaterThanOrEqual(44);
+  }
+});
+
 test('browsing uses smaller full-frame images and opening a photograph selects its original', async ({
   page,
 }) => {

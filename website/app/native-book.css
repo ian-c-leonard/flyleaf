@@ -207,15 +207,13 @@
   outline: 2px solid #a8481a;
   outline-offset: 4px;
 }
+/* The number stays small and close to its sentence. Padding makes it easy
+   to tap: on a link inside a line it adds no height, and the margin takes
+   back the width. The book has thousands of these, so no extra boxes. */
 .native-book-content a[role='doc-noteref'] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  min-height: 24px;
-  padding: 0.25em 0.08em;
+  padding: 10px 8px;
+  margin: 0 -7px;
   line-height: 1;
-  text-align: center;
   font-family: 'Source Sans 3 Variable', sans-serif;
   font-size: 0.8em;
 }

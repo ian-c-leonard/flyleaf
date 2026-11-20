@@ -57,6 +57,18 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const { origin, host, clerkOrigin } = configure(env);
+    // A relative who types the address without "https" reaches the same
+    // page over https. Nothing else about the address may differ.
+    if (
+      host &&
+      clerkOrigin &&
+      url.protocol === 'http:' &&
+      url.host === host &&
+      ['GET', 'HEAD'].includes(request.method)
+    )
+      return protect(
+        Response.redirect(origin + url.pathname + url.search, 301),
+      );
     if (!host || !clerkOrigin || url.origin !== origin)
       return message(403, 'Please use the family website address.');
     const intake =

@@ -302,6 +302,8 @@ with that email. You never need to know it beforehand.
          --first Ada --last Penhallow --person ada-penhallow
 
    The site then welcomes them by name, and their account carries the name.
+   Until then the account is listed in Clerk as "Blank card No. 3". The
+   family site never shows that name.
    `--person` is their id in the tree: with it, the site shows them their
    own relatives. Leave it out for someone who is not in the tree. You can
    run `--assign` before or after the card is used, and again to correct it.

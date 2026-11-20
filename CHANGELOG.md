@@ -15,7 +15,21 @@
 - Blank cards. `{"blank": 1}` on the card list makes a card with a code, a
   line to write a name on, and a small number. Its holder is let in and
   welcomed without a name. `cards.mjs --assign 1 --first … --last …
-  [--person …]` records who has it, before or after it is used.
+  [--person …]` records who has it, before or after it is used. Until then
+  its account in Clerk is called "Blank card No. 1", because Clerk can
+  require a name.
+- A hosted site sends an address typed without "https" to the same page
+  over https. It used to answer "Please use the family website address."
+- On a phone, signing out is a labelled row at the foot of the menu. It was
+  a bare icon beside the menu button, easy to tap by mistake, and it
+  squeezed the search button to half its width.
+- The search button selects the name box, so a phone shows its keyboard at
+  once.
+- The card step "Check your email" says which address the email comes from
+  and to look in spam or junk.
+- Source numbers sit close to their sentence in profiles and in the book,
+  and a profile's number never starts a line. They are still easy to tap:
+  the tap area reaches past the number.
 - The website runs over plain HTTP as well as HTTPS. It no longer needs a
   browser feature that works only over HTTPS.
 - The site build empties its output folder itself, and keeps trying. On

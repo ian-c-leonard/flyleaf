@@ -7,11 +7,17 @@
   font-size: 0.65em;
   line-height: 1;
   vertical-align: super;
-  min-width: 24px;
-  min-height: 24px;
-  padding: 4px 2px;
+  position: relative;
+  padding: 0 1px;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+/* The number stays small and close to its sentence. Its tap area reaches
+   past it, so a finger still finds it. */
+.profile-source-marker::after {
+  content: '';
+  position: absolute;
+  inset: -9px -7px;
 }
 .profile-source-marker:hover,
 .profile-read-chapter:hover {
@@ -79,10 +85,6 @@
   .atlas-dialog.profile-source-modal {
     padding: 24px;
   }
-  .profile-source-marker {
-    min-width: 28px;
-    min-height: 28px;
-  }
 }
 
 .profile-register-link {
@@ -98,9 +100,10 @@
   outline: 2px solid var(--wine);
   outline-offset: 3px;
 }
+.profile-source-hold {
+  white-space: nowrap;
+}
 .profile-source-group {
-  display: inline-flex;
-  align-items: center;
   white-space: nowrap;
   vertical-align: super;
   color: var(--wine);
@@ -115,7 +118,4 @@
 .profile-source-group .profile-source-marker {
   font: inherit;
   vertical-align: baseline;
-}
-.profile-source-separator {
-  white-space: pre;
 }

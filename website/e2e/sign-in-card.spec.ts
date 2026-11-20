@@ -204,6 +204,12 @@ test('a relative with a card types its code, chooses an email and is let in', as
   await expect(page.locator('#card-proof-sent')).toHaveText(
     'We sent a six-digit code to tamsin@example.com.',
   );
+  // It says who the email is from and where else to look.
+  await expect(page.locator('#card-proof-hint')).toHaveText(
+    new RegExp(
+      `^The email comes from ${new URL(page.url()).hostname.replace(/\./g, '\\.')} .* look in spam or junk\\.$`,
+    ),
+  );
   await expect(page.locator('#card-proof')).toBeFocused();
 
   await page.locator('#card-proof').fill('111111');

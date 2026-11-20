@@ -1233,6 +1233,27 @@ button:disabled {
     border-bottom: 1px solid #ffffff26;
     font: 25px var(--serif);
   }
+  /* On a phone, signing out is a labelled row at the foot of the menu. As a
+     bare icon in the header it was easy to tap by mistake, and it squeezed
+     the search button. */
+  .kin-header > .kin-session {
+    display: none;
+  }
+  .kin-mobile-nav .kin-menu-sign-out {
+    margin-top: 14px;
+    border-bottom: 0;
+    font: 16px var(--sans);
+    opacity: 0.85;
+  }
+  /* The title gives way before the buttons do. */
+  .kin-brand {
+    min-width: 0;
+  }
+  .kin-monogram,
+  .kin-search-toggle,
+  .kin-mobile-menu {
+    flex-shrink: 0;
+  }
   .kin-focusbar {
     padding: 5px 19px;
     min-height: 49px;

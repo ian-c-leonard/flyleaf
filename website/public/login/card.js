@@ -70,6 +70,13 @@ export function startCards({ maintainer, pause, resume }) {
     proof: find('card-proof-form'),
   };
   const status = find('card-status');
+  // The code email is sent from the site's own address. Saying so helps a
+  // relative pick it out, or find it in spam.
+  const hint = find('card-proof-hint');
+  if (hint)
+    hint.textContent =
+      `The email comes from ${location.hostname.replace(/^www\./, '')} and ` +
+      'can take a minute. If it is not in your inbox, look in spam or junk.';
   let code = '';
   let email = '';
   let firstName = '';

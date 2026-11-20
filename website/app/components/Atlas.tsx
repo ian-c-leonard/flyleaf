@@ -1,7 +1,7 @@
 import BrowsingImage from './BrowsingImage';
 import FamilyImageViewer from './FamilyImageViewer';
 import FlyleafCredit from './FlyleafCredit';
-import SessionControls from './SessionControls';
+import SessionControls, { MenuSignOut } from './SessionControls';
 import ShareSomething from './ShareSomething';
 import { bookCardLine, homeInvitation, siteContents } from '../lib/home-copy';
 import {
@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { flushSync } from 'react-dom';
 import {
   ArrowRightIcon,
   BookOpenTextIcon,
@@ -215,6 +216,7 @@ export default function Atlas() {
   const imageTrigger = useRef<HTMLElement | null>(null);
   const recordTrigger = useRef<HTMLElement | null>(null);
   const menuTrigger = useRef<HTMLButtonElement>(null);
+  const peopleSearch = useRef<HTMLInputElement>(null);
   const viewAsMenu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     // Close the view-as menu on an outside press or Escape.
@@ -1051,7 +1053,12 @@ export default function Atlas() {
         <button
           className="kin-search-toggle"
           aria-label="Search people"
-          onClick={() => go('people')}
+          onClick={() => {
+            // The list is drawn before the tap ends, so a phone raises its
+            // keyboard and the reader can type a name at once.
+            flushSync(() => go('people'));
+            peopleSearch.current?.focus();
+          }}
         >
           <MagnifyingGlassIcon size={21} />
         </button>
@@ -1127,6 +1134,7 @@ export default function Atlas() {
               </select>
             </label>
           )}
+          <MenuSignOut />
         </nav>
       )}
       <div className="kin-focusbar">
@@ -1474,6 +1482,7 @@ export default function Atlas() {
             <label className="kin-search">
               <MagnifyingGlassIcon size={21} />
               <input
+                ref={peopleSearch}
                 aria-label="Search people"
                 autoComplete="off"
                 placeholder="A first name, a surname, a place…"

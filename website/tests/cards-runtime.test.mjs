@@ -49,6 +49,13 @@ function accounts() {
       if (url.pathname === '/v1/users' && request.method === 'POST') {
         const body = await request.json();
         if (refuse) return Response.json(refuse.body, { status: refuse.status });
+        // The sign-in service can require both names, as it does when the
+        // sign-up form asks for them. An account without them is refused.
+        if (!body.first_name || !body.last_name)
+          return Response.json(
+            { errors: [{ code: 'form_data_missing' }] },
+            { status: 422 },
+          );
         made.push(body);
         const id = 'user_' + next++;
         users.set(id, {
@@ -569,11 +576,12 @@ void test('a blank card lets its holder in without a name, as nobody in the tree
   assert.equal(checked.status, 200);
   assert.deepEqual(await checked.json(), { firstName: '' });
   await s.use('T4N-6QW', 'guest@example.com');
-  // The account made for it has no name yet.
+  // The sign-in service requires a name, so the account made for it carries
+  // the card's number until the card is named.
   const made = s.clerk.made.at(-1);
   assert.deepEqual(made.email_address, ['guest@example.com']);
-  assert.equal('first_name' in made, false);
-  assert.equal('last_name' in made, false);
+  assert.equal(made.first_name, 'Blank card');
+  assert.equal(made.last_name, 'No. 7');
   assert.deepEqual(made.private_metadata, { flyleaf_card: true });
   // Its holder is let in, and is not taken for anyone in the tree.
   const session = await s.session('guest@example.com');

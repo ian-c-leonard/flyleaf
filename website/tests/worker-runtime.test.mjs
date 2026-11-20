@@ -171,7 +171,8 @@ void test('Clerk SDK in the real Worker protects every archive route', async (t)
         for (const host of [
           'https://evil.example',
           'https://www.example.family',
-          'http://example.family',
+          'http://evil.example',
+          'http://example.family:8080',
           'https://example.family:444',
         ])
           assert.equal(
@@ -180,6 +181,25 @@ void test('Clerk SDK in the real Worker protects every archive route', async (t)
             403,
             host,
           );
+        // The address typed without "https" goes to the same page over https.
+        const typed = await f.mf.dispatchFetch(
+          'http://example.family/login?returnTo=%2Fbook',
+          { redirect: 'manual' },
+        );
+        assert.equal(typed.status, 301);
+        assert.equal(
+          typed.headers.get('Location'),
+          'https://example.family/login?returnTo=%2Fbook',
+        );
+        assert.equal(
+          (
+            await f.mf.dispatchFetch('http://example.family/api/card/check', {
+              method: 'POST',
+              redirect: 'manual',
+            })
+          ).status,
+          403,
+        );
         assert.equal((await f.req('/login', { method: 'POST' })).status, 405);
         const clean = await f.req(
           '/?view=book&__clerk_ticket=sensitive&__session=sensitive',
