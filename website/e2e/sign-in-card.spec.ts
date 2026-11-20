@@ -205,11 +205,8 @@ test('a relative with a card types its code, chooses an email and is let in', as
     'We sent a six-digit code to tamsin@example.com.',
   );
   // It says who the email is from and where else to look.
-  await expect(page.locator('#card-proof-hint')).toHaveText(
-    new RegExp(
-      `^The email comes from ${new URL(page.url()).hostname.replace(/\./g, '\\.')} .* look in spam or junk\\.$`,
-    ),
-  );
+  const emailSent = `The email comes from ${new URL(page.url()).hostname} and can take a minute. Check your spam folder too.`;
+  await expect(page.locator('#card-status')).toHaveText(emailSent);
   await expect(page.locator('#card-proof')).toBeFocused();
 
   await page.locator('#card-proof').fill('111111');
@@ -218,9 +215,7 @@ test('a relative with a card types its code, chooses an email and is let in', as
     'That code isn’t right. Please check the email and try again.',
   );
   await card.getByRole('button', { name: 'Send the code again' }).click();
-  await expect(page.locator('#card-status')).toHaveText(
-    'The email can take a minute. Check your spam folder too.',
-  );
+  await expect(page.locator('#card-status')).toHaveText(emailSent);
   await page.locator('#card-proof').fill('424 242');
   await card.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('heading', { name: 'FAMILY HOME' })).toBeVisible();

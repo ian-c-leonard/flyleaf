@@ -25,8 +25,8 @@
   squeezed the search button to half its width.
 - The search button selects the name box, so a phone shows its keyboard at
   once.
-- The card step "Check your email" says which address the email comes from
-  and to look in spam or junk.
+- The card step "Check your email" says which address the email comes
+  from.
 - Source numbers sit close to their sentence in profiles and in the book,
   and a profile's number never starts a line. They are still easy to tap:
   the tap area reaches past the number.

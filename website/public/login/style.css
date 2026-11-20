@@ -547,12 +547,6 @@ footer a {
   background: none;
   border: 0;
 }
-.card-hint {
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 14px 0 6px;
-  color: var(--muted, #5c655e);
-}
 #card-status {
   font-size: 14px;
   line-height: 1.6;

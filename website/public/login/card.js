@@ -72,11 +72,9 @@ export function startCards({ maintainer, pause, resume }) {
   const status = find('card-status');
   // The code email is sent from the site's own address. Saying so helps a
   // relative pick it out, or find it in spam.
-  const hint = find('card-proof-hint');
-  if (hint)
-    hint.textContent =
-      `The email comes from ${location.hostname.replace(/^www\./, '')} and ` +
-      'can take a minute. If it is not in your inbox, look in spam or junk.';
+  const emailSent =
+    `The email comes from ${location.hostname.replace(/^www\./, '')} and ` +
+    'can take a minute. Check your spam folder too.';
   let code = '';
   let email = '';
   let firstName = '';
@@ -134,7 +132,7 @@ export function startCards({ maintainer, pause, resume }) {
       emailAddressId: factor.emailAddressId,
     });
     find('card-proof-email').textContent = email;
-    say('The email can take a minute. Check your spam folder too.');
+    say(emailSent);
     show('proof');
   }
   async function finish(clerk) {
