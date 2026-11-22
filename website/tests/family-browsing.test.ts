@@ -246,6 +246,48 @@ void test('search recognises explicit recorded variants and nicknames without as
   assert.ok(!matches(person('OTHER'), 'Davy'));
 });
 
+void test('a word typed must begin a word of the entry, never fall inside one or across two', () => {
+  const town = parseGedcom(`0 HEAD
+1 _ATLAS
+2 _ROOT @LORI@
+0 @LORI@ INDI
+1 NAME Lori /Marsh/
+0 @IAN@ INDI
+1 NAME Ian /Marsh/
+0 @DEAN@ INDI
+1 NAME Dean /Marsh/
+0 @FLORIDA@ INDI
+1 NAME Walter /Kemp/
+1 RESI
+2 PLAC Tampa, Florida, USA
+0 @MEADE@ INDI
+1 NAME Hugh /Kemp/
+1 RESI
+2 PLAC Fort Meade, Anne Arundel County, Maryland, USA
+0 @VIVIAN@ INDI
+1 NAME Vivian /Kemp/
+0 @DUTCH@ INDI
+1 NAME Maria /Van Buren/
+0 @IRISH@ INDI
+1 NAME Nora /O'Dwyer/
+0 TRLR`);
+  const matches = createPeopleSearch(town);
+  const found = (query: string) =>
+    town.people.filter((p) => matches(p, query)).map((p) => p.id);
+  assert.deepEqual(found('Lori'), ['LORI']);
+  assert.deepEqual(found('Dean'), ['DEAN']);
+  assert.deepEqual(found('Ian'), ['IAN']);
+  // A place still finds people, from the start of any of its words.
+  assert.deepEqual(found('Flor'), ['FLORIDA']);
+  assert.deepEqual(found('Meade'), ['MEADE']);
+  assert.deepEqual(found('Arundel'), ['MEADE']);
+  // Names typed without their spaces or apostrophes, or by their second part.
+  for (const query of ['vanburen', 'Van Buren', 'Buren', 'Maria vanb'])
+    assert.deepEqual(found(query), ['DUTCH'], query);
+  for (const query of ['ODwyer', "O'Dwyer", 'Dwyer', 'O Dwyer', 'Nora odw'])
+    assert.deepEqual(found(query), ['IRISH'], query);
+});
+
 void test('search handles apostrophes, accents, punctuation, spacing and supported kinship', () => {
   const matches = createPeopleSearch(data);
   for (const query of [

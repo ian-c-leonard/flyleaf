@@ -338,9 +338,25 @@ function normalized(text: string) {
     .trim();
 }
 
+/** The words of a name, with the forms a reader may type. "O'Trevan" is
+ * found by "otrevan", "o trevan" and "trevan"; "Van Buren" by "vanburen". */
+function nameWords(text: string) {
+  const joined = normalized(text);
+  const apart = normalized(text.replace(/['’‘ʼ`]/g, ' '));
+  const words = new Set([...joined.split(' '), ...apart.split(' ')]);
+  // A name typed without its spaces starts at any word of the name.
+  const parts = joined.split(' ').filter(Boolean);
+  for (let i = 0; i < parts.length - 1; i += 1)
+    words.add(parts.slice(i).join(''));
+  words.delete('');
+  return [...words];
+}
+
 /** Build once for the full edition, then use the predicate in each family view.
  * Search includes recorded name variants, accepted family names, event places
  * and supported kinship. Partners' surnames are never assigned automatically.
+ * Each word typed must begin a word of the person's entry: "Lori" finds Lori
+ * and not everyone with a record in Florida.
  */
 export function createPeopleSearch(
   data: AtlasData,
@@ -349,23 +365,22 @@ export function createPeopleSearch(
 ) {
   const entries = new Map(
     data.people.map((person) => {
-      const fields = [
+      const names = [
         person.name,
         person.given,
         person.surname,
         ...(person.nameVariants || []),
         ...(acceptedFamilyNames[person.id] || []),
+      ].flatMap(nameWords);
+      const other = [
         ...person.events.flatMap((event) =>
           event.place ? [event.place.name] : [],
         ),
         relationship(person.id)?.label || '',
-      ].map(normalized);
+      ].flatMap((field) => normalized(field).split(' '));
       return [
         person.id,
-        {
-          text: fields.join(' '),
-          compact: fields.map((f) => f.replace(/ /g, '')),
-        },
+        ` ${[...new Set([...names, ...other])].filter(Boolean).join(' ')}`,
       ] as const;
     }),
   );
@@ -373,13 +388,6 @@ export function createPeopleSearch(
     const tokens = normalized(query).split(' ').filter(Boolean);
     if (!tokens.length) return true;
     const entry = entries.get(person.id);
-    return (
-      !!entry &&
-      tokens.every(
-        (token) =>
-          entry.text.includes(token) ||
-          entry.compact.some((field) => field.includes(token)),
-      )
-    );
+    return !!entry && tokens.every((token) => entry.includes(` ${token}`));
   };
 }

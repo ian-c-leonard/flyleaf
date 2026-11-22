@@ -1056,7 +1056,8 @@ export default function Atlas() {
           />
           <span>
             <small>
-              {collection.count} {collection.count === 1 ? 'photograph' : 'photographs'}
+              {collection.count}{' '}
+              {collection.count === 1 ? 'photograph' : 'photographs'}
             </small>
             <strong>{collection.title}</strong>
             <span>
@@ -1325,8 +1326,8 @@ export default function Atlas() {
                 <p>{homeInvitation(has)}</p>
                 {focus?.anchor && route.branch === side && (
                   <p className="kin-own-side">
-                    You are seeing {sideName(focus.anchor)} side of the
-                    family. Choose{' '}
+                    You are seeing {sideName(focus.anchor)} side of the family.
+                    Choose{' '}
                     <button
                       className="kin-inline-link"
                       onClick={() => chooseBranch('')}
@@ -2284,9 +2285,8 @@ export default function Atlas() {
                     .sort((a, b) => (a.year ?? Infinity) - (b.year ?? Infinity))
                     .map((e) => (
                       <div key={e.id}>
-                        <time>
-                          {e.date ? formatGedcomDate(e.date) : 'Undated'}
-                        </time>
+                        {/* An event with no date shows no date. */}
+                        <time>{e.date ? formatGedcomDate(e.date) : ''}</time>
                         <span>
                           <strong>{profileEventLabel(e, data.people)}</strong>
                           {e.place && <p>{e.place.name}</p>}

@@ -52,6 +52,13 @@
 - The site build empties its output folder itself, and keeps trying. On
   macOS an open Finder window could stop the build with "Directory not
   empty".
+- Finding a relative: each word typed must begin a word of the person's
+  name, a place they lived or their relationship. "Lori" used to find
+  everyone with a record in Florida, and "Dean" someone stationed at Fort
+  Meade, Anne Arundel County. A name typed without its space or apostrophe
+  ("vanburen", "odwyer") is still found, and so is its second part.
+- An event with no date shows no date on a profile. It used to say
+  "Undated".
 - The book build and the site data build keep trying in the same way when
   they remove their working folders. A `.DS_Store` written into one could
   stop a build after its new output was already in place.
