@@ -623,6 +623,12 @@ def reanchor_nonprose(body, manifest, root, files, data, revised, people=None):
         if row['kind'] not in {'figure-caption', 'chart-caption'} or row['id'] not in indexed:
             continue
         current, _ = indexed[row['id']]
+        # A picture that moves with its paragraph belongs to its new section.
+        place = current['chapter'], current['section']
+        if ((row.get('chapter'), row.get('section')) != place
+                and row.get('assetPaths') == current.get('assetPaths')):
+            row['chapter'], row['section'] = place
+            changes.append(f"{row['id']}: figure moved to section {current['section']}")
         if current['quote'] == row['quote']:
             continue
         old_quote = row['quote']

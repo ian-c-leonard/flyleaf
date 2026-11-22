@@ -14,7 +14,7 @@ from website_native_book import Node
 from website_book_nonprose import index_blocks
 from website_book_annotations import (annotate, normalized, Catalogue, content_digest)
 from website_book_reanchor import (align, catalogue_new_charts, check_installed_matches, follow_ancestor_dates, follow_corrected_names, follow_edition_counts, person_mention,
-                                   reanchor, relocate, refresh_section_people, remap)
+                                   reanchor, reanchor_nonprose, relocate, refresh_section_people, remap)
 
 PEOPLE = {'edith': 'Edith /Penhallow/', 'karin': 'Karin /Solberg/'}
 GEOGRAPHY = {'locations': [], 'places': []}
@@ -463,6 +463,39 @@ class NewPhotographTest(unittest.TestCase):
     def test_a_photograph_naming_nobody_in_full_is_refused(self):
         with self.assertRaises(ValueError):
             self.run_with("Figure 1: Joan's father in about 1890.")
+
+
+class MovedFigureTest(unittest.TestCase):
+    """A picture moved with its paragraph into another section keeps its links."""
+
+    def run_with(self, stored_asset):
+        caption = 'Figure 1: The obituary, as printed.'
+        page = Node('body', {}, [
+            Node('h2', {'id': 'ch-test'}, ['A family']),
+            Node('h3', {'id': 'reading-earlier'}, ['Earlier']),
+            Node('figure', {}, [Node('img', {'data-book-original': 'images/x.jpg'}, []),
+                                Node('figcaption', {}, [caption])]),
+            Node('h3', {'id': 'reading-later'}, ['Later'])])
+        current, _ = index_blocks(page, {'ch-test'})['NP-F001']
+        row = {**current, 'section': 'reading-later', 'assetPaths': [stored_asset], 'associations': []}
+        data = {('non-prose', 'associations'): {'authoredHeadingsAndCaptions': [row]},
+                ('non-prose', 'guards'): {'captionGuards': [], 'crossPassageGuards': []},
+                ('non-prose', 'preserved'): {'figures': [], 'links': []},
+                ('non-prose', 'contexts'): {},
+                ('non-prose', 'corrections'): {'links': []}}
+        with patch.object(website_book_reanchor, 'follow_ancestor_dates', lambda body, preserved: []):
+            changes = reanchor_nonprose(page, {'scope': {'authoredChapters': ['ch-test']}}, None, {}, data, {})
+        return changes, row
+
+    def test_the_catalogue_follows_the_figure_to_its_new_section(self):
+        changes, row = self.run_with('images/x.jpg')
+        self.assertEqual(row['section'], 'reading-earlier')
+        self.assertEqual(changes, ['NP-F001: figure moved to section reading-earlier'])
+
+    def test_a_different_picture_in_that_place_is_left_for_the_check_to_refuse(self):
+        changes, row = self.run_with('images/another.jpg')
+        self.assertEqual(row['section'], 'reading-later')
+        self.assertEqual(changes, [])
 
 
 class NewHeadingTest(unittest.TestCase):
