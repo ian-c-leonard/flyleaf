@@ -748,35 +748,87 @@ class Assembler:
                         self.add_index(pp, str(n))
         return "\n".join(out)
 
-    def chapter_charts(self, chapter_id):
+    CHART_LEGEND = ('Numbers identify register entries. Lines run from parents to a child: '
+                    'the left connection identifies the first person in a box, the right '
+                    'connection the second. “c.” means about. Chart references continue '
+                    'the family across pages.')
+
+    def chart_placement(self):
+        """Where a chapter's family charts print (book.yaml `charts`).
+
+        chapters: each chapter opens with all of its charts, one to a page.
+        appendix: each chapter opens with its first chart only, and the others
+        print together in a Family Charts appendix after the register."""
+        value = str(self.cfg.get('charts') or 'chapters')
+        if value not in ('chapters', 'appendix'):
+            raise SystemExit("book.yaml: charts must be 'chapters' or 'appendix', not " + repr(value))
+        return value
+
+    def chart_set(self, chapter_id):
         if not hasattr(self, '_print_charts'):
             self._print_charts = bookcharts.load_manifest(self.tree, FIGURES, self.cfg)
-        chapter = self._print_charts['chapters'][chapter_id]
+        return self._print_charts['chapters'][chapter_id]
+
+    def chart_block(self, chapter_id, chapter, panel):
+        """One chart with its caption, which says where the family continues."""
         by_number = {p['number']: p for p in chapter['panels']}
+
+        def chart_ref(number):
+            target = by_number[number]
+            label = f'chart-{chapter_id}-{target["focus"]}'
+            return f'#ref(<{label}>) (#ref(<{label}>, form: "page"))'
+        people = chapter['graph']['nodes'][str(panel['focus'])]['people']
+        caption = esc(' and '.join(p['name'] for p in people)) + '.'
+        if panel['earlier']:
+            caption += ' Earlier generations: ' + '; '.join(
+                f'no. {n} in {chart_ref(number)}' for n, number in panel['earlier'].items()) + '.'
+        if panel['later']:
+            caption += ' Later generations: ' + ', '.join(chart_ref(n) for n in panel['later']) + '.'
+        # A chart's number is drawn inside other charts ("See chart 36"). Once
+        # charts leave their chapters they no longer print in number order, so
+        # each one states its own number instead of counting from the last.
+        own_number = ('' if self.chart_placement() == 'chapters' else
+                      f'#counter(figure.where(kind: "family-chart")).update({panel["number"] - 1})')
+        return (own_number + f'#book-chart("/build/figures/{panel["file"]}", [{caption}]) '
+                f'<chart-{chapter_id}-{panel["focus"]}>')
+
+    def chapter_charts(self, chapter_id):
+        chapter = self.chart_set(chapter_id)
+        in_appendix = self.chart_placement() == 'appendix'
+        panels = chapter['panels'][:1] if in_appendix else chapter['panels']
         out = []
-        for i, panel in enumerate(chapter['panels']):
+        for i, panel in enumerate(panels):
             out.extend(['#pagebreak(weak: true)', ''])
             if i == 0:
-                out.extend(['#text(size: 9pt)[Numbers identify register entries. Lines run '
-                            'from parents to a child: the left connection identifies the '
-                            'first person in a box, the right connection the second. '
-                            '“c.” means about. Chart references continue the family across pages.]', ''])
-            def chart_ref(number):
-                target = by_number[number]
-                label = f'chart-{chapter_id}-{target["focus"]}'
-                return f'#ref(<{label}>) (#ref(<{label}>, form: "page"))'
-            people = chapter['graph']['nodes'][str(panel['focus'])]['people']
-            caption = esc(' and '.join(p['name'] for p in people)) + '.'
-            if panel['earlier']:
-                caption += ' Earlier generations: ' + '; '.join(
-                    f'no. {n} in {chart_ref(number)}' for n, number in panel['earlier'].items()) + '.'
-            if panel['later']:
-                caption += ' Later generations: ' + ', '.join(chart_ref(n) for n in panel['later']) + '.'
-            out.extend([f'#book-chart("/build/figures/{panel["file"]}", [{caption}]) '
-                        f'<chart-{chapter_id}-{panel["focus"]}>', ''])
+                legend = self.CHART_LEGEND
+                if in_appendix and len(chapter['panels']) > 1:
+                    legend += ' The other charts for this chapter are in the Family Charts appendix.'
+                out.extend([f'#text(size: 9pt)[{legend}]', ''])
+            out.extend([self.chart_block(chapter_id, chapter, panel), ''])
         # The narrative resumes on its own page after the linked chart set.
         out.extend(['#pagebreak(weak: true)', ''])
         return out
+
+    def chart_appendix(self):
+        """With `charts: appendix`, the charts after each chapter's first, in
+        chapter order. They share pages where they fit."""
+        if self.chart_placement() != 'appendix':
+            return ''
+        out = []
+        for number, ch in enumerate(self.cfg['chapters'], start=1):
+            if ch.get('charts') == 'false':
+                continue
+            chapter = self.chart_set(ch['id'])
+            if len(chapter['panels']) < 2:
+                continue
+            if not out:
+                out.extend(['= Family Charts <family-charts>', '',
+                            '#text(size: 9pt)[These charts continue the chart that opens each '
+                            f'chapter. {self.CHART_LEGEND}]', ''])
+            out.extend([f"== Charts for chapter {number}: {esc(ch['title'])}", ''])
+            for panel in chapter['panels'][1:]:
+                out.extend([self.chart_block(ch['id'], chapter, panel), ''])
+        return '\n'.join(out)
 
     # ---------- Part II ----------
 
@@ -1570,6 +1622,12 @@ class Assembler:
                 _, body = booklib.parse_front_matter(f)
                 parts.append(self.process_prose(body, list(self.cov["ancestors"]), f.name))
                 parts.append("")
+        # Charts moved out of the chapters are reference matter: they follow
+        # the hand-written back-matter and precede the source lists.
+        charts = self.chart_appendix()
+        if charts:
+            parts.append(charts)
+            parts.append("")
         parts.append(self.register_references())
         parts.append("")
         parts.append(self.bibliography())

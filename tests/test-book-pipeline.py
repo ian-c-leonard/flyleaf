@@ -837,6 +837,75 @@ class TestRepeatedAncestors(unittest.TestCase):
         self.assertIn('See no. 10.', lines)
 
 
+class ChartPlacementTest(unittest.TestCase):
+    """A book prints every chart at its chapter's opening, or keeps the first
+    there and prints the rest in an appendix (book.yaml `charts`)."""
+
+    def assembler(self, placement=None):
+        assembler = assemble_mod.Assembler.__new__(assemble_mod.Assembler)
+        assembler.cfg = {'chapters': [{'id': 'one', 'title': 'First'},
+                                      {'id': 'two', 'title': 'Second', 'charts': 'false'},
+                                      {'id': 'three', 'title': 'Third'}]}
+        if placement:
+            assembler.cfg['charts'] = placement
+
+        def chapter(count, base):
+            nodes = {str(base + i): {'people': [{'name': f'Person {base + i}'}]} for i in range(count)}
+            panels = [{'number': base + i, 'focus': base + i, 'file': f'chart-{base + i}.svg',
+                       'earlier': {str(base + i + 100): base + i + 1} if i + 1 < count else {},
+                       'later': [base + i - 1] if i else []} for i in range(count)]
+            return {'panels': panels, 'graph': {'nodes': nodes}}
+        assembler._print_charts = {'chapters': {'one': chapter(3, 1), 'two': chapter(2, 10),
+                                                'three': chapter(1, 20)}}
+        return assembler
+
+    def test_by_default_every_chart_opens_its_chapter(self):
+        assembler = self.assembler()
+        opening = '\n'.join(assembler.chapter_charts('one'))
+        self.assertEqual(opening.count('#book-chart('), 3)
+        self.assertEqual(opening.count('#pagebreak(weak: true)'), 4)
+        self.assertNotIn('appendix', opening)
+        self.assertNotIn('counter(', opening)   # charts count in reading order
+        self.assertEqual(assembler.chart_appendix(), '')
+
+    def test_the_appendix_takes_every_chart_after_a_chapters_first(self):
+        assembler = self.assembler('appendix')
+        opening = '\n'.join(assembler.chapter_charts('one'))
+        self.assertEqual(opening.count('#book-chart('), 1)
+        self.assertIn('chart-1.svg', opening)
+        self.assertIn('The other charts for this chapter are in the Family Charts appendix.', opening)
+        # The chart that stays still says where the family continues.
+        self.assertIn('#ref(<chart-one-2>)', opening)
+        appendix = assembler.chart_appendix()
+        self.assertEqual(appendix.count('= Family Charts <family-charts>'), 1)
+        self.assertIn('== Charts for chapter 1: First', appendix)
+        self.assertEqual(appendix.count('#book-chart('), 2)
+        self.assertIn('<chart-one-2>', appendix)
+        self.assertIn('<chart-one-3>', appendix)
+        self.assertNotIn('<chart-one-1>', appendix.replace('#ref(<chart-one-1>', ''))
+        # Charts in the appendix share pages: no fixed page break between them.
+        self.assertNotIn('#pagebreak', appendix)
+        # Each chart keeps the number that other charts print for it.
+        self.assertIn('.update(0)#book-chart("/build/figures/chart-1.svg"', opening)
+        self.assertIn('.update(1)#book-chart("/build/figures/chart-2.svg"', appendix)
+        self.assertIn('.update(2)#book-chart("/build/figures/chart-3.svg"', appendix)
+
+    def test_a_chapter_without_more_charts_adds_nothing_to_the_appendix(self):
+        assembler = self.assembler('appendix')
+        appendix = assembler.chart_appendix()
+        self.assertNotIn('chapter 2', appendix)   # its charts are switched off
+        self.assertNotIn('chart-10.svg', appendix)
+        self.assertNotIn('chapter 3', appendix)   # it has one chart, which opens the chapter
+        only = '\n'.join(assembler.chapter_charts('three'))
+        self.assertEqual(only.count('#book-chart('), 1)
+        self.assertNotIn('appendix', only)
+
+    def test_an_unknown_placement_stops_the_build(self):
+        with self.assertRaises(SystemExit) as stopped:
+            self.assembler('back').chart_placement()
+        self.assertIn("charts must be 'chapters' or 'appendix'", str(stopped.exception))
+
+
 @unittest.skipUnless(shutil.which('typst') and shutil.which('pdftotext'),
                      'Typst and poppler required for table geometry')
 class TestAncestryTableLayout(unittest.TestCase):
