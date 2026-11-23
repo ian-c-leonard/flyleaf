@@ -845,7 +845,8 @@ class ChartPlacementTest(unittest.TestCase):
         assembler = assemble_mod.Assembler.__new__(assemble_mod.Assembler)
         assembler.cfg = {'chapters': [{'id': 'one', 'title': 'First'},
                                       {'id': 'two', 'title': 'Second', 'charts': 'false'},
-                                      {'id': 'three', 'title': 'Third'}]}
+                                      {'id': 'three', 'title': 'Third'},
+                                      {'id': 'four', 'title': 'Fourth'}]}
         if placement:
             assembler.cfg['charts'] = placement
 
@@ -856,7 +857,7 @@ class ChartPlacementTest(unittest.TestCase):
                        'later': [base + i - 1] if i else []} for i in range(count)]
             return {'panels': panels, 'graph': {'nodes': nodes}}
         assembler._print_charts = {'chapters': {'one': chapter(3, 1), 'two': chapter(2, 10),
-                                                'three': chapter(1, 20)}}
+                                                'three': chapter(1, 20), 'four': chapter(2, 30)}}
         return assembler
 
     def test_by_default_every_chart_opens_its_chapter(self):
@@ -880,7 +881,7 @@ class ChartPlacementTest(unittest.TestCase):
         appendix = assembler.chart_appendix()
         self.assertEqual(appendix.count('= Family Charts <family-charts>'), 1)
         self.assertIn('== Charts for chapter 1: First <reading-charts-one>\n', appendix)
-        self.assertEqual(appendix.count('#book-chart('), 2)
+        self.assertEqual(appendix.count('#book-chart('), 3)
         self.assertIn('<chart-one-2>', appendix)
         self.assertIn('<chart-one-3>', appendix)
         self.assertNotIn('<chart-one-1>', appendix.replace('#ref(<chart-one-1>', ''))
@@ -890,6 +891,15 @@ class ChartPlacementTest(unittest.TestCase):
         self.assertIn('.update(0)#book-chart("/build/figures/chart-1.svg"', opening)
         self.assertIn('.update(1)#book-chart("/build/figures/chart-2.svg"', appendix)
         self.assertIn('.update(2)#book-chart("/build/figures/chart-3.svg"', appendix)
+        # A later chapter keeps its own number and its own charts, in order.
+        self.assertIn('== Charts for chapter 4: Fourth <reading-charts-four>\n', appendix)
+        self.assertNotIn('Charts for chapter 2', appendix)
+        self.assertNotIn('Charts for chapter 3', appendix)
+        first, second = appendix.split('== Charts for chapter 4: Fourth')
+        self.assertEqual((first.count('#book-chart('), second.count('#book-chart(')), (2, 1))
+        self.assertIn('chart-31.svg', second)
+        self.assertNotIn('chart-30.svg', appendix)   # it opens chapter 4
+        self.assertIn('(#ref(<reading-charts-four>, form: "page")).', '\n'.join(assembler.chapter_charts('four')))
 
     def test_a_chapter_without_more_charts_adds_nothing_to_the_appendix(self):
         assembler = self.assembler('appendix')

@@ -608,7 +608,7 @@ def reading_sections(body, selections, tree, published_people=None):
     if refused:
         raise ValueError('The website does not open a book with these addresses: ' + ', '.join(refused[:5])
                          + '. A label in the book must start with reading-, ch-, nar-, reg-, family-, '
-                           'sources- or chart-.')
+                           'sources- or chart-, and then use only small letters, digits and hyphens.')
     return sections, public_anchors
 
 

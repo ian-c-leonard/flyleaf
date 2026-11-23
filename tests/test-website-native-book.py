@@ -428,6 +428,15 @@ Preserved narrative text.
             compare(expected, actual(good.replace('Chart 3:', 'Chart 2:').replace('Chart 2: First family, continued', 'Chart 3: First family, continued')))
         # Without stated numbers the charts count in print order, as before.
         self.assertEqual(Expected(body).figure_order, ['Chart 1', 'Chart 2', 'Chart 3'])
+        # With a chart list, the book must hold exactly the charts it names.
+        with self.assertRaisesRegex(ValueError, 'not in the chart list: chart-one-b'):
+            Expected(body, {'chart-one-a': 1, 'chart-two-a': 3})
+        with self.assertRaisesRegex(ValueError, 'not in the book: chart-three-a'):
+            Expected(body, dict(numbers, **{'chart-three-a': 4}))
+        with self.assertRaisesRegex(ValueError, 'in the book twice: chart-one-a'):
+            Expected({'func': 'sequence', 'children': body['children'] + [chart('chart-one-a', 'Again')]}, numbers)
+        with self.assertRaisesRegex(ValueError, 'carry the same number'):
+            Expected(body, dict(numbers, **{'chart-two-a': 2}))
 
     def test_the_build_and_the_site_agree_on_which_addresses_are_public(self):
         # A heading label the site refuses once passed every build step, and

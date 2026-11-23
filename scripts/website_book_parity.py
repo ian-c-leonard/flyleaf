@@ -86,6 +86,9 @@ class Expected:
         # The number each printed chart states for itself, by its label. With
         # `charts: appendix` charts do not print in number order.
         self.chart_numbers = chart_numbers or {}
+        if len(set(self.chart_numbers.values())) != len(self.chart_numbers):
+            raise ValueError('Two charts in the chart list carry the same number')
+        self.charts_seen = set()
         self.notes = []
         self.links = [[]]
         self.counts = Counter()
@@ -99,6 +102,9 @@ class Expected:
         self.in_table = False
         self.headings = []
         self.main = self.walk(body, 0)
+        missing = sorted(set(self.chart_numbers) - self.charts_seen)
+        if missing:
+            raise ValueError('Charts in the chart list are not in the book: ' + ', '.join(missing[:5]))
         line = booklib.strapline(booklib.load_book_yaml())
         self.main = self.main.replace(line, line.upper(), 1)
 
@@ -177,8 +183,17 @@ class Expected:
         if f == 'figure':
             kind = x.get('kind', 'image')
             assert kind in {'image', 'family-chart'}
-            stated = self.chart_numbers.get((x.get('label') or '')[1:-1]) if kind == 'family-chart' else None
-            self.figure_numbers[kind] = stated or self.figure_numbers[kind] + 1
+            if kind == 'family-chart' and self.chart_numbers:
+                # Every chart must be one the chart list knows, once.
+                name = (x.get('label') or '')[1:-1]
+                if name not in self.chart_numbers:
+                    raise ValueError('A chart in the book is not in the chart list: ' + (name or 'no label'))
+                if name in self.charts_seen:
+                    raise ValueError('A chart is in the book twice: ' + name)
+                self.charts_seen.add(name)
+                self.figure_numbers[kind] = self.chart_numbers[name]
+            else:
+                self.figure_numbers[kind] += 1
             n = self.figure_numbers[kind]
             label = ('Chart' if kind == 'family-chart' else 'Figure') + ' ' + str(n)
             if kind == 'family-chart':
