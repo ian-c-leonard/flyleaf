@@ -137,6 +137,26 @@ class Reanchor(unittest.TestCase):
             result = annotate(revised, loaded(manifest), PEOPLE, GEOGRAPHY)
             self.assertEqual([(m['passage'], m['label']) for m in result['mentions']], [('P-1', 'Karin')])
 
+    def test_a_moved_paragraph_takes_its_place_names_to_the_new_section(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            quote = 'Edith met Karin in Madison. The notice gives the date.'
+            manifest = write_catalogue(Path(tmp), quote)
+            contexts = Path(tmp) / 'book-annotations/c1-c2/book-only-locations.json'
+            place = {'id': 'P-1-L1', 'passageId': 'P-1', 'chapter': 'ch-test', 'section': 'ch-test',
+                     'quote': quote, 'passageSha256': sha256(quote.encode()).hexdigest(),
+                     'selector': selector(quote, 'Madison')}
+            contexts.write_text(json.dumps({'locationRecords': {}, 'mentions': [place]}, indent=2) + '\n')
+            listing = json.loads(manifest.read_text())
+            listing['parts'][0]['sources']['contexts']['sha256'] = sha256(contexts.read_bytes()).hexdigest()
+            manifest.write_text(json.dumps(listing, indent=2) + '\n')
+            revised = Node('body', {}, [Node('h2', {'id': 'ch-test'}, ['A family']),
+                                        Node('h3', {'id': 'reading-later'}, ['Later years']),
+                                        Node('p', {}, [quote])])
+            changes = reanchor(revised, manifest, people=PEOPLE)
+            self.assertIn('P-1: place P-1-L1 follows the paragraph to reading-later', changes)
+            moved, = json.loads(contexts.read_text())['mentions']
+            self.assertEqual((moved['chapter'], moved['section']), ('ch-test', 'reading-later'))
+
     def test_a_cited_full_name_in_new_text_is_linked(self):
         with tempfile.TemporaryDirectory() as tmp:
             manifest = write_catalogue(Path(tmp), 'Edith met Karin in Madison. The notice gives the date.')

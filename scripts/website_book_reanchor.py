@@ -524,6 +524,11 @@ def reanchor(body, manifest_path, previous_order=(), installed=None, people=None
         kept = []
         for c in contexts.get('mentions', []):
             pid = c['passageId']
+            # A paragraph moved to another section takes its place names along.
+            home = by_id.get(pid)
+            if home and (c.get('chapter'), c.get('section')) != (home['chapter'], home['section']):
+                c['chapter'], c['section'] = home['chapter'], home['section']
+                changes.append(f"{pid}: place {c['id']} follows the paragraph to {home['section']}")
             if pid in moved:
                 old_quote, block = moved[pid]
                 taken = spans.setdefault(pid, [
