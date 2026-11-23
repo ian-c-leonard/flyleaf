@@ -40,6 +40,7 @@ import '../places.css';
 import Archive from './Archive';
 import FamilyBook from './FamilyBook';
 import FamilyCollections from './FamilyCollections';
+import familyCollections from '@content/family-collections.json';
 import recipeContents from '@content/family-recipes.json';
 import { familyRecipeBook } from '../lib/family-recipes';
 import homeRecordList from '@content/home-records.json';
@@ -233,6 +234,8 @@ export default function Atlas() {
     top: number;
     heading: boolean;
     personLink?: string;
+    /** The id of a part of the profile to open at, such as a collection. */
+    section?: string;
   } | null>(null);
   const recentTrigger = useRef<HTMLElement | null>(null);
   const personTrigger = useRef<HTMLElement | null>(null);
@@ -474,6 +477,14 @@ export default function Atlas() {
         : null;
     focus?.focus({ preventScroll: true });
     dialog.scrollTop = position.top;
+    const part = position.section
+      ? content.querySelector<HTMLElement>('#' + CSS.escape(position.section))
+      : null;
+    if (part)
+      dialog.scrollTop +=
+        part.getBoundingClientRect().top -
+        dialog.getBoundingClientRect().top -
+        16;
     const remember = () => {
       if (history.state?.person === route.person)
         history.replaceState(
@@ -787,6 +798,19 @@ export default function Atlas() {
       record: '',
       album: '',
     });
+  }
+  /** A collection lives on the page of the person it belongs to. */
+  function openCollection(id: string) {
+    const owner = familyCollections
+      .find((collection) => collection.id === id)
+      ?.people.find((person) => data?.people.some((p) => p.id === person));
+    if (!owner) return;
+    navigate({ person: owner, record: '', image: '' });
+    pendingProfile.current = {
+      top: 0,
+      heading: false,
+      section: 'collection-' + id,
+    };
   }
   function openAlbum(id: string) {
     navigate({
@@ -1607,6 +1631,7 @@ export default function Atlas() {
             onRead={readBook}
             onDocument={openDocument}
             onAlbum={openAlbum}
+            onCollection={openCollection}
             noteReference={route.bookNote}
             showRequestedNote={
               !route.record && !route.person && !route.image && !!route.bookNote

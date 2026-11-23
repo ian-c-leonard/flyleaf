@@ -36,6 +36,7 @@ export default function FamilyBook({
   onRead,
   onDocument,
   onAlbum,
+  onCollection,
   imageUrl,
   noteReference,
   showRequestedNote,
@@ -69,6 +70,7 @@ export default function FamilyBook({
     noteReference?: string,
   ) => void;
   onAlbum?: (id: string) => void;
+  onCollection?: (id: string) => void;
   imageUrl: (path: string) => string;
   noteReference: string;
   showRequestedNote: boolean;
@@ -204,6 +206,7 @@ export default function FamilyBook({
             onRead={onRead}
             onDocument={onDocument}
             onAlbum={onAlbum}
+            onCollection={onCollection}
             noteReference={noteReference}
             showRequestedNote={showRequestedNote}
             onNoteText={onNoteText}

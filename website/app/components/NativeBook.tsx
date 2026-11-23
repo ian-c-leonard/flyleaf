@@ -40,6 +40,8 @@ import { BookEntityPreview, BookPreviewFrame } from './BookPreview';
 import SourceCitationPresentation from './SourceCitationPresentation';
 import { presentationsForNote } from '../lib/citation-presentation';
 import { albumsInEdition } from '../lib/albums';
+import collections from '@content/family-collections.json';
+import { titleTarget, titleTargets } from '../lib/book-titles';
 import BookReadingMap from './BookReadingMap';
 import BookChapterOpenings from './BookChapterOpenings';
 import { BookMapHistory } from '../lib/book-map-history';
@@ -58,6 +60,7 @@ export default function NativeBook({
   onRead,
   onDocument,
   onAlbum,
+  onCollection,
   noteReference,
   showRequestedNote = false,
   onNoteText,
@@ -88,6 +91,8 @@ export default function NativeBook({
     noteReference?: string,
   ) => void;
   onAlbum?: (id: string) => void;
+  /** Opens a family collection, such as a recipe book, where it lives. */
+  onCollection?: (id: string) => void;
   noteReference: string;
   showRequestedNote?: boolean;
   onNoteText: (text: string) => void;
@@ -118,6 +123,7 @@ export default function NativeBook({
   // Only whether albums can open matters to the book's decorations. The
   // callback itself is new each time the page around the book renders.
   const hasAlbum = !!onAlbum;
+  const hasCollection = !!onCollection;
   const [active, setActive] = useState(anchor);
   const [note, setNote] = useState<HTMLElement | null>(null);
   const noteMarkup = useMemo(
@@ -551,6 +557,37 @@ export default function NativeBook({
         marker.appendChild(unavailable);
       }
     }
+    // A title the book prints in italics opens the album or the collection
+    // itself, when the site holds it.
+    const titles = titleTargets(
+      hasAlbum ? albumsInEdition(data) : [],
+      hasCollection
+        ? collections.filter(
+            (c) =>
+              data.sources.some(
+                (source) => source.pointer === c.source && source.archives.length,
+              ) && c.people.some((id) => data.people.some((p) => p.id === id)),
+          )
+        : [],
+    );
+    if (titles.size)
+      for (const title of scope.querySelectorAll<HTMLElement>('p em, p i')) {
+        if (title.closest('a, button, [data-book-note]')) continue;
+        const found = titleTarget(titles, title.textContent || '');
+        if (!found) continue;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'book-title-link';
+        if (found.kind === 'album') {
+          button.dataset.bookAlbum = found.id;
+          button.title = 'Listen to the album';
+        } else {
+          button.dataset.bookCollection = found.id;
+          button.title = 'Open the collection';
+        }
+        title.replaceWith(button);
+        button.appendChild(title);
+      }
     const location = currentAnchor.current;
     const target = location.anchor
       ? document.getElementById(location.anchor)
@@ -566,6 +603,9 @@ export default function NativeBook({
       scope
         .querySelectorAll('.book-source-link, .book-source-unavailable')
         .forEach((n) => n.remove());
+      scope
+        .querySelectorAll('.book-title-link')
+        .forEach((n) => n.replaceWith(...n.childNodes));
     };
   }, [
     body,
@@ -574,6 +614,7 @@ export default function NativeBook({
     restoreSavedScroll,
     data,
     hasAlbum,
+    hasCollection,
   ]);
   useEffect(() => {
     if (!body || !noteReference) {
@@ -882,7 +923,7 @@ export default function NativeBook({
     )
       return;
     const clicked = (event.target as Element).closest<HTMLElement>(
-      'a, [data-book-document], [data-book-album]',
+      'a, [data-book-document], [data-book-album], [data-book-collection]',
     );
     if (!clicked) return;
     const input = pointerInput.current;
@@ -910,6 +951,13 @@ export default function NativeBook({
       previewController.close();
       setNote(null);
       onAlbum(clicked.dataset.bookAlbum);
+      return;
+    }
+    if (clicked.dataset.bookCollection && onCollection) {
+      event.preventDefault();
+      previewController.close();
+      setNote(null);
+      onCollection(clicked.dataset.bookCollection);
       return;
     }
     if (clicked.dataset.bookDocument) {

@@ -193,6 +193,11 @@
 .native-book-content p {
   margin: 1.1em 0;
 }
+/* A paragraph the printed book keeps whole on one page arrives as a div. It
+   is still a paragraph and needs the same space around it. */
+.native-book-content div[data-book-passage] {
+  margin: 1.1em 0;
+}
 .native-book-content li > p:first-child {
   margin-top: 0;
 }
@@ -309,6 +314,27 @@
   color: #355044;
   border-radius: 2px;
   cursor: pointer;
+}
+/* A title in the text that opens the album or collection it names. It reads
+   as a link in the sentence, not as a button. */
+.book-title-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: #47624f;
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.17em;
+  cursor: pointer;
+}
+.book-title-link:hover {
+  color: var(--wine, #7a2f2f);
+}
+.book-title-link:focus-visible {
+  outline: 2px solid #a8481a;
+  outline-offset: 4px;
 }
 .book-source-unavailable {
   display: block;

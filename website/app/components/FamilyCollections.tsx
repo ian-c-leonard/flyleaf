@@ -118,7 +118,11 @@ export default function FamilyCollections({
       // A collection must not point into files outside the current edition.
       if (!source?.archives.length) return null;
       return (
-        <section className="kin-family-collection" key={collection.id}>
+        <section
+          className="kin-family-collection"
+          id={'collection-' + collection.id}
+          key={collection.id}
+        >
           <h3>{collection.title}</h3>
           <p>{collection.description}</p>
           {recipeCatalog &&
