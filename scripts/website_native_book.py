@@ -252,6 +252,16 @@ def compiler_warnings(stderr, source, derived_name):
         raise ValueError('Ignored print rule did not match its exact source location')
 
 
+def printed_chart_numbers():
+    """The number each printed chart carries, by its label in the book."""
+    path = ROOT / 'build' / 'figures' / 'print-charts.json'
+    if not path.is_file():
+        return {}
+    manifest = json.loads(path.read_text())
+    return {f"chart-{chapter_id}-{panel['focus']}": panel['number']
+            for chapter_id, chapter in manifest['chapters'].items() for panel in chapter['panels']}
+
+
 def find_compiler(receipt):
     """The Typst that built the PDF: FLYLEAF_TYPST, else typst on PATH.
     It must be the exact binary and version the PDF receipt recorded."""
@@ -478,6 +488,16 @@ def add_section_people(sections, selections, tree, published_people=None):
         by_anchor[anchor]['people'] = sorted(set(by_anchor[anchor]['people']) | set(people))
 
 
+# The same rule as publicBookAnchor in website/app/lib/native-book.ts. The
+# site does not open a book that carries an address outside it.
+PUBLIC_ANCHOR = re.compile(r'(?:reading-|ch-|nar-|reg-|family-|sources-|chart-)[a-z0-9-]+')
+PUBLIC_ANCHOR_NAMES = ('ahnentafel', 'bibliography', 'index', 'register-references')
+
+
+def public_book_anchor(value):
+    return bool(PUBLIC_ANCHOR.fullmatch(value)) or value in PUBLIC_ANCHOR_NAMES
+
+
 def reading_sections(body, selections, tree, published_people=None):
     nodes = list(body.nodes())
     selectors = {(s['level'], s['heading']): s['anchor'] for s in selections['headingAnchors']}
@@ -584,6 +604,11 @@ def reading_sections(body, selections, tree, published_people=None):
             raise ValueError('Invalid legacy Book redirect')
     add_section_people(sections, selections, tree, published_people)
     public_anchors = sorted(a for a in by_id if not a.startswith(('loc-', 'book-note-')))
+    refused = [a for a in public_anchors if not public_book_anchor(a)]
+    if refused:
+        raise ValueError('The website does not open a book with these addresses: ' + ', '.join(refused[:5])
+                         + '. A label in the book must start with reading-, ch-, nar-, reg-, family-, '
+                           'sources- or chart-.')
     return sections, public_anchors
 
 
@@ -788,7 +813,7 @@ def build_web_book(receipt_path, stage, admitted, renamed=None):
         html = compile_book(source, receipt, work)
         body = BookHTML().parse(html)
         oracle, oracle_hash = query_book_body(source, receipt, work)
-        expected = Expected(oracle)
+        expected = Expected(oracle, printed_chart_numbers())
         generated = compare(expected, Actual(body.html(), expected))
         tree = booklib.Tree()
         checks, source_map, uses = validate_content(body, source.decode(), receipt, mapping, tree)

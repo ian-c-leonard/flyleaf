@@ -82,7 +82,10 @@ def meta(label, value):
 
 
 class Expected:
-    def __init__(self, body):
+    def __init__(self, body, chart_numbers=None):
+        # The number each printed chart states for itself, by its label. With
+        # `charts: appendix` charts do not print in number order.
+        self.chart_numbers = chart_numbers or {}
         self.notes = []
         self.links = [[]]
         self.counts = Counter()
@@ -141,7 +144,10 @@ class Expected:
         if f in {'space', 'parbreak', 'linebreak', 'v', 'h', 'pagebreak'}:
             return ' '
         if f == 'counter-update':
-            assert x['key'] == 'page'
+            # The page number restarts with the body. A chart states its own
+            # number when charts print out of number order (charts: appendix).
+            if x['key'] not in {'page', 'figure.where(kind: "family-chart")'}:
+                raise ValueError('Unknown counter update in the book: ' + repr(x['key'])[:80])
             return ''
         if f == 'outline':
             assert x == {'func': 'outline', 'depth': 2, 'indent': '0% + 1em'}
@@ -171,7 +177,8 @@ class Expected:
         if f == 'figure':
             kind = x.get('kind', 'image')
             assert kind in {'image', 'family-chart'}
-            self.figure_numbers[kind] += 1
+            stated = self.chart_numbers.get((x.get('label') or '')[1:-1]) if kind == 'family-chart' else None
+            self.figure_numbers[kind] = stated or self.figure_numbers[kind] + 1
             n = self.figure_numbers[kind]
             label = ('Chart' if kind == 'family-chart' else 'Figure') + ' ' + str(n)
             if kind == 'family-chart':

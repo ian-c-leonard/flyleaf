@@ -873,12 +873,13 @@ class ChartPlacementTest(unittest.TestCase):
         opening = '\n'.join(assembler.chapter_charts('one'))
         self.assertEqual(opening.count('#book-chart('), 1)
         self.assertIn('chart-1.svg', opening)
-        self.assertIn('The other charts for this chapter are in the Family Charts appendix.', opening)
+        self.assertIn('The other charts for this chapter are in the Family Charts appendix '
+                      '(#ref(<reading-charts-one>, form: "page")).', opening)
         # The chart that stays still says where the family continues.
         self.assertIn('#ref(<chart-one-2>)', opening)
         appendix = assembler.chart_appendix()
         self.assertEqual(appendix.count('= Family Charts <family-charts>'), 1)
-        self.assertIn('== Charts for chapter 1: First', appendix)
+        self.assertIn('== Charts for chapter 1: First <reading-charts-one>\n', appendix)
         self.assertEqual(appendix.count('#book-chart('), 2)
         self.assertIn('<chart-one-2>', appendix)
         self.assertIn('<chart-one-3>', appendix)
@@ -1088,6 +1089,7 @@ class TestRectoFillerPages(unittest.TestCase):
                 process_prose=lambda body, *_: body,
                 narrative=lambda: '= First narrative\nNarrative body.',
                 register=lambda: '= Register\nRegister body.',
+                chart_appendix=lambda: '',
                 register_references=lambda: '', bibliography=lambda: '',
                 ahnentafel_table=lambda: '', name_index=lambda: '')
             with patch.object(booklib, 'BOOK_DIR', book_dir), \

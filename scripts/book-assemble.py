@@ -758,7 +758,8 @@ class Assembler:
 
         chapters: each chapter opens with all of its charts, one to a page.
         appendix: each chapter opens with its first chart only, and the others
-        print together in a Family Charts appendix after the register."""
+        print together in a Family Charts appendix, after the hand-written
+        back-matter and before the source lists."""
         value = str(self.cfg.get('charts') or 'chapters')
         if value not in ('chapters', 'appendix'):
             raise SystemExit("book.yaml: charts must be 'chapters' or 'appendix', not " + repr(value))
@@ -802,7 +803,9 @@ class Assembler:
             if i == 0:
                 legend = self.CHART_LEGEND
                 if in_appendix and len(chapter['panels']) > 1:
-                    legend += ' The other charts for this chapter are in the Family Charts appendix.'
+                    # In print this gives the page; on the website it links to the section.
+                    legend += (' The other charts for this chapter are in the Family Charts appendix '
+                               f'(#ref(<reading-charts-{chapter_id}>, form: "page")).')
                 out.extend([f'#text(size: 9pt)[{legend}]', ''])
             out.extend([self.chart_block(chapter_id, chapter, panel), ''])
         # The narrative resumes on its own page after the linked chart set.
@@ -825,7 +828,7 @@ class Assembler:
                 out.extend(['= Family Charts <family-charts>', '',
                             '#text(size: 9pt)[These charts continue the chart that opens each '
                             f'chapter. {self.CHART_LEGEND}]', ''])
-            out.extend([f"== Charts for chapter {number}: {esc(ch['title'])}", ''])
+            out.extend([f"== Charts for chapter {number}: {esc(ch['title'])} <reading-charts-{ch['id']}>", ''])
             for panel in chapter['panels'][1:]:
                 out.extend([self.chart_block(ch['id'], chapter, panel), ''])
         return '\n'.join(out)

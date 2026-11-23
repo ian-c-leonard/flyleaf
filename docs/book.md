@@ -57,6 +57,11 @@ back matter, such as an introduction and a list of open questions.
   chapter; the build says which are missing. `flyleaf import --root`
   proposes a first plan.
 - `charts: false` leaves a chapter's family charts out.
+- `charts: appendix`, on a line of its own above `chapters`, keeps the
+  first chart at each chapter's opening and prints the others together in
+  a Family Charts appendix after your back matter. The chart that stays
+  gives the page of its chapter's charts. Leave the line out and every
+  chart opens its chapter, one to a page.
 - `other_lines: father` (or `mother`) gives a chapter every family line on
   that side that no chapter lists. `flyleaf import` writes this for a deep
   tree, so the plan names only the nearer lines.

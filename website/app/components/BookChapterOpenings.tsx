@@ -330,7 +330,10 @@ export default function BookChapterOpenings({
         details.className = 'book-print-charts';
         details.dataset.readerDecoration = '';
         const summary = document.createElement('summary');
-        summary.textContent = `Family charts (${charts.length})`;
+        summary.textContent =
+          charts.length === 1
+            ? 'Family chart'
+            : `Family charts (${charts.length})`;
         details.appendChild(summary);
         charts[0].parentNode?.insertBefore(details, charts[0]);
         const instruction = openingNodes.find(

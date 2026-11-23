@@ -4,6 +4,7 @@ import base64
 from copy import deepcopy
 import hashlib
 import io
+import json
 from pathlib import Path
 import os
 import shutil
@@ -223,9 +224,9 @@ Preserved narrative text.
 
     def test_reading_openings_are_complete_section_local_and_exclude_reference_groups(self):
         heading = lambda ident, title, level='h3': web.Node(level, {'id': ident}, [title])
-        heads = [heading('chapter', 'A chapter', 'h2'), heading('empty', 'Empty'),
-                 heading('qualified', 'Qualified'), heading('register-references', 'References', 'h2'),
-                 heading('reference-group', 'A reference group')]
+        heads = [heading('ch-one', 'A chapter', 'h2'), heading('reading-empty', 'Empty'),
+                 heading('reading-qualified', 'Qualified'), heading('register-references', 'References', 'h2'),
+                 heading('reading-reference-group', 'A reference group')]
         opening = 'The chronicle describes the household and a sequence of moves. ' * 4 + \
                   'Whether the family owned this particular cottage is still an open question.'
         relation = web.Node('div', {'data-book-display': 'relationship'}, ['A generated relationship label.'])
@@ -237,9 +238,16 @@ Preserved narrative text.
             heads[4], web.Node('h4', {'id': 'sources-one'}, ['One']),
             web.Node('div', children=['Register entry: One.']),
             web.Node('div', children=['A compiled source citation.'])])
-        selections = {'headingAnchors': [], 'highlights': ['qualified'], 'legacyRoutes': {}}
+        selections = {'headingAnchors': [], 'highlights': ['reading-qualified'], 'legacyRoutes': {}}
         before = body.html().replace(' data-book-display="relationship"', '')
         sections, _ = web.reading_sections(body, selections, SimpleNamespace(by_refn={}))
+        # A label the site does not accept stops the build here, not in the browser.
+        heads[1].attrs['id'] = 'charts-one'
+        contents.children[1].attrs['href'] = '#charts-one'
+        with self.assertRaisesRegex(ValueError, 'does not open a book with these addresses: charts-one'):
+            web.reading_sections(body, selections, SimpleNamespace(by_refn={}))
+        heads[1].attrs['id'] = 'reading-empty'
+        contents.children[1].attrs['href'] = '#reading-empty'
         self.assertEqual([s['anchor'] for s in sections], [h.attrs['id'] for h in heads])
         self.assertEqual([s['opening'] for s in sections],
                          ['', '', opening, 'Inclusion here does not establish every fact.', ''])
@@ -390,6 +398,65 @@ Preserved narrative text.
             compare(expected, actual(good.replace('chart-one', 'swap').replace('chart-two', 'chart-one').replace('swap', 'chart-two')))
         # Nothing links to these figures, so Typst may leave their ids out.
         compare(expected, actual(good.replace(' id="chart-one"', '')))
+
+    def test_a_chart_out_of_number_order_keeps_the_number_it_prints(self):
+        # With `charts: appendix` a chapter opens with its first chart and the
+        # rest print later, so chart numbers do not follow print order.
+        def chart(label, caption):
+            return {'func': 'figure', 'label': '<' + label + '>', 'kind': 'family-chart',
+                    'supplement': {'func': 'text', 'text': 'Chart'},
+                    'body': {'func': 'image', 'source': '/build/figures/' + label + '.svg'},
+                    'caption': {'func': 'caption', 'body': {'func': 'text', 'text': caption}}}
+        body = {'func': 'sequence', 'children': [
+            chart('chart-one-a', 'First family'),
+            {'func': 'counter-update', 'key': 'figure.where(kind: "family-chart")'},
+            chart('chart-two-a', 'Second family'),
+            {'func': 'counter-update', 'key': 'figure.where(kind: "family-chart")'},
+            chart('chart-one-b', 'First family, continued'),
+        ]}
+        numbers = {'chart-one-a': 1, 'chart-one-b': 2, 'chart-two-a': 3}
+        expected = Expected(body, numbers)
+        self.assertEqual(expected.figure_order, ['Chart 1', 'Chart 3', 'Chart 2'])
+        self.assertEqual(expected.figures, {'#chart-one-a': 'Chart 1', '#chart-two-a': 'Chart 3', '#chart-one-b': 'Chart 2'})
+        good = ('<figure id="chart-one-a"><img><figcaption>Chart 1: First family</figcaption></figure>'
+                '<figure id="chart-two-a"><img><figcaption>Chart 3: Second family</figcaption></figure>'
+                '<figure id="chart-one-b"><img><figcaption>Chart 2: First family, continued</figcaption></figure>')
+        def actual(html):
+            return Actual(document(html + '<section role="doc-endnotes"><ol></ol></section>'), expected)
+        compare(expected, actual(good))
+        with self.assertRaises(ValueError):
+            compare(expected, actual(good.replace('Chart 3:', 'Chart 2:').replace('Chart 2: First family, continued', 'Chart 3: First family, continued')))
+        # Without stated numbers the charts count in print order, as before.
+        self.assertEqual(Expected(body).figure_order, ['Chart 1', 'Chart 2', 'Chart 3'])
+
+    def test_the_build_and_the_site_agree_on_which_addresses_are_public(self):
+        # A heading label the site refuses once passed every build step, and
+        # the book then did not open in the browser.
+        for good in ('reading-charts-one', 'ch-one', 'nar-alice', 'reg-ch-one', 'family-charts',
+                     'sources-alice', 'chart-one-2', 'index', 'register-references'):
+            self.assertTrue(web.public_book_anchor(good), good)
+        for bad in ('charts-one', 'title-page', 'Reading-x', 'reading-', 'chart_one', ''):
+            self.assertFalse(web.public_book_anchor(bad), bad)
+        site = (SCRIPTS.parent / 'website/app/lib/native-book.ts').read_text(encoding='utf-8')
+        self.assertIn('/^' + web.PUBLIC_ANCHOR.pattern + '$/', site)
+        self.assertIn(repr(list(web.PUBLIC_ANCHOR_NAMES)), ' '.join(site.split()).replace('[ ', '[').replace(', ]', ']'))
+
+    def test_only_known_counters_may_be_set_in_the_book(self):
+        for key in ('page', 'figure.where(kind: "family-chart")'):
+            Expected({'func': 'counter-update', 'key': key})
+        with self.assertRaisesRegex(ValueError, 'Unknown counter update'):
+            Expected({'func': 'counter-update', 'key': 'heading'})
+
+    def test_printed_chart_numbers_come_from_the_chart_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(web, 'ROOT', Path(tmp)):
+            self.assertEqual(web.printed_chart_numbers(), {})
+            figures = Path(tmp) / 'build' / 'figures'
+            figures.mkdir(parents=True)
+            (figures / 'print-charts.json').write_text(json.dumps({'chapters': {
+                'ch-one': {'panels': [{'focus': 'alice', 'number': 1}, {'focus': 'bob', 'number': 2}]},
+                'ch-two': {'panels': [{'focus': 'alice', 'number': 3}]}}}))
+            self.assertEqual(web.printed_chart_numbers(),
+                             {'chart-ch-one-alice': 1, 'chart-ch-one-bob': 2, 'chart-ch-two-alice': 3})
 
     def test_register_note_targets_preserve_the_exact_printed_entry(self):
         entry = '<div><span data-register-person="alice" data-register-key="census"></span>Original wording.<span data-book-person="alice" data-book-key="census"></span></div>'
