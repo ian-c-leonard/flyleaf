@@ -62,6 +62,16 @@ back matter, such as an introduction and a list of open questions.
   a Family Charts appendix after your back matter. The chart that stays
   gives the page of its chapter's charts. Leave the line out and every
   chart opens its chapter, one to a page.
+- `notes: same-page`, on a line of its own above `chapters`, keeps every
+  note whole on the page of its mark. Without it the typesetter fills each
+  page with text first, so a note near the foot can be cut in two, or start
+  on the next page with its mark left behind. With it, the build moves the
+  line of text that carries the mark, and what follows, to the next page.
+  It changes no word and no note. The cost is white space: more pages end a
+  few lines early, and a line with many marks can leave the page before it
+  half empty. The build says how many moves it made, and names any note it
+  could not keep on its page. The first build takes some minutes longer;
+  later builds work again only on chapters whose text changed.
 - `other_lines: father` (or `mother`) gives a chapter every family line on
   that side that no chapter lists. `flyleaf import` writes this for a deep
   tree, so the plan names only the nearer lines.

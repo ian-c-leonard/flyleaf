@@ -12,6 +12,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 import booklib
+import booknotes
 import build_clock
 import flyleaf_settings
 from working_folders import remove_working_folder, working_folder
@@ -30,8 +31,10 @@ def run(args, env, capture=False):
 
 
 def install(stage, build_dir):
-    """Receipt installs last; failed rollback retains a separate recovery directory."""
-    names = ('book.typ', 'book.pdf', 'book-publication.json')
+    """Receipt installs last; failed rollback retains a separate recovery directory.
+    The print copy exists only with `notes: same-page`; without it, an older
+    print copy is removed, so the folder never holds one the PDF was not set from."""
+    names = ('book.typ', 'book-print.typ', 'book.pdf', 'book-publication.json')
     backup = Path(tempfile.mkdtemp(prefix='.book-previous-', dir=build_dir))
     try:
         for name in names:
@@ -44,7 +47,12 @@ def install(stage, build_dir):
     try:
         for name in names:
             target = build_dir / name
-            (stage / name).replace(target)
+            if (stage / name).exists():
+                (stage / name).replace(target)
+            elif name == 'book-print.typ':
+                target.unlink(missing_ok=True)
+            else:
+                raise FileNotFoundError(stage / name)
     except BaseException:
         try:
             # A filesystem operation may finish before an interrupt reaches
@@ -145,10 +153,23 @@ def build():
             entry, pdf, deps = (stage / name for name in ('book.typ', 'book.pdf', 'deps.json'))
             run([sys.executable, ENGINE / 'scripts/book-assemble.py', '--out', entry], env)
             require_equal(before, inputs(), 'Assembly inputs')
+            # The copy the PDF is set from. With `notes: same-page` it is the
+            # assembled book plus layout marks that keep each note whole on the
+            # page of its mark. book.typ itself stays as the website reads it.
+            printed = entry
+            if booknotes.placement() == 'same-page':
+                printed = stage / 'book-print.typ'
+                environment = {'typst': toolchain['typst'], 'typstSha256': toolchain['typstSha256'],
+                               'fonts': fonts, 'templates': snapshot(booklib.STAGED_TEMPLATES.iterdir())}
+                report = booknotes.print_copy(
+                    entry, printed, stage / 'notes', env, build_dir / 'notes-layout-cache.json',
+                    digest=json.dumps(environment, sort_keys=True))
+                print(booknotes.summary(report), flush=True)
+                require_equal(before, inputs(), 'Book inputs')
 
             def compile_pdf():
                 run(['typst', 'compile', '--root', ROOT, '--creation-timestamp', timestamp,
-                     '--deps', deps, '--deps-format', 'json', entry, pdf], env)
+                     '--deps', deps, '--deps-format', 'json', printed, pdf], env)
 
             def dependencies():
                 paths = [ROOT / p for p in json.loads(deps.read_text())['inputs']]
@@ -162,8 +183,16 @@ def build():
             compiled_pdf = snapshot([pdf])
             compiled_bytes = pdf.stat().st_size
             require_equal(dep_before, dependencies(), 'Compiler dependencies')
+            if printed != entry:
+                # Moving text to another page must not change how it is set.
+                # The assembled book is set once, without the layout marks,
+                # and both PDFs must print the same quotation marks.
+                unmarked = stage / 'assembled.pdf'
+                run(['typst', 'compile', '--root', ROOT, '--creation-timestamp', timestamp, entry, unmarked], env)
+                booknotes.same_marks(unmarked, pdf)
+                unmarked.unlink()
             for name in ('footnotes', 'register-sources', 'bibliography', 'charts'):
-                run([sys.executable, ENGINE / f'scripts/check-{name}.py', entry], env)
+                run([sys.executable, ENGINE / f'scripts/check-{name}.py', printed], env)
             require_equal(compiled_pdf, snapshot([pdf]), 'Compiled PDF')
             require_equal(before, inputs(), 'Book inputs')
             require_equal(dep_before, dependencies(), 'Compiler dependencies')
@@ -182,7 +211,10 @@ def build():
             sha = next(iter(compiled_pdf.values()))
             normalized_deps = dict(dep_before)
             normalized_deps.update(generated)
-            normalized_deps['build/book.typ'] = normalized_deps.pop(str(entry.relative_to(ROOT)))
+            normalized_deps['build/' + printed.name] = normalized_deps.pop(str(printed.relative_to(ROOT)))
+            if printed != entry:
+                # The website reads the assembled book, so the record holds it too.
+                normalized_deps['build/book.typ'] = digest(entry)
             receipt = {'schema': 1, 'status': 'checked-build',
                        'createdAt': build_clock.now_utc().isoformat(),
                        'nativeSha256': before[str(SOURCE_GEDCOM.relative_to(ROOT))],
@@ -209,17 +241,24 @@ def build():
 # Other editions of the built book: the archival PDF (PDF/A-2b, for library
 # deposit) and pictures of its first pages.
 EDITIONS = {
-    '--archival': (['--pdf-standard', 'a-2b', 'build/book.typ', 'build/book-archival.pdf'],
+    '--archival': (['--pdf-standard', 'a-2b', '{source}', 'build/book-archival.pdf'],
                    'build/book-archival.pdf (PDF/A-2b)'),
-    '--preview': (['--format', 'png', '--pages', '1-8', '--ppi', '110', 'build/book.typ',
+    '--preview': (['--format', 'png', '--pages', '1-8', '--ppi', '110', '{source}',
                    'build/preview-{p}.png'], 'build/preview-*.png'),
 }
+
+
+def printed_source():
+    """The copy the book's PDF was set from: the print copy when the last
+    build made one (`notes: same-page`), else the assembled book."""
+    return 'build/book-print.typ' if (ROOT / 'build/book-print.typ').is_file() else 'build/book.typ'
 
 
 def edition(option):
     """Compile build/book.typ again, set in exactly the book's fonts: the
     font files in flyleaf.json, never the fonts this computer has installed."""
     arguments, made = EDITIONS[option]
+    arguments = [printed_source() if argument == '{source}' else argument for argument in arguments]
     with working_folder('.book-fonts-', ROOT / 'build') as directory:
         for source in FONTS:
             shutil.copyfile(source, Path(directory) / source.name)

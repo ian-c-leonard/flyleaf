@@ -120,13 +120,16 @@
   show footnote.entry: set text(costs: (widow: 0%, orphan: 0%))
   show footnote.entry: block.with(breakable: true)
   // Queryable breadcrumb for the post-compile anchor check
-  // (scripts/check-footnotes.py): use the entry's own location for its START.
-  // here() after `it` measured the END of a split note and missed early starts.
+  // (scripts/check-footnotes.py) and the notes layout step
+  // (scripts/booknotes.py): use the entry's own location for its START.
+  // here() after `it` is the END of a note, a later page when the note is
+  // split.
   show footnote.entry: it => {
     it
     context [#metadata((
       anchor: it.note.location().page(),
       entry_start: it.location().page(),
+      entry_end: here().page(),
       number: counter(footnote).at(it.note.location()).first(),
     )) <fn-check>]
   }
@@ -142,6 +145,37 @@
 
   body
 }
+
+// ---------- layout marks of the notes step ----------
+// With `notes: same-page` in book.yaml, scripts/booknotes.py writes these into
+// the print copy of the book, so that a note stays whole on the page of its
+// mark. They move text to the next page and change no word. The website's
+// copy of the book never carries them.
+
+// Written before the first word of a line of a paragraph: that line opens
+// the next page. The line before it stays set to the full width. The rest
+// is a new paragraph to the typesetter, so its indent is taken back and it
+// reads on as the same paragraph. The mark wraps nothing: what follows it is
+// not at the start of a source line, so "1819. " or "- " after it stays text.
+#let notes-cut() = {
+  linebreak(justify: true)
+  colbreak(weak: true)
+  context {
+    let indent = par.first-line-indent
+    h(-(if type(indent) == dictionary { indent.amount } else { indent }))
+  }
+}
+
+// What follows opens the next page.
+#let notes-page() = colbreak(weak: true)
+
+// Reports where a word fell, while the step measures a paragraph's lines.
+#let notes-probe(i) = context [#metadata((
+  i: i,
+  page: here().page(),
+  x: here().position().x.pt(),
+  y: here().position().y.pt(),
+)) <notes-probe>]
 
 // ---------- front pages ----------
 

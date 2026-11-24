@@ -53,6 +53,7 @@ assemble_mod = load("book-assemble.py", "ba_test")
 enrich_mod = load("enrich-gedcom.py", "eg_test")
 claims_mod = load("extract-claims.py", "claims_test")
 footnotes_mod = load("check-footnotes.py", "footnotes_test")
+notes_mod = load("booknotes.py", "notes_test")
 register_sources_mod = load("check-register-sources.py", "register_sources_test")
 charts_check_mod = load("check-charts.py", "charts_check_test")
 bibliography_mod = load("check-bibliography.py", "bibliography_test")
@@ -915,6 +916,410 @@ class ChartPlacementTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as stopped:
             self.assembler('back').chart_placement()
         self.assertIn("charts must be 'chapters' or 'appendix'", str(stopped.exception))
+
+
+class NotesLayoutTextTest(unittest.TestCase):
+    """The notes step reads the assembled text and writes layout marks into a
+    print copy (book.yaml `notes: same-page`). These tests need no typesetter."""
+
+    LINE = ('A notice, probably from the _Nantucket Journal_, called her his wife.'
+            '#footnote[Journal, 1885 — p. 3, viewed at #link("https://example.org/a b")[example.org (a b)] '
+            '#text(style: "italic")[(Primary record.)]#metadata((person: "x", key: "y z")) <bibliography-use>]'
+            '#super[, ]#footnote[A second \\[bracketed\\] note.] She was "then" forty-two and it\'s clear.')
+
+    def test_words_and_notes_are_found_outside_brackets_only(self):
+        stack = []
+        bounds, notes = notes_mod.scan_line(self.LINE, stack)
+        self.assertEqual(stack, [])
+        words = [self.LINE[o:].split(' ')[0] for o, _ in bounds]
+        self.assertEqual(words, ['notice,', 'probably', 'from', 'the', '_Nantucket', 'Journal_,', 'called', 'her',
+                                 'his', 'wife.#footnote[Journal,', 'She', 'was', 'forty-two', 'and', "it's", 'clear.'])
+        # Nothing inside a note, a link, a string or a bracketed group is a word start,
+        # and a word that begins with a straight quote is left alone.
+        self.assertEqual([self.LINE[s:s + 18] for s, _ in notes], ['#footnote[Journal,', '#footnote[A second'])
+        self.assertTrue(all(self.LINE[e - 1] == ']' for _, e in notes))
+        self.assertTrue(self.LINE[notes[0][1]:].startswith('#super[, ]'))
+        # Inside emphasis a word start is known but the text may not be cut there.
+        self.assertEqual([free for _, free in bounds][4:7], [True, False, True])
+        # A place that already has a cut is not cut again.
+        once = notes_mod.cut_line(self.LINE, bounds[2][0])
+        again, notes_again = notes_mod.scan_line(once, [])
+        self.assertEqual(len(again), len(bounds))
+        self.assertEqual([free for _, free in again][:4], [True, True, False, True])
+        self.assertEqual(len(notes_again), 2)
+
+    def test_no_cut_inside_a_straight_quotation_or_before_a_label(self):
+        # The typesetter pairs straight quotes within a paragraph. A cut inside a quotation
+        # once turned its closing quote into an opening one.
+        line = ('He wrote "fit for such ancient people as we are" and it\'s clear that the Starbucks\' house '
+                'was \'well kept and warm\' at 5\' 10" tall he stood there. <a-label>')
+        bounds, _ = notes_mod.scan_line(line, [])
+        got = [(line[o:].split(' ')[0], free) for o, free in bounds]
+        self.assertEqual(got, [
+            ('wrote', True),
+            ('for', False), ('such', False), ('ancient', False), ('people', False), ('as', False), ('we', False),
+            ('are"', False),                                    # inside the double quotation
+            ('and', True), ("it's", True), ('clear', True), ('that', True), ('the', True), ("Starbucks'", True),
+            ('house', True), ('was', True),                     # apostrophes open nothing
+            ('kept', False), ('and', False), ("warm'", False),  # inside the single quotation
+            ('at', True), ("5'", True), ('10"', True), ('tall', True), ('he', True), ('stood', True),
+            ('there.', True),                                   # a prime after a number opens nothing
+            ('<a-label>', False),                               # a label belongs to what stands before it
+        ])
+        # A quotation inside a note is the note's own affair.
+        noted = 'Plain words here.#footnote[He said "yes and no".] More plain words follow.'
+        self.assertTrue(all(free for _, free in notes_mod.scan_line(noted, [])[0]))
+
+    def test_a_note_written_over_two_lines_is_one_note(self):
+        lines = ['= C', '', 'Text.#footnote[first line', 'second line.] More text.#footnote[Whole.]', '']
+        notes, _, depth, closed = notes_mod.index(lines)
+        self.assertEqual([(k, s) for k, s, _ in notes], [(2, 5), (3, 24)])
+        self.assertEqual(closed[2:4], [False, True])
+        self.assertFalse(notes_mod.plain(lines, depth, closed, 2))
+        self.assertFalse(notes_mod.plain(lines, depth, closed, 3))
+
+    def test_a_comment_does_not_derail_the_reading_of_a_call(self):
+        lines = ['#figure(', '  // the caption\'s "quote and [bracket stay unread', '  image("/images/a b.jpg"),',
+                 '  caption: [A caption.#footnote[Its note.]],', ')', '', 'See https://example.org//x for more words.', '']
+        notes, bounds, depth, closed = notes_mod.index(lines)
+        self.assertEqual(depth, [0, 1, 1, 1, 1, 0, 0, 0])
+        self.assertEqual([k for k, _, _ in notes], [3])
+        self.assertEqual(closed, [False, False, False, False, True, True, True, True])
+        self.assertEqual(len(bounds[6]), 4)             # the slashes in an address do not start a comment
+
+    def test_a_cut_and_a_page_mark_come_out_again_exactly(self):
+        lines = ['= Chapter', '', '== A heading', '', self.LINE, '', 'Second paragraph of plain words here.', '']
+        notes, bounds, depth, closed = notes_mod.index(lines)
+        self.assertEqual([k for k, _, _ in notes], [4, 4])
+        marked = notes_mod.apply(lines, ('cut', 4, bounds[4][8][0]))
+        later = [o for o, free in notes_mod.index(marked)[1][4] if free]
+        marked = notes_mod.apply(marked, ('cut', 4, later[-2]))             # a second cut, later in the paragraph
+        marked = notes_mod.apply(marked, ('page', notes_mod.before_block(lines, depth, 6)))
+        marked = notes_mod.apply(marked, ('page', notes_mod.before_block(lines, depth, 4)))
+        self.assertEqual(marked[2:4], ['#notes-page()', ''])                # above the heading, which goes with its text
+        self.assertEqual(marked[4], '== A heading')
+        self.assertEqual(marked[6].count('#notes-cut();'), 2)
+        self.assertEqual(len(marked[6]), len(lines[4]) + 2 * len('#notes-cut();'))   # a mark wraps nothing
+        self.assertEqual(notes_mod.strip_marks(marked), lines)
+        # The scanner still finds both notes, and the paragraph is still one plain paragraph.
+        again, _, depth_again, closed_again = notes_mod.index(marked)
+        self.assertEqual(len(again), 2)
+        self.assertTrue(notes_mod.plain(marked, depth_again, closed_again, 6))
+        self.assertEqual(notes_mod.without_cuts(marked, [(6, 1)])[6].count('#notes-cut();'), 1)
+        self.assertEqual(notes_mod.strip_marks(notes_mod.without_cuts(marked, [(6, 0), (6, 1)])), lines)
+
+    def test_only_a_one_line_paragraph_of_running_text_may_be_cut(self):
+        lines = ['= Register', '',                                          # 0
+                 '#block(breakable: false)[', '=== 16. A Person', '',       # 2
+                 'Born in 1800.#footnote[A note.]', ']', '',                # 5
+                 '#children([Children:], (', '  child-plain("i", [Ann.#footnote[B.]]),', '))', '',   # 8
+                 'Plain words follow here.#footnote[C.]', '',               # 12
+                 'A paragraph written on two lines,', 'of which this is the second.#footnote[D.]', '',   # 14
+                 '== Dates', '',                                            # 17
+                 '1819. A year opens this line.#footnote[E.]', '',          # 19
+                 '- a list item#footnote[F.]', '- another item', '',        # 21
+                 'Words that open a group #emph[which runs', 'over the line end.]#footnote[G.]', '',   # 24
+                 '== A heading with no blank line under it', 'Its paragraph.#footnote[H.]',   # 27
+                 '#pagebreak(weak: true)', 'A paragraph between two page breaks.#footnote[I.]', '#colbreak()',   # 29
+                 '#link(<x>)[A link on a line of its own]', 'carries on in this line.#footnote[J.]', '']   # 32
+        notes, _, depth, closed = notes_mod.index(lines)
+        self.assertEqual([k for k, _, _ in notes], [5, 9, 12, 15, 19, 21, 25, 28, 30, 33])
+        is_plain = lambda k: notes_mod.plain(lines, depth, closed, k)
+        # A heading or a page break beside a paragraph is as good as a blank line; other text is not.
+        self.assertEqual([k for k in range(len(lines)) if is_plain(k)], [12, 28, 30])
+        # Whatever is not such a paragraph moves whole, from the start of its block.
+        self.assertEqual(notes_mod.block_start(lines, depth, 5), 2)
+        self.assertEqual(notes_mod.block_start(lines, depth, 9), 8)
+        self.assertEqual(notes_mod.block_start(lines, depth, 15), 14)       # not between the paragraph's two lines
+        self.assertEqual(notes_mod.block_start(lines, depth, 22), 21)       # not between two list items
+        self.assertEqual(notes_mod.block_start(lines, depth, 25), 24)
+        self.assertEqual(notes_mod.before_block(lines, depth, 19), 17)      # above the heading of the block
+        self.assertEqual(notes_mod.before_block(lines, depth, 15), 14)
+        # A heading opens a block even with no blank line above it: the paragraph over it stays.
+        tight = ['= C', '', 'A paragraph that ends a section.#footnote[A.]', '== Next section', '', 'Its text.#footnote[B.]', '']
+        _, _, tight_depth, tight_closed = notes_mod.index(tight)
+        self.assertEqual(notes_mod.before_block(tight, tight_depth, 5), 3)
+        self.assertEqual(notes_mod.before_block(tight, tight_depth, 2), 2)
+        self.assertEqual([notes_mod.plain(tight, tight_depth, tight_closed, k) for k in (2, 5)], [True, True])
+
+    def test_a_page_mark_goes_above_whatever_introduces_the_text(self):
+        lines = ['= Register <reg>', '',                                        # 0
+                 '== A section', '',                                            # 2
+                 'First text of the chapter.#footnote[A.]', '',                 # 4
+                 '#block(sticky: true)[*Family of Colin*]', '',                 # 6
+                 'He married in 1960.#footnote[B.]', '',                        # 8
+                 '+ one.#footnote[C.]', '', '+ two.#footnote[D.]', '',          # 10
+                 '  - an indented item#footnote[E.]', '',                       # 14
+                 '#block(breakable: false)[', 'Kept together.#footnote[F.]', ']', '',   # 16
+                 'After a block that is not a lead-in.#footnote[G.]', '']       # 20
+        _, _, depth, closed = notes_mod.index(lines)
+        # Above the section heading, but not above the chapter heading, which opens a page already.
+        self.assertEqual(notes_mod.before_block(lines, depth, 4), 2)
+        # A lead-in the template keeps with its text goes with it; it was once left at the foot of a page.
+        self.assertEqual(notes_mod.before_block(lines, depth, 8), 6)
+        # The items of a list stay together across blank lines, or its numbering would start again.
+        self.assertEqual(notes_mod.before_block(lines, depth, 12), 10)
+        self.assertFalse(notes_mod.plain(lines, depth, closed, 14))
+        self.assertEqual(notes_mod.before_block(lines, depth, 20), 20)
+
+    def test_the_lines_of_a_paragraph_are_read_from_the_probes(self):
+        left, width = {1: 68.4, 0: 50.4}, 313.2
+        # Page 3 (odd): the first line holds words 0-2; word 3 starts line two (its probe sits at
+        # the right edge of line one); line three starts inside a hyphenated word (no probe at an
+        # edge); word 7 starts line four, which falls on page 4.
+        pos = {0: {'page': 3, 'x': 68.4, 'y': 90.0}, 1: {'page': 3, 'x': 120.0, 'y': 100.8},
+               2: {'page': 3, 'x': 200.0, 'y': 100.8}, 3: {'page': 3, 'x': 381.6, 'y': 100.8},
+               4: {'page': 3, 'x': 150.0, 'y': 118.8}, 5: {'page': 3, 'x': 300.0, 'y': 118.8},
+               6: {'page': 3, 'x': 110.0, 'y': 136.8}, 7: {'page': 3, 'x': 381.6, 'y': 136.8},
+               8: {'page': 4, 'x': 90.0, 'y': 68.5}}
+        rows = notes_mod.rows_from_probes(pos, 8, left, width)
+        self.assertEqual([r['ids'] for r in rows], [[0, 1, 2], [3, 4, 5], [6], [7, 8]])
+        self.assertEqual([r['clean'] for r in rows], [True, True, False, True])
+        self.assertEqual([r['page'] for r in rows], [3, 3, 3, 4])
+        locked = notes_mod.rows_from_probes(pos, 8, left, width, locked={3})
+        self.assertEqual([r['clean'] for r in locked], [True, False, False, True])
+        self.assertEqual([notes_mod.at_line_start(pos[i], left, width) for i in (0, 1, 3, 6, 7, 8)],
+                         [True, False, True, False, True, False])
+        self.assertTrue(notes_mod.at_line_start({'page': 4, 'x': 50.4, 'y': 68.5}, left, width))
+
+    def rows(self, pages, clean=None):
+        return [{'ids': [n * 10, n * 10 + 1], 'clean': clean[n] if clean else True, 'page': p, 'y': 1.0}
+                for n, p in enumerate(pages)]
+
+    def test_which_line_opens_the_next_page(self):
+        choose = notes_mod.choose
+        none = lambda n: False
+        six = self.rows([5, 5, 5, 5, 5, 5])
+        # The line that carries the mark moves, with what follows it.
+        self.assertEqual(choose(six, 31, 5, False, none), ('cut', 3))
+        # A mark in the first line: the whole paragraph moves.
+        self.assertEqual(choose(six, 1, 5, False, none), ('whole',))
+        # A mark in the second line moves the whole paragraph rather than leave one line at the
+        # foot, unless that first line carries marks of its own.
+        self.assertEqual(choose(six, 11, 5, False, none), ('whole',))
+        self.assertEqual(choose(six, 11, 5, False, lambda n: n == 0), ('cut', 1))
+        # A mark in the last line takes the line before with it, unless that line carries marks.
+        self.assertEqual(choose(six, 51, 5, False, none), ('cut', 4))
+        self.assertEqual(choose(six, 51, 5, False, lambda n: n == 4), ('cut', 5))
+        # A line that starts inside a hyphenated word cannot be cut: the line above moves too.
+        self.assertEqual(choose(self.rows([5] * 6, [True, True, True, False, True, True]), 31, 5, False, none), ('cut', 2))
+        # The paragraph began on the page before; moving its first line on this page gives the
+        # notes no more room ...
+        carried = self.rows([4, 4, 5, 5, 5])
+        self.assertIsNone(choose(carried, 21, 5, False, none))
+        self.assertEqual(choose(carried, 31, 5, False, none), ('cut', 3))
+        # ... except when the note began on the page before its mark: cutting there sends it over.
+        self.assertEqual(choose(carried, 21, 5, True, none), ('cut', 2))
+        # Where the text cannot be cut at that line (it starts inside a quotation, say), an
+        # earlier line moves too, on the page before if need be, or the whole paragraph.
+        quoted = self.rows([4, 4, 4, 5, 5], [True, True, True, False, True])
+        self.assertEqual(choose(quoted, 31, 5, True, none), ('cut', 2))
+        self.assertEqual(choose(quoted, 41, 5, False, none), ('cut', 4))
+        self.assertEqual(choose(self.rows([4, 4, 5, 5], [True, False, False, False]), 31, 5, False, none), ('whole',))
+        self.assertEqual(choose(self.rows([4, 4, 5, 5], [True, True, False, True]), 21, 5, True, none), ('whole',))
+
+    def test_a_section_alone_is_set_and_numbered_as_in_the_book(self):
+        book = ['#import "/t.typ": *', '', '#show: book.with(title: "T")', '#title-page()', '',
+                '= One', 'text', '#figure(', '  #set text(size: 8pt)', ')', '== Sub', '',
+                '#set par(first-line-indent: 0em)', '', '= Two <ch-two>', '',
+                'See #ref(<chart-two-9>) (#ref(<chart-two-9>, form: "page")) and '
+                '#link(<reg-alice>)[Alice]; here #ref(<chart-two-1>) is shown. <own>', '',
+                '#book-chart("/x.svg", [Caption]) <chart-two-1>', '']
+        _, _, depth, _ = notes_mod.index(book)
+        self.assertEqual(notes_mod.sections(book, depth), [5, 14])
+        # The rules written at the top level before a section are in force in it; one inside a call is not.
+        rules = notes_mod.carried(book, depth, 14)
+        self.assertEqual(rules, ['#import "/t.typ": *', '#show: book.with(title: "T")', '#set par(first-line-indent: 0em)'])
+        seg = book[14:]
+        doc, shift = notes_mod.standalone(rules, {'footnote': 120, 'figures': {'image': 7, 'family-chart': 0}}, seg,
+                                          {'chart-two-9': 9})
+        self.assertEqual(doc[:shift], rules + ['#counter(footnote).update(120)',
+                                               '#counter(figure.where(kind: image)).update(7)', ''])
+        self.assertEqual(doc[shift:shift + len(seg)], seg)
+        tail = '\n'.join(doc[shift + len(seg):])
+        self.assertIn('#counter(figure.where(kind: "family-chart")).update(8)#figure(kind: "family-chart"', tail)
+        self.assertIn('<chart-two-9>', tail)
+        self.assertIn('==== Stub <reg-alice>', tail)
+        self.assertNotIn('chart-two-1', tail)        # the section has that label itself
+        self.assertNotIn('<own>', tail)
+
+    def test_the_setting_and_the_notes_still_off_their_page(self):
+        self.assertEqual(notes_mod.placement({}), 'flow')
+        self.assertEqual(notes_mod.placement({'notes': 'same-page'}), 'same-page')
+        with self.assertRaises(SystemExit) as stopped:
+            notes_mod.placement({'notes': 'whole'})
+        self.assertIn("notes must be 'flow' or 'same-page'", str(stopped.exception))
+        record = lambda n, a, s, e: {'func': 'metadata', 'label': '<fn-check>',
+                                     'value': {'number': n, 'anchor': a, 'entry_start': s, 'entry_end': e}}
+        elements = [record(1, 4, 4, 4), record(2, 4, 4, 5), record(3, 4, 5, 5), record(4, 5, 4, 5),
+                    {'func': 'metadata', 'label': '<fn-check>', 'value': {'number': 5, 'anchor': 6, 'entry_start': 6}}]
+        self.assertEqual([v['number'] for v in footnotes_mod.off_their_page(elements)], [2, 3, 4])
+        recs = notes_mod.records(elements[:4])
+        self.assertEqual([v['number'] for v in notes_mod.offenders(recs, 1, 4, {3})], [2, 4])
+        with self.assertRaisesRegex(booklib.Stop, 'does not report where a note ends'):
+            notes_mod.records(elements)
+
+    def test_the_footnote_check_reads_the_book_pdf_beside_the_print_copy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            self.assertIsNone(footnotes_mod.pdf_beside(folder / 'book-print.typ'))
+            (folder / 'book.pdf').write_bytes(b'%PDF')
+            self.assertEqual(footnotes_mod.pdf_beside(folder / 'book-print.typ'), folder / 'book.pdf')
+            self.assertEqual(footnotes_mod.pdf_beside(folder / 'book.typ'), folder / 'book.pdf')
+            self.assertIsNone(footnotes_mod.pdf_beside(folder / 'other.typ'))
+
+
+WORDS = ('the family moved from the village to the farm in the spring and stayed there for many years '
+         'while the children grew and the records of the parish kept their names in careful order').split()
+
+
+def running_text(words, seed):
+    return ' '.join(WORDS[(seed * 7 + i * 3) % len(WORDS)] for i in range(words)).capitalize() + '.'
+
+
+@unittest.skipUnless(shutil.which('typst'), 'Typst required for the notes layout')
+class NotesLayoutTypstTest(unittest.TestCase):
+    """The notes step on a small book set with the real template."""
+
+    def book(self):
+        lines = [IMPORT + ': *', '#show: book.with(title: "Notes fixture")', '']
+        for chapter in range(2):
+            if chapter == 1:
+                # As in a real book's register: from here on paragraphs have no indent. The second
+                # chapter's small copy must be set the same way, or its lines break elsewhere.
+                lines += ['#set par(first-line-indent: 0em)', '']
+            lines += [f'= Chapter {chapter + 1} <ch-{chapter}>', '']
+            for para in range(26):
+                seed = chapter * 100 + para
+                text = running_text(34, seed)
+                note = '#footnote[' + running_text(30 + (seed * 5) % 70, seed + 1) + ']'
+                more = '#footnote[' + running_text(40, seed + 2) + ']' if para % 2 == 0 else ''
+                said = running_text(22, seed + 3)[:-1]
+                lines += [f'{text}{note} He wrote "{said}"{more} and {running_text(16, seed + 4).lower()}', '']
+            if chapter == 0:
+                lines += ['See also #link(<ch-1>)[the second chapter] (#ref(<ch-1>, form: "page")).', '']
+        return lines
+
+    def layout(self, tmp):
+        margins = booklib.MARGINS_IN
+        return notes_mod.Layout(booklib.ROOT, dict(os.environ), Path(tmp) / 'notes',
+                                {1: margins['inside'] * 72, 0: margins['outside'] * 72},
+                                booklib.page_settings({})['text_width_pt'])
+
+    def test_every_note_ends_whole_on_the_page_of_its_mark(self):
+        lines = self.book()
+        quiet = lambda *_: None
+        with tempfile.TemporaryDirectory(dir=booklib.ROOT) as tmp:
+            layout = self.layout(tmp)
+            before = layout.checks('before.typ', lines)
+            off = notes_mod.offenders(before, 1, len(before), ())
+            self.assertGreaterEqual(len(off), 3, 'the fixture must start with notes off their page')
+            cache = {}
+            printed, report = notes_mod.keep_on_page(lines, layout, cache=cache, jobs=2, log=quiet, digest='a')
+            after = layout.checks('after.typ', printed)
+            self.assertEqual(notes_mod.offenders(after, 1, len(after), ()), [])
+            self.assertEqual((report['before'], report['after'], report['unresolved']), (len(off), 0, []))
+            self.assertEqual(report['notes'], len(before))
+            # Only layout marks were added, at least one cut fell between two lines, and every
+            # cut stands where a line of text begins in the whole book.
+            self.assertEqual(notes_mod.strip_marks(printed), lines)
+            self.assertNotEqual(printed, lines)
+            self.assertGreater(report['cuts'], 0)
+            self.assertEqual(sum(l.count('#notes-cut();') for l in printed), report['cuts'])
+            self.assertEqual(notes_mod.misplaced_cuts(layout, 'cuts.typ', printed), [])
+            # No cut stands inside a quotation.
+            for line in printed:
+                for part in line.split('#notes-cut();')[:-1]:
+                    self.assertEqual(part.count('"') % 2, 0, part[-60:])
+            if shutil.which('pdftotext'):
+                made = []
+                for name, text in (('plain', lines), ('print', printed)):
+                    src = Path(tmp) / f'{name}.typ'
+                    src.write_text('\n'.join(text), encoding='utf-8')
+                    made.append(src.with_suffix('.pdf'))
+                    subprocess.run(['typst', 'compile', '--root', str(booklib.ROOT), str(src), str(made[-1])], check=True)
+                self.assertGreater(notes_mod.marks_of(made[0])['”'], 40)
+                notes_mod.same_marks(*made)                     # and both PDFs print the same marks
+            self.assertEqual([s['state'] for s in report['sections']], ['worked', 'worked'])
+            # Both chapters were set in their small copies as they are in the book (the second
+            # without a paragraph indent), so nothing was left to do in the whole book.
+            self.assertEqual(report['whole_book_moves'], 0)
+            # A second build reuses both sections' results and only checks the whole book:
+            # one layout to read it, one for the cuts, one for the notes.
+            again = self.layout(tmp)
+            printed_again, second = notes_mod.keep_on_page(lines, again, cache=cache, jobs=2, log=quiet, digest='a')
+            self.assertEqual(printed_again, printed)
+            self.assertEqual([s['state'] for s in second['sections']], ['kept', 'kept'])
+            self.assertEqual(again.queries, 3)
+            # A changed chapter is worked again; the untouched one is not.
+            changed = list(lines)
+            changed[5] = changed[5].replace('.', ', as the record says.', 1)
+            _, third = notes_mod.keep_on_page(changed, self.layout(tmp), cache=cache, jobs=2, log=quiet, digest='a')
+            self.assertEqual([s['state'] for s in third['sections']], ['worked', 'kept'])
+            self.assertEqual(third['after'], 0)
+            # A change to the step itself, the template or the fonts (the digest) keeps nothing.
+            _, fourth = notes_mod.keep_on_page(changed, self.layout(tmp), cache=cache, jobs=2, log=quiet, digest='b')
+            self.assertEqual([s['state'] for s in fourth['sections']], ['worked', 'worked'])
+
+    def test_text_after_a_cut_stays_text(self):
+        # A cut once wrapped the rest of the paragraph in brackets, where the typesetter read
+        # "1819. " as a numbered list item and "- " as a bullet.
+        para = ('The family history says he was a farmer all his life and died on 9 January 1819. It says both '
+                'were born there - a dash follows here + and a plus = and an equals sign / and a slash, and '
+                '_emphasis_ too.#footnote[A note with words.] The paragraph ends.')
+        lines = [IMPORT + ': *', '#show: book.with(title: "Notes fixture")', '', '= Chapter', '', para, '']
+        marked = list(lines)
+        for token in ('_emphasis_', '/ and', '= and', '+ and', '- a', '1819. It'):
+            marked[5] = notes_mod.cut_line(marked[5], marked[5].index(token))
+        self.assertEqual(notes_mod.strip_marks(marked), lines)
+        selector = 'selector(enum).or(list).or(terms).or(heading).or(footnote).or(emph)'
+        with tempfile.TemporaryDirectory(dir=booklib.ROOT) as tmp:
+            layout = self.layout(tmp)
+            plain_doc = layout.query('plain.typ', lines, selector)
+            cut_doc = layout.query('cut.typ', marked, selector)
+        self.assertEqual([e['func'] for e in cut_doc], ['heading', 'emph', 'footnote'])
+        self.assertEqual(cut_doc, plain_doc)
+
+    @unittest.skipUnless(shutil.which('pdftotext'), 'poppler required to read the PDFs')
+    def test_the_two_pdfs_must_print_the_same_marks(self):
+        head = [IMPORT + ': *', '#show: book.with(title: "Notes fixture")', '', '= Chapter', '']
+        para = 'She wrote "fit for such ancient people as we are to have." Then she stopped; why? Nobody knows!'
+        cut_inside = notes_mod.cut_line(para, para.index('we are'))
+        cut_outside = notes_mod.cut_line(para, para.index('Then'))
+        with tempfile.TemporaryDirectory(dir=booklib.ROOT) as tmp:
+            made = {}
+            for name, text in (('plain', para), ('inside', cut_inside), ('outside', cut_outside)):
+                src = Path(tmp) / f'{name}.typ'
+                src.write_text('\n'.join(head + [text, '']), encoding='utf-8')
+                made[name] = src.with_suffix('.pdf')
+                subprocess.run(['typst', 'compile', '--root', str(booklib.ROOT), str(src), str(made[name])], check=True)
+            self.assertEqual(notes_mod.marks_of(made['plain'])['”'], 1)
+            notes_mod.same_marks(made['plain'], made['outside'])
+            with self.assertRaisesRegex(booklib.Stop, 'prints different marks'):
+                notes_mod.same_marks(made['plain'], made['inside'])
+
+    def test_a_cut_that_does_not_start_a_line_is_found(self):
+        para = running_text(120, 5)
+        lines = [IMPORT + ': *', '#show: book.with(title: "Notes fixture")', '', '= Chapter', '', para, '']
+        third_word = len(' '.join(para.split(' ')[:2])) + 1
+        marked = list(lines)
+        marked[5] = notes_mod.cut_line(para, third_word)
+        with tempfile.TemporaryDirectory(dir=booklib.ROOT) as tmp:
+            layout = self.layout(tmp)
+            self.assertEqual(notes_mod.misplaced_cuts(layout, 'cuts.typ', marked), [(5, 0)])
+            self.assertEqual(notes_mod.without_cuts(marked, [(5, 0)]), lines)
+            self.assertEqual(notes_mod.misplaced_cuts(layout, 'cuts.typ', lines), [])
+
+    def test_a_book_whose_notes_all_fit_is_left_alone(self):
+        lines = [IMPORT + ': *', '#show: book.with(title: "Notes fixture")', '', '= Only chapter', '',
+                 'A short paragraph.#footnote[One short note.]', '']
+        with tempfile.TemporaryDirectory(dir=booklib.ROOT) as tmp:
+            printed, report = notes_mod.keep_on_page(lines, self.layout(tmp), jobs=1, log=lambda *_: None)
+        self.assertEqual(printed, lines)
+        self.assertEqual((report['before'], report['moves'], report['after']), (0, 0, 0))
+        self.assertEqual(report['sections'][0]['state'], 'clean')
+        with self.assertRaisesRegex(booklib.Stop, 'already holds a layout mark'):
+            notes_mod.keep_on_page(lines + ['#notes-page()'], None)
 
 
 @unittest.skipUnless(shutil.which('typst') and shutil.which('pdftotext'),

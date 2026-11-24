@@ -169,6 +169,67 @@ class PublicationTests(unittest.TestCase):
             for name in names:
                 self.assertEqual((output / name).read_text(), 'previous ' + name)
 
+    def test_the_print_copy_installs_with_the_book_and_an_old_one_is_removed(self):
+        # With `notes: same-page` the PDF is set from book-print.typ. A later
+        # build without that setting must not leave the old print copy behind.
+        names = ('book.typ', 'book.pdf', 'book-publication.json')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage, output = root / 'stage', root / 'output'
+            stage.mkdir(); output.mkdir()
+            for name in names + ('book-print.typ',):
+                (stage / name).write_text('new ' + name)
+            for name in names:
+                (output / name).write_text('previous ' + name)
+            builder.install(stage, output)
+            self.assertEqual({p.name: p.read_text() for p in output.iterdir()},
+                             {name: 'new ' + name for name in names + ('book-print.typ',)})
+            for name in names:
+                (stage / name).write_text('later ' + name)
+            builder.install(stage, output)
+            self.assertEqual({p.name: p.read_text() for p in output.iterdir()},
+                             {name: 'later ' + name for name in names})
+            # Any other missing file is still an error, and nothing is lost.
+            (stage / 'book.typ').write_text('x'); (stage / 'book-publication.json').write_text('x')
+            with self.assertRaises(FileNotFoundError):
+                builder.install(stage, output)
+            self.assertEqual({p.name: p.read_text() for p in output.iterdir()},
+                             {name: 'later ' + name for name in names})
+
+    def test_a_failed_install_restores_a_print_copy_it_had_removed(self):
+        names = ('book.typ', 'book-print.typ', 'book.pdf', 'book-publication.json')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage, output = root / 'stage', root / 'output'
+            stage.mkdir(); output.mkdir()
+            for name in names:
+                (output / name).write_text('previous ' + name)
+                if name != 'book-print.typ':
+                    (stage / name).write_text('new ' + name)
+            replace = Path.replace
+
+            def fail_receipt(path, target):
+                if path == stage / 'book-publication.json':
+                    raise OSError('simulated receipt installation failure')
+                return replace(path, target)
+
+            with patch.object(Path, 'replace', fail_receipt):
+                with self.assertRaises(OSError):
+                    builder.install(stage, output)
+            self.assertEqual({p.name: p.read_text() for p in output.iterdir()},
+                             {name: 'previous ' + name for name in names})
+
+    def test_other_editions_are_set_from_the_copy_the_pdf_was_set_from(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'build').mkdir()
+            with patch.object(builder, 'ROOT', root):
+                self.assertEqual(builder.printed_source(), 'build/book.typ')
+                (root / 'build/book-print.typ').write_text('print copy')
+                self.assertEqual(builder.printed_source(), 'build/book-print.typ')
+        for arguments, _ in builder.EDITIONS.values():
+            self.assertEqual(arguments.count('{source}'), 1)
+
     def test_receipt_detects_omitted_dependencies_and_changed_pdf_metadata(self):
         receipt = {'schema': 1, 'status': 'checked-build',
                    'dependencies': {'build/flyleaf/template.typ': 'a' * 64},

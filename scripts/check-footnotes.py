@@ -7,7 +7,9 @@ last page and can conceal a note starting before its anchor. Count actual
 entries too, so missing/partial instrumentation cannot silently pass.
 
 It also warns about a page that holds nothing but the end of a footnote
-carried over from the page before (it reads the PDF beside book.typ).
+carried over from the page before (it reads the PDF beside book.typ). With
+`notes: same-page` in book.yaml it names every note that is still not whole on
+the page of its mark, after the layout step (booknotes.py) has done its work.
 
 Usage: check-footnotes.py [build/book.typ]
 Exit: 0 checked, 1 layout/query/instrumentation failure.
@@ -50,6 +52,23 @@ def check_entries(elements, expected=True):
                           f"{value['entry_start']} before its anchor on PDF page "
                           f"{value['anchor']}: keep the text that cites it on one page")
     return count, errors
+
+
+def off_their_page(elements):
+    """The notes that are not whole on the page of their mark, as records."""
+    values = [e.get("value") for e in elements
+              if e.get("func") == "metadata" and e.get("label") == "<fn-check>"]
+    return [v for v in values if isinstance(v, dict) and "entry_end" in v
+            and not (v["anchor"] == v["entry_start"] == v["entry_end"])]
+
+
+def pdf_beside(src):
+    """The PDF that was set from `src`: the file of the same name, or book.pdf
+    when `src` is the print copy (book-print.typ). None when there is none."""
+    pdf = src.with_suffix(".pdf")
+    if not pdf.is_file() and src.name == "book-print.typ":
+        pdf = src.with_name("book.pdf")
+    return pdf if pdf.is_file() else None
 
 
 def stranded_notes(pdf, margins, starts=()):
@@ -104,16 +123,27 @@ def main(argv=None):
         for error in errors:
             sys.stderr.write(f"check-footnotes: FAIL — {error}\n")
         return 1
-    pdf = src.with_suffix(".pdf")
-    if pdf.is_file():
+    pdf = pdf_beside(src)
+    if pdf:
         import booklib  # the page margins
         starts = {e["value"]["entry_start"] for e in elements if e.get("label") == "<fn-check>"}
         for number, printed in stranded_notes(pdf, booklib.MARGINS_IN, starts):
             sys.stderr.write(f"check-footnotes: warning — PDF page {number} (printed {printed}) "
                              "holds only the end of a footnote from the page before. Shorten "
                              "that note, or the text before it.\n")
+    whole = ""
+    import booknotes  # the book's setting for where a note may fall
+    if booknotes.placement() == "same-page":
+        off = off_their_page(elements)
+        if off:
+            shown = ", ".join(f"{v['number']} (PDF page {v['anchor']})" for v in off[:12])
+            sys.stderr.write(f"check-footnotes: warning — {len(off)} note{'s' if len(off) != 1 else ''} "
+                             f"could not be kept whole on the page of {'their' if len(off) != 1 else 'its'} "
+                             f"mark: {shown}{' …' if len(off) > 12 else ''}\n")
+        else:
+            whole = "; every note is whole on the page of its mark"
     print(f"check-footnotes: OK — {count} footnotes, every entry starts on or "
-          "after its anchor page")
+          f"after its anchor page{whole}")
     return 0
 
 
